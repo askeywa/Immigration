@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Immigration Portal - Secure Immigration Management</title>
+    <meta name="description" content="Modern, secure immigration management platform for professionals and administrators" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    
+    <style>
+      /* Critical minimal styles for instant first paint */
+      :root { --brand:#dc2626; --bg:#fdf5f3; --muted:#6b7280; }
+      html, body { height: 100%; }
+      body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    <!-- Preload fonts for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Theme colors -->
+    <meta name="theme-color" content="#dc2626" />
+    <meta name="msapplication-TileColor" content="#dc2626" />
+    
+    <!-- Security headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Immigration Portal" />
+    <meta property="og:description" content="Modern, secure immigration management platform" />
+    <meta property="og:site_name" content="Immigration Portal" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Immigration Portal" />
+    <meta name="twitter:description" content="Modern, secure immigration management platform" />
+  </head>
+  <body class="antialiased">
+    <noscript>
+      <div class="flex items-center justify-center min-h-screen bg-cream-50">
+        <div class="text-center p-8 bg-white rounded-xl shadow-lg max-w-md mx-4">
+          <h1 class="text-2xl font-bold text-gray-900 mb-4">JavaScript Required</h1>
+          <p class="text-gray-600 mb-4">
+            This application requires JavaScript to be enabled for full functionality.
+          </p>
+          <p class="text-sm text-gray-500">
+            Please enable JavaScript in your browser settings and reload the page.
+          </p>
+        </div>
+      </div>
+    </noscript>
+    
+    <!-- React App Root -->
+    <div id="root"></div>
+    
+    <!-- Loading fallback -->
+    <div id="loading-fallback" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;">
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border:4px solid #fecaca;border-top-color:var(--brand);border-radius:9999px;animation:spin 0.9s linear infinite;margin:0 auto 12px"></div>
+        <p style="color:var(--muted);font-weight:600;">Loading Immigration Portal…</p>
+      </div>
+    </div>
+    
+    <!-- Vite entry point - this is required for development mode -->
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // Hide loading fallback as soon as React mounts
+      (function(){
+        var root = document.getElementById('root');
+        var fb = document.getElementById('loading-fallback');
+        if(!root || !fb) return;
+        function hide(){
+          if(!fb) return;
+          fb.style.transition = 'opacity 120ms ease';
+          fb.style.opacity = '0';
+          setTimeout(function(){ if(fb && fb.parentNode) fb.parentNode.removeChild(fb); }, 160);
+        }
+        var obs = new MutationObserver(function(){
+          if(root.childElementCount > 0){ hide(); obs.disconnect(); }
+        });
+        obs.observe(root, { childList: true });
+        // safety timeout in case observer misses
+        setTimeout(hide, 4000);
+      })();
+    </script>
+  </body>
+</html>

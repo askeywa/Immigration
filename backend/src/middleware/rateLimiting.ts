@@ -1,0 +1,145 @@
+// backend/src/middleware/rateLimiting.ts
+import { Request, Response, NextFunction } from 'express';
+import rateLimit from 'express-rate-limit';
+import { TenantRequest } from './tenantResolution';
+
+// Default rate limiting middleware - with burst protection
+export const rateLimitMiddleware = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // limit each IP to 1000 requests per windowMs (increased for normal usage)
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks and certain user agents
+    return req.path === '/health' || (req.get('User-Agent') || '').includes('health-check');
+  },
+  // Add burst protection
+  keyGenerator: (req) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent') || '';
+    return `${ip}:${userAgent}`;
+  }
+});
+
+// Strict rate limiting for sensitive endpoints
+export const strictRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 5 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Authentication rate limiting (relaxed for development)
+export const authRateLimit = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute (was 15 minutes)
+  max: 500, // limit each IP to 20 auth requests per windowMs (was 5)
+  message: {
+    success: false,
+    message: 'Too many authentication attempts, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Tenant-specific rate limiting
+export const tenantRateLimit = () => {
+  return (req: TenantRequest, res: Response, next: NextFunction) => {
+    // This would integrate with the RateLimitService
+    // For now, we'll use a simple implementation
+    next();
+  };
+};
+
+// API rate limiting
+export const apiRateLimit = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 1000, // limit each IP to 60 requests per minute
+  message: {
+    success: false,
+    message: 'API rate limit exceeded, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Upload rate limiting
+export const uploadRateLimit = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 200, // limit each IP to 10 uploads per minute
+  message: {
+    success: false,
+    message: 'Upload rate limit exceeded, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Search rate limiting
+export const searchRateLimit = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 750, // limit each IP to 30 searches per minute
+  message: {
+    success: false,
+    message: 'Search rate limit exceeded, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// User rate limiting
+export const userRateLimit = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 100, // limit each IP to 100 user operations per minute
+  message: {
+    success: false,
+    message: 'User operation rate limit exceeded, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Fixed rate limiting functions that return middleware
+export const createUserRateLimit = () => userRateLimit;
+export const createTenantRateLimit = () => tenantRateLimit();
+export const createApiRateLimit = () => apiRateLimit;
+
+// Burst protection rate limiting
+export const burstProtectionLimit = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // limit each IP to 30 requests per minute for burst protection
+  message: {
+    success: false,
+    message: 'Burst request detected. Please slow down and try again.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    return `burst:${ip}`;
+  },
+  skip: (req) => {
+    // Skip burst protection for authenticated users with valid tokens
+    const authHeader = req.get('Authorization');
+    return !!(authHeader && authHeader.startsWith('Bearer '));
+  }
+});
+
+// Global rate limiting
+export const globalRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // limit each IP to 1000 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
