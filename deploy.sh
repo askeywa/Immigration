@@ -19,7 +19,8 @@ rm -rf dist
 
 # Install dependencies and build
 npm ci --only=production
-npm run build
+# Run TypeScript compiler directly (bypass prebuild script that needs rimraf)
+npx tsc
 
 # Install frontend dependencies and build
 echo "🎨 Building frontend..."
