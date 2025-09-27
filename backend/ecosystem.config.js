@@ -12,7 +12,10 @@ module.exports = {
       MONGODB_URI: process.env.MONGODB_URI,
       JWT_SECRET: process.env.JWT_SECRET,
       JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
-      FRONTEND_URL: process.env.FRONTEND_URL
+      FRONTEND_URL: process.env.FRONTEND_URL,
+      NEW_RELIC_LICENSE_KEY: process.env.NEW_RELIC_LICENSE_KEY,
+      NEW_RELIC_APP_NAME: process.env.NEW_RELIC_APP_NAME,
+      NEW_RELIC_ENABLED: process.env.NEW_RELIC_ENABLED
     },
     error_file: './logs/err.log',
     out_file: './logs/out.log',

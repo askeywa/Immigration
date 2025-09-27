@@ -63,5 +63,8 @@ jobs:
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
             export JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
             export FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            export NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
+            export NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}
+            export NEW_RELIC_ENABLED=${{ secrets.NEW_RELIC_ENABLED }}
             
             ./deploy.sh
