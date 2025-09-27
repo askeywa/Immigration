@@ -55,9 +55,7 @@ export const TenantSelection: React.FC = () => {
         const cleanedTenants = response.data.tenants.map(tenant => ({
           ...tenant,
           subscription: tenant.subscription ? {
-            planName: typeof tenant.subscription.planId === 'object' ? 
-              tenant.subscription.planId?.displayName || tenant.subscription.planId?.name || 'Unknown Plan' :
-              tenant.subscription.planName || 'Unknown Plan',
+            planName: tenant.subscription?.planName || 'Unknown Plan',
             status: tenant.subscription.status || 'unknown',
             expiresAt: tenant.subscription.expiresAt
           } : null

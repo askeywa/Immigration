@@ -18,6 +18,7 @@ export interface Tenant {
     branding?: {
       logo?: string;
       primaryColor?: string;
+      secondaryColor?: string;
       companyName?: string;
     };
   };
@@ -30,7 +31,7 @@ export interface Tenant {
 export interface Subscription {
   _id: string;
   tenantId: string;
-  planId: string;
+  planId: string | { displayName?: string; name?: string };
   status: 'active' | 'inactive' | 'cancelled' | 'past_due' | 'trial';
   startDate: string;
   endDate?: string;
@@ -51,9 +52,11 @@ export interface Subscription {
 // Enhanced User interface with tenant context
 export interface User {
     _id: string;
+    id?: string; // Alternative ID field
     email: string;
     firstName: string;
     lastName: string;
+    name?: string; // Alternative name field
     role: 'admin' | 'user' | 'super_admin';
     tenantId?: string;
     isActive: boolean;

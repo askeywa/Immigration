@@ -4,6 +4,31 @@ import { Profile } from '../models/Profile';
 import mongoose from 'mongoose';
 
 export class UserService {
+  static async getAllUsersAcrossTenants(page: number = 1, limit: number = 10) {
+    // Super admin method to get all users across all tenants
+    const skip = (page - 1) * limit;
+    
+    const users = await User.find({ isActive: true })
+      .select('-password')
+      .populate('tenantId', 'name domain status')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const total = await User.countDocuments({ isActive: true });
+
+    return {
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    };
+  }
+
   static async getAllUsers(page: number = 1, limit: number = 10, tenantId?: string, userRole?: string) {
     const skip = (page - 1) * limit;
     
@@ -89,13 +114,6 @@ export class UserService {
     ).select('-password').populate('tenantId', 'name domain status');
   }
 
-  static async deleteUser(userId: string): Promise<boolean> {
-    const result = await User.findByIdAndUpdate(
-      userId,
-      { isActive: false, updatedAt: new Date() }
-    );
-    return !!result;
-  }
 
   static async getUserStats(tenantId?: string, isSuperAdmin?: boolean) {
     // Build base query based on tenant context
@@ -124,5 +142,19 @@ export class UserService {
       regularUsers,
       profilesCreated,
     };
+  }
+
+  static async deleteUser(userId: string) {
+    // Soft delete user by setting isActive to false
+    const result = await User.updateOne(
+      { _id: userId },
+      { isActive: false, updatedAt: new Date() }
+    );
+    
+    if (!result.matchedCount) {
+      throw new Error('User not found');
+    }
+    
+    return true;
   }
 }

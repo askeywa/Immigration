@@ -28,6 +28,7 @@ import { tenantApiService } from '@/services/tenantApiService';
 import { log } from '@/utils/logger';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { DashboardHeader } from '@/components/common';
 
 interface SystemStats {
   totalTenants: number;

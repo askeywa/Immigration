@@ -34,14 +34,26 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   
   const { tenant } = useTenant();
 
-  // Load theme on mount and when tenant changes
+  // Load theme from tenant data instead of making API calls
   useEffect(() => {
-    const loadTheme = async () => {
+    const loadTheme = () => {
       try {
         setIsLoading(true);
         setError(null);
         
-        const currentTheme = await themeService.loadTheme(tenant?._id || tenantId);
+        // Use tenant's branding data to generate theme instead of making API calls
+        let currentTheme;
+        if (tenant?.settings?.branding) {
+          // Generate theme from tenant's branding colors
+          currentTheme = themeService.generateThemeFromColors(
+            tenant.settings.branding.primaryColor || '#3B82F6',
+            tenant.settings.branding.secondaryColor || '#6B7280',
+            '#F59E0B' // Default accent color
+          );
+        } else {
+          currentTheme = themeService.getCurrentTheme();
+        }
+        
         const currentConfig = themeService.getThemeConfig();
         
         setTheme(currentTheme);
@@ -66,7 +78,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     };
 
     loadTheme();
-  }, [tenant?._id, tenantId, fallbackTheme]);
+  }, [tenant?.settings?.branding, fallbackTheme]);
 
   // Set theme
   const handleSetTheme = useCallback(async (newTheme: Partial<TenantTheme>) => {
@@ -266,6 +278,7 @@ export const withTheme = <P extends object>(Component: React.ComponentType<P>) =
     
     return (
       <Component
+        {...(props as any)}
         {...props}
         ref={ref}
         theme={themeContext.theme}

@@ -420,6 +420,7 @@ export const withLogo = <P extends object>(Component: React.ComponentType<P>) =>
     
     return (
       <Component
+        {...(props as any)}
         {...props}
         ref={ref}
         currentLogo={logoContext.currentLogo}

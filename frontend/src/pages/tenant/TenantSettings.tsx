@@ -95,7 +95,7 @@ export const TenantSettings: React.FC = () => {
     setError(null);
 
     try {
-      const response = await tenantApiService.get('/tenant/settings');
+      const response = await tenantApiService.get('/settings');
       
       if (response.success) {
         setSettings(response.data);
@@ -119,7 +119,7 @@ export const TenantSettings: React.FC = () => {
     setSuccess(null);
 
     try {
-      const response = await tenantApiService.put('/tenant/settings', {
+      const response = await tenantApiService.put('/settings', {
         ...settings,
         ...updatedSettings
       });
@@ -152,7 +152,7 @@ export const TenantSettings: React.FC = () => {
       setSettings(prev => ({
         ...prev!,
         [parent]: {
-          ...prev![parent as keyof typeof prev],
+          ...(prev![parent as keyof typeof prev] as any),
           [child]: value
         }
       }));

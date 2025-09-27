@@ -10,7 +10,8 @@ interface EnvConfig {
 const envConfig: EnvConfig = {
   required: [
     'MONGODB_URI',
-    'JWT_SECRET'
+    'JWT_SECRET',
+    'JWT_REFRESH_SECRET'
   ],
   optional: [
     'CLOUDFLARE_API_TOKEN',
@@ -24,7 +25,9 @@ const envConfig: EnvConfig = {
     'AWS_S3_BUCKET',
     'PORT',
     'NODE_ENV',
-    'FRONTEND_URL'
+    'FRONTEND_URL',
+    'RATE_LIMIT_WINDOW_MS',
+    'RATE_LIMIT_MAX_REQUESTS'
   ],
   defaults: {
     PORT: '5000',

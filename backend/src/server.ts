@@ -2,7 +2,8 @@
 import dotenv from 'dotenv';
 
 // Load environment variables first, before any other imports
-dotenv.config();
+// Look for .env file in the root directory (one level up from backend/)
+dotenv.config({ path: '../.env' });
 
 // Validate environment variables
 import { validateEnvironmentVariables, getEnvironmentInfo } from './config/envValidation';
@@ -85,6 +86,7 @@ import impersonationRoutes from './routes/impersonationRoutes';
 import tenantResolutionRoutes from './routes/tenantResolutionRoutes';
 import databaseMigrationRoutes from './routes/databaseMigrationRoutes';
 import themeRoutes from './routes/themeRoutes';
+import superAdminRoutes from './routes/superAdminRoutes';
 import mongoose from 'mongoose';
 import { log } from './utils/logger';
 import { NotificationService } from './services/notificationService';
@@ -269,6 +271,7 @@ app.use('/api/database-migration', databaseMigrationRoutes);
 app.use('/api/themes', themeRoutes);
 app.use('/api/logos', logoRoutes);
 app.use('/api/tenant', tenantActivityRoutes);
+app.use('/api/super-admin', superAdminRoutes);
 
 // 404 handler
 app.use('*', (req: any, res: any) => {

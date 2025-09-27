@@ -1,0 +1,94 @@
+{
+  "timestamp": "2025-09-22T22:41:16.381Z",
+  "errors": [
+    {
+      "timestamp": 1162,
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "type": "console_error"
+    }
+  ],
+  "apiCalls": [
+    {
+      "timestamp": 1178,
+      "method": "GET",
+      "url": "http://localhost:5174/api/themes/current",
+      "type": "request"
+    },
+    {
+      "timestamp": 1178,
+      "method": "GET",
+      "url": "http://localhost:5174/api/themes/current",
+      "type": "request"
+    },
+    {
+      "timestamp": 1188,
+      "url": "http://localhost:5174/api/themes/current",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1220,
+      "url": "http://localhost:5174/api/themes/current",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 5560,
+      "method": "GET",
+      "url": "http://localhost:5174/api/themes/current",
+      "type": "request"
+    },
+    {
+      "timestamp": 5561,
+      "method": "GET",
+      "url": "http://localhost:5174/api/themes/current",
+      "type": "request"
+    },
+    {
+      "timestamp": 5576,
+      "url": "http://localhost:5174/api/themes/current",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 5592,
+      "url": "http://localhost:5174/api/themes/current",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6590,
+      "method": "GET",
+      "url": "http://localhost:5174/api/themes/current",
+      "type": "request"
+    },
+    {
+      "timestamp": 6590,
+      "method": "GET",
+      "url": "http://localhost:5174/api/themes/current",
+      "type": "request"
+    },
+    {
+      "timestamp": 6610,
+      "url": "http://localhost:5174/api/themes/current",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6674,
+      "url": "http://localhost:5174/api/themes/current",
+      "status": 200,
+      "type": "response"
+    }
+  ],
+  "uniqueAPICalls": [
+    "http://localhost:5174/api/themes/current"
+  ],
+  "duplicateAPICalls": [
+    [
+      "http://localhost:5174/api/themes/current",
+      6
+    ]
+  ],
+  "reactErrors": []
+}

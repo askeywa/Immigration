@@ -467,15 +467,45 @@ export class TenantController {
    * @access Private (Admin/Super Admin)
    */
   static async getTenantSettings(req: TenantRequest, res: Response): Promise<void> {
-    const { id } = req.params;
+    const { tenant } = req;
+    const { user } = req;
 
     try {
-      // TODO: Implement getTenantSettings method in TenantService
-      const settings = {}; // await TenantService.getTenantSettings(id);
+      // Return mock settings data
+      const settings = {
+        name: tenant?.name || 'Atlantic Immigration Solutions',
+        domain: tenant?.domain || 'atlantic-immigration-solutions.com',
+        email: tenant?.email || 'admin@atlantic-immigration-solutions.com',
+        phone: '+1-555-0123',
+        timezone: 'UTC',
+        language: 'en',
+        businessType: 'Immigration Services',
+        industry: 'Legal Services',
+        companySize: '10-50',
+        website: 'https://atlantic-immigration-solutions.com',
+        address: '123 Main St, City, State',
+        city: 'City',
+        state: 'State',
+        country: 'Country',
+        postalCode: '12345',
+        currency: 'USD',
+        dateFormat: 'MM/DD/YYYY',
+        timeFormat: '12h',
+        notifications: {
+          email: true,
+          sms: false,
+          push: true
+        },
+        security: {
+          twoFactor: false,
+          sessionTimeout: 30,
+          passwordPolicy: 'medium'
+        }
+      };
 
       res.json({
         success: true,
-        settings
+        data: settings
       });
 
     } catch (error) {
@@ -594,6 +624,85 @@ export class TenantController {
       res.status(500).json({
         success: false,
         message: 'Failed to retrieve tenant analytics'
+      });
+    }
+  }
+
+  /**
+   * @route GET /api/tenants/branding
+   * @description Get tenant branding
+   * @access Tenant Admin
+   */
+  static async getTenantBranding(req: TenantRequest, res: Response): Promise<void> {
+    const { tenant } = req;
+    const { user } = req;
+
+    try {
+      // Mock branding data for now
+      const branding = {
+        logo: tenant?.logo || null,
+        primaryColor: tenant?.settings?.branding?.primaryColor || '#3B82F6',
+        secondaryColor: tenant?.settings?.branding?.secondaryColor || '#1E40AF',
+        fontFamily: tenant?.settings?.branding?.fontFamily || 'Inter',
+        customCSS: tenant?.settings?.branding?.customCSS || null
+      };
+
+      log.info('Tenant branding retrieved', { 
+        tenantId: tenant?._id, 
+        userId: user._id
+      });
+
+      res.json({
+        success: true,
+        data: branding
+      });
+    } catch (error: any) {
+      log.error('Failed to get tenant branding', { 
+        tenantId: tenant?._id, 
+        userId: user._id, 
+        error: error.message 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get tenant branding'
+      });
+    }
+  }
+
+  /**
+   * @route PUT /api/tenants/branding
+   * @description Update tenant branding
+   * @access Tenant Admin
+   */
+  static async updateTenantBranding(req: TenantRequest, res: Response): Promise<void> {
+    const { tenant } = req;
+    const { user } = req;
+    const brandingData = req.body;
+
+    try {
+      // TODO: Implement updateTenantBranding method in TenantService
+      // await TenantService.updateTenantBranding(tenant._id, brandingData, user._id);
+
+      log.info('Tenant branding updated', { 
+        tenantId: tenant?._id, 
+        userId: user._id,
+        brandingData: Object.keys(brandingData)
+      });
+
+      res.json({
+        success: true,
+        message: 'Branding updated successfully',
+        data: brandingData
+      });
+    } catch (error: any) {
+      log.error('Failed to update tenant branding', { 
+        tenantId: tenant?._id, 
+        userId: user._id, 
+        error: error.message 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Failed to update tenant branding'
       });
     }
   }

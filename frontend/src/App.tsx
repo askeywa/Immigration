@@ -75,7 +75,7 @@ function App() {
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
                   </div>
                 }>
-                  <Routes>
+                  <Routes key={`${isAuthenticated}-${user?.role}-${!!tenant}`}>
                   {!isAuthenticated ? (
                     <>
                       <Route path="/login" element={<Login />} />

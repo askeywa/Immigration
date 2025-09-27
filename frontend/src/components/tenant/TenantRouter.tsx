@@ -1,5 +1,5 @@
 // frontend/src/components/tenant/TenantRouter.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
@@ -7,11 +7,12 @@ import { TenantLayout } from './TenantLayout';
 import { log } from '@/utils/logger';
 
 // Lazy-loaded tenant-specific components
-const TenantDashboard = React.lazy(() => import('@/pages/tenant/TenantAdminDashboard'));
+const TenantDashboard = React.lazy(() => import('@/pages/tenant/TenantAdminDashboardFixed'));
 const TenantUsers = React.lazy(() => import('@/pages/tenant/TenantUsers'));
 const TenantProfiles = React.lazy(() => import('@/pages/tenant/TenantProfiles'));
 const TenantReports = React.lazy(() => import('@/pages/tenant/TenantReports'));
 const TenantSettings = React.lazy(() => import('@/pages/tenant/TenantSettings'));
+const TenantDocuments = React.lazy(() => import('@/pages/tenant/TenantDocuments'));
 const TenantBranding = React.lazy(() => import('@/pages/tenant/BrandingCustomization'));
 const TenantAnalytics = React.lazy(() => import('@/pages/tenant/TenantAnalytics'));
 
@@ -29,6 +30,8 @@ const CrsScore = React.lazy(() => import('@/pages/user/CrsScore'));
 const DocumentsChecklist = React.lazy(() => import('@/pages/user/DocumentsChecklist'));
 const AdditionalInfo = React.lazy(() => import('@/pages/user/AdditionalInfo'));
 const DocumentsUpload = React.lazy(() => import('@/pages/user/DocumentsUpload'));
+const ProfileSettings = React.lazy(() => import('@/pages/user/ProfileSettings'));
+const AccountSettings = React.lazy(() => import('@/pages/user/AccountSettings'));
 
 // Loading component
 const LoadingSpinner: React.FC = () => (
@@ -68,7 +71,7 @@ const TenantErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children
   return <>{children}</>;
 };
 
-// Tenant access guard
+// FIXED: Simplified tenant access guard without complex re-render logic
 const TenantAccessGuard: React.FC<{ children: React.ReactNode; requiredRole?: 'admin' | 'user' | 'super_admin' }> = ({ 
   children, 
   requiredRole 
@@ -80,24 +83,27 @@ const TenantAccessGuard: React.FC<{ children: React.ReactNode; requiredRole?: 'a
     return <LoadingSpinner />;
   }
   
-  if (!tenant && !isSuperAdmin) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No Tenant Access
-            </h3>
-            <p className="text-sm text-gray-500">
-              You don't have access to any tenant. Please contact your administrator.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // FIXED: Simplified access control logic
+  const hasAccess = () => {
+    if (!user) return false;
+    
+    if (requiredRole === 'super_admin') {
+      return isSuperAdmin;
+    }
+    
+    if (requiredRole === 'admin') {
+      return isTenantAdmin && (tenant || isSuperAdmin);
+    }
+    
+    if (requiredRole === 'user') {
+      return isTenantUser && tenant;
+    }
+    
+    // Default: any authenticated user with tenant access
+    return (tenant || isSuperAdmin);
+  };
   
-  if (requiredRole === 'super_admin' && !isSuperAdmin) {
+  if (!hasAccess()) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-red-50">
         <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
@@ -106,41 +112,10 @@ const TenantAccessGuard: React.FC<{ children: React.ReactNode; requiredRole?: 'a
               Access Denied
             </h3>
             <p className="text-sm text-red-700">
-              Super admin access required for this page.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (requiredRole === 'admin' && !isTenantAdmin) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-red-50">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-red-900 mb-2">
-              Access Denied
-            </h3>
-            <p className="text-sm text-red-700">
-              Admin access required for this page.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (requiredRole === 'user' && !isTenantUser) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-red-50">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-red-900 mb-2">
-              Access Denied
-            </h3>
-            <p className="text-sm text-red-700">
-              User access required for this page.
+              {!tenant && !isSuperAdmin 
+                ? "You don't have access to any tenant. Please contact your administrator."
+                : `${requiredRole || 'Required'} access needed for this page.`
+              }
             </p>
           </div>
         </div>
@@ -151,70 +126,63 @@ const TenantAccessGuard: React.FC<{ children: React.ReactNode; requiredRole?: 'a
   return <>{children}</>;
 };
 
-// Domain validation component
-const DomainValidator: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { domainInfo, resolveTenantFromDomain, isLoading } = useTenant();
-  const navigate = useNavigate();
-  const location = useLocation();
+// FIXED: Completely removed DomainValidator that was causing loops
+// Domain validation is now handled in TenantContext only
 
-  useEffect(() => {
-    const validateDomain = async () => {
-      try {
-        const result = await resolveTenantFromDomain();
-        
-        if (!result.isValid) {
-          log.warn('Domain validation failed', { 
-            error: result.error, 
-            redirectUrl: result.redirectUrl,
-            currentPath: location.pathname 
-          });
-          
-          if (result.redirectUrl) {
-            // Prevent redirect loops - don't redirect if already on target page
-            const currentPath = location.pathname;
-            const targetPath = result.redirectUrl.startsWith('/') ? result.redirectUrl : new URL(result.redirectUrl, window.location.origin).pathname;
-            
-            if (currentPath === targetPath) {
-              console.log('🔍 TenantRouter: Already on target page, skipping redirect to prevent loop');
-              return;
-            }
-            
-            // Use React Router navigation to preserve the current origin
-            console.log('🔍 TenantRouter: Domain validation redirect needed:', result.redirectUrl);
-            const url = new URL(result.redirectUrl, window.location.origin);
-            navigate(url.pathname + url.search + url.hash, { replace: true });
-            return;
-          }
-        }
-      } catch (error) {
-        log.error('Domain validation error', { error: error instanceof Error ? error.message : String(error) });
-      }
-    };
-
-    if (!isLoading && !domainInfo) {
-      validateDomain();
-    }
-  }, [domainInfo, isLoading, resolveTenantFromDomain, location.pathname]);
-
-  return <>{children}</>;
+// FIXED: Stable route determination
+const useRouteRedirect = () => {
+  const { isSuperAdmin, isTenantAdmin, isTenantUser } = useTenant();
+  
+  // Memoize redirect path to prevent changes
+  const redirectPath = React.useMemo(() => {
+    if (isSuperAdmin) return '/super-admin';
+    if (isTenantAdmin) return '/tenant/dashboard';
+    if (isTenantUser) return '/dashboard';
+    return '/login';
+  }, [isSuperAdmin, isTenantAdmin, isTenantUser]);
+  
+  return redirectPath;
 };
 
 // Main tenant router component
 export const TenantRouter: React.FC = () => {
-  const { tenant, isSuperAdmin, isTenantAdmin, isTenantUser, isLoading, domainInfo } = useTenant();
+  const { tenant, isSuperAdmin, isTenantAdmin, isTenantUser, isLoading } = useTenant();
   const { user } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
+  const redirectPath = useRouteRedirect();
   
+  // Prevent navigation loops
+  const lastRedirectPath = useRef<string>('');
+  const navigationLock = useRef(false);
+  
+  // FIXED: Simplified loading state
   if (isLoading) {
     return <LoadingSpinner />;
   }
   
+  // FIXED: One-time redirect logic without loops
+  React.useEffect(() => {
+    // Prevent navigation during navigation
+    if (navigationLock.current) return;
+    
+    // Only redirect from root path to prevent loops
+    if (location.pathname === '/' && redirectPath !== lastRedirectPath.current) {
+      navigationLock.current = true;
+      lastRedirectPath.current = redirectPath;
+      
+      setTimeout(() => {
+        navigate(redirectPath, { replace: true });
+        navigationLock.current = false;
+      }, 0);
+    }
+  }, [location.pathname, redirectPath, navigate]);
+  
   return (
     <TenantLayout>
       <TenantErrorBoundary>
-        <DomainValidator>
-          <Routes>
-          {/* Super Admin Routes */}
+        <Routes>
+          {/* Super Admin Routes - Only render if user is super admin */}
           {isSuperAdmin && (
             <>
               <Route path="/super-admin" element={
@@ -245,7 +213,7 @@ export const TenantRouter: React.FC = () => {
             </>
           )}
           
-          {/* Tenant Admin Routes */}
+          {/* Tenant Admin Routes - Only render if user is tenant admin and has tenant */}
           {isTenantAdmin && tenant && (
             <>
               <Route path="/tenant/dashboard" element={
@@ -273,6 +241,11 @@ export const TenantRouter: React.FC = () => {
                   <TenantSettings />
                 </TenantAccessGuard>
               } />
+              <Route path="/tenant/documents" element={
+                <TenantAccessGuard requiredRole="admin">
+                  <TenantDocuments />
+                </TenantAccessGuard>
+              } />
               <Route path="/tenant/branding" element={
                 <TenantAccessGuard requiredRole="admin">
                   <TenantBranding />
@@ -286,8 +259,8 @@ export const TenantRouter: React.FC = () => {
             </>
           )}
           
-          {/* Regular User Routes */}
-          {isTenantUser && (
+          {/* Regular User Routes - Only render if user is tenant user and has tenant */}
+          {isTenantUser && tenant && (
             <>
               <Route path="/dashboard" element={
                 <TenantAccessGuard requiredRole="user">
@@ -319,36 +292,38 @@ export const TenantRouter: React.FC = () => {
                   <DocumentsUpload />
                 </TenantAccessGuard>
               } />
+              <Route path="/profile/settings" element={
+                <TenantAccessGuard requiredRole="user">
+                  <ProfileSettings />
+                </TenantAccessGuard>
+              } />
+              <Route path="/account/settings" element={
+                <TenantAccessGuard requiredRole="user">
+                  <AccountSettings />
+                </TenantAccessGuard>
+              } />
             </>
           )}
           
-          {/* Default redirects based on role */}
-          <Route path="/" element={
-            <Navigate 
-              to={
-                isSuperAdmin ? '/super-admin' :
-                isTenantAdmin ? '/tenant/dashboard' :
-                isTenantUser ? '/dashboard' :
-                '/login'
-              } 
-              replace 
-            />
-          } />
+          {/* FIXED: Simplified default redirect - only from root */}
+          <Route path="/" element={<Navigate to={redirectPath} replace />} />
           
-          {/* Catch-all route */}
+          {/* FIXED: Catch-all that doesn't cause loops */}
           <Route path="*" element={
-            <Navigate 
-              to={
-                isSuperAdmin ? '/super-admin' :
-                isTenantAdmin ? '/tenant/dashboard' :
-                isTenantUser ? '/dashboard' :
-                '/login'
-              } 
-              replace 
-            />
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+              <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 text-center">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Page Not Found</h3>
+                <p className="text-sm text-gray-500 mb-4">The page you're looking for doesn't exist.</p>
+                <button
+                  onClick={() => navigate(redirectPath, { replace: true })}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Go to Dashboard
+                </button>
+              </div>
+            </div>
           } />
-          </Routes>
-        </DomainValidator>
+        </Routes>
       </TenantErrorBoundary>
     </TenantLayout>
   );

@@ -13,6 +13,7 @@ export interface TenantDomainInfo {
 
 export interface DomainValidationResult {
   isValid: boolean;
+  success?: boolean; // Alternative success property
   tenantInfo?: TenantDomainInfo;
   error?: string;
   redirectUrl?: string;
@@ -22,6 +23,10 @@ class DomainResolutionService {
   private cache = new Map<string, TenantDomainInfo>();
   private cacheExpiry = new Map<string, number>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  
+  // Enhanced caching for API responses
+  private apiCache = new Map<string, { data: any; timestamp: number }>();
+  private readonly API_CACHE_TTL = 10 * 60 * 1000; // 10 minutes for API responses
 
   /**
    * Resolve tenant information from current domain
@@ -214,6 +219,15 @@ class DomainResolutionService {
    */
   private async fetchTenantBySubdomain(subdomain: string): Promise<TenantDomainInfo | null> {
     try {
+      const cacheKey = `subdomain:${subdomain}`;
+      
+      // Check API cache first
+      const cached = this.apiCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < this.API_CACHE_TTL) {
+        log.info('API cache hit for subdomain', { subdomain });
+        return cached.data;
+      }
+      
       const response = await fetch(`/api/tenants/resolve/subdomain/${subdomain}`, {
         method: 'GET',
         headers: {
@@ -231,7 +245,7 @@ class DomainResolutionService {
         return null;
       }
 
-      return {
+      const tenantInfo = {
         tenantId: data.tenant._id,
         tenantName: data.tenant.name,
         domain: data.tenant.domain,
@@ -240,6 +254,14 @@ class DomainResolutionService {
         isSubdomain: true,
         status: data.tenant.status
       };
+      
+      // Cache the API response
+      this.apiCache.set(cacheKey, {
+        data: tenantInfo,
+        timestamp: Date.now()
+      });
+
+      return tenantInfo;
 
     } catch (error) {
       log.error('Failed to fetch tenant by subdomain', { 
@@ -255,6 +277,15 @@ class DomainResolutionService {
    */
   private async fetchTenantByCustomDomain(domain: string): Promise<TenantDomainInfo | null> {
     try {
+      const cacheKey = `domain:${domain}`;
+      
+      // Check API cache first
+      const cached = this.apiCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < this.API_CACHE_TTL) {
+        log.info('API cache hit for custom domain', { domain });
+        return cached.data;
+      }
+      
       const response = await fetch(`/api/tenants/resolve/domain/${encodeURIComponent(domain)}`, {
         method: 'GET',
         headers: {
@@ -272,7 +303,7 @@ class DomainResolutionService {
         return null;
       }
 
-      return {
+      const tenantInfo = {
         tenantId: data.tenant._id,
         tenantName: data.tenant.name,
         domain: domain,
@@ -280,6 +311,14 @@ class DomainResolutionService {
         isSubdomain: false,
         status: data.tenant.status
       };
+      
+      // Cache the API response
+      this.apiCache.set(cacheKey, {
+        data: tenantInfo,
+        timestamp: Date.now()
+      });
+
+      return tenantInfo;
 
     } catch (error) {
       log.error('Failed to fetch tenant by custom domain', { 

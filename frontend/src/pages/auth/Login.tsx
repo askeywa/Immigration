@@ -18,8 +18,8 @@ export const Login: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   
-  const { login } = useAuth();
-  const { user } = useAuthStore();
+  const { login, user } = useAuthStore();
+  
 
   // Preload likely next routes during idle time
   React.useEffect(() => {
@@ -33,10 +33,8 @@ export const Login: React.FC = () => {
     });
   }, []);
 
-  // Redirect if already logged in
-  if (user) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
-  }
+  // Let TenantRouter handle redirects - don't redirect here
+  // The App.tsx will render TenantRouter which will handle proper routing
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +44,19 @@ export const Login: React.FC = () => {
       console.log('🔍 Calling login function...');
       await login(email, password, tenantDomain || undefined);
       console.log('✅ Login successful!');
+      
+      // Simple redirect after successful login
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser) {
+        let redirectPath = '/dashboard';
+        if (currentUser.role === 'super_admin') {
+          redirectPath = '/super-admin';
+        } else if (currentUser.role === 'admin') {
+          redirectPath = '/tenant/dashboard';
+        }
+        console.log('🔍 Redirecting to:', redirectPath);
+        window.location.href = redirectPath;
+      }
     } catch (error) {
       console.error('❌ Login failed:', error);
     } finally {

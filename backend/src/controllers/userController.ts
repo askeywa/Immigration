@@ -66,6 +66,31 @@ export const getCurrentUser = asyncHandler(async (req: TenantRequest, res: Respo
   });
 });
 
+export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
+  // Super admin method to get all users across all tenants
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  
+  const result = await UserService.getAllUsersAcrossTenants(page, limit);
+  
+  res.json({
+    success: true,
+    data: result,
+  });
+});
+
+export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+  // Super admin method to delete any user
+  const { userId } = req.params;
+  
+  await UserService.deleteUser(userId);
+  
+  res.json({
+    success: true,
+    message: 'User deleted successfully',
+  });
+});
+
 export const updateUser = asyncHandler(async (req: TenantRequest, res: Response) => {
   const { userId } = req.params;
   const updateData = req.body;

@@ -2,12 +2,24 @@
 import { Router, Request, Response } from 'express';
 import { authenticate } from '../middleware/auth';
 import { resolveTenant } from '../middleware/tenantResolution';
+import { tenantCacheMiddleware } from '../middleware/cacheMiddleware';
 
 const router = Router();
 
-// Get tenant recent activity
+// Get tenant recent activity with simple caching
+const activityCache = new Map();
 router.get('/recent-activity', authenticate, resolveTenant, async (req: Request, res: Response) => {
   try {
+    // Simple cache check
+    const cacheKey = 'activity';
+    const cached = activityCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < 2 * 60 * 1000) { // 2 minutes
+      console.log('✅ CACHE HIT: /api/tenant/recent-activity');
+      return res.json(cached.data);
+    }
+    
+    console.log('❌ CACHE MISS: /api/tenant/recent-activity');
+    
     // Mock activity data matching frontend interface
     const mockActivity = [
       {
@@ -55,10 +67,19 @@ router.get('/recent-activity', authenticate, resolveTenant, async (req: Request,
       }
     ];
     
-    res.status(200).json({
+    const response = {
       success: true,
       data: mockActivity
+    };
+    
+    // Cache the response
+    activityCache.set(cacheKey, {
+      data: response,
+      timestamp: Date.now()
     });
+    console.log('💾 CACHE SET: /api/tenant/recent-activity');
+    
+    res.status(200).json(response);
     
   } catch (error) {
     res.status(500).json({
@@ -68,9 +89,20 @@ router.get('/recent-activity', authenticate, resolveTenant, async (req: Request,
   }
 });
 
-// Get tenant stats
+// Get tenant stats with simple caching
+const statsCache = new Map();
 router.get('/stats', authenticate, resolveTenant, async (req: Request, res: Response) => {
   try {
+    // Simple cache check
+    const cacheKey = 'stats';
+    const cached = statsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < 3 * 60 * 1000) { // 3 minutes
+      console.log('✅ CACHE HIT: /api/tenant/stats');
+      return res.json(cached.data);
+    }
+    
+    console.log('❌ CACHE MISS: /api/tenant/stats');
+    
     // Mock tenant stats - complete data matching frontend interface
     const mockStats = {
       totalUsers: 16,
@@ -100,10 +132,19 @@ router.get('/stats', authenticate, resolveTenant, async (req: Request, res: Resp
       }
     };
     
-    res.status(200).json({
+    const response = {
       success: true,
       data: mockStats
+    };
+    
+    // Cache the response
+    statsCache.set(cacheKey, {
+      data: response,
+      timestamp: Date.now()
     });
+    console.log('💾 CACHE SET: /api/tenant/stats');
+    
+    res.status(200).json(response);
     
   } catch (error) {
     res.status(500).json({

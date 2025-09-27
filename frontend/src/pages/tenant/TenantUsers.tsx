@@ -15,6 +15,8 @@ import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import UserDetailsReadOnly from '@/components/tenant/UserDetailsReadOnly';
+import { useTenantUsers } from '@/hooks/useTenantData';
 
 interface TenantUser {
   _id: string;
@@ -26,6 +28,18 @@ interface TenantUser {
   lastLogin: string;
   createdAt: string;
   profileComplete: boolean;
+  // Dynamic profile data
+  profileData?: {
+    visaHistory?: any;
+    personalDetails?: any;
+    languageAssessment?: any;
+    educationalDetails?: any;
+    employmentDetails?: any;
+    otherFactors?: any;
+    spouse?: any; // Dynamic tab based on marital status
+    dependents?: any; // Dynamic tab if applicable
+    [key: string]: any; // Allow for future dynamic tabs
+  };
 }
 
 export const TenantUsers: React.FC = () => {
@@ -36,17 +50,34 @@ export const TenantUsers: React.FC = () => {
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Use React Query for cached data fetching (fallback to mock data)
+  const { 
+    data: cachedUsers, 
+    isLoading: isQueryLoading, 
+    error: queryError 
+  } = useTenantUsers();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'user'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'pending'>('all');
+  const [selectedUser, setSelectedUser] = useState<TenantUser | null>(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
 
-  // Mock data for now
+  // Use cached data or load mock data
   useEffect(() => {
     const loadUsers = async () => {
+      // If we have cached data, use it immediately
+      if (cachedUsers && cachedUsers.length > 0) {
+        setUsers(cachedUsers);
+        setIsLoading(false);
+        setError(null);
+        return;
+      }
+
       setIsLoading(true);
       try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Simulate API delay only if no cached data
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Mock tenant users data
         const mockUsers: TenantUser[] = [
@@ -93,6 +124,61 @@ export const TenantUsers: React.FC = () => {
             lastLogin: '',
             createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
             profileComplete: false
+          },
+          {
+            _id: '5',
+            email: 'alex.chen@atlantic-immigration-solutions.com',
+            firstName: 'Alex',
+            lastName: 'Chen',
+            role: 'user',
+            status: 'active',
+            lastLogin: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+            createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
+            profileComplete: true,
+            profileData: {
+              visaHistory: { canadianVisa: false, otherVisa: false },
+              personalDetails: { 
+                dateOfBirth: 'January 15, 1985', 
+                countryOfBirth: 'India', 
+                nationality: 'Indian', 
+                maritalStatus: 'Married', 
+                gender: 'Male', 
+                passportNumber: 'A1234567' 
+              },
+              languageAssessment: { 
+                english: { reading: 'CLB 9', writing: 'CLB 8', listening: 'CLB 9', speaking: 'CLB 8' },
+                french: { reading: 'CLB 6', writing: 'CLB 5', listening: 'CLB 6', speaking: 'CLB 5' }
+              },
+              educationalDetails: { 
+                highestEducation: "Master's Degree in Computer Science", 
+                institution: 'University of Technology, Mumbai', 
+                graduationYear: '2010', 
+                countryOfStudy: 'India', 
+                eca: 'Completed - Equivalent to Canadian Master\'s Degree' 
+              },
+              employmentDetails: { 
+                occupation: 'Software Engineer', 
+                experience: '8 years', 
+                employer: 'Tech Solutions Inc.', 
+                jobOffer: false, 
+                provincialNomination: false 
+              },
+              otherFactors: { 
+                adaptabilityFactors: ['Spouse/Partner has Canadian education', 'Spouse/Partner has Canadian work experience'],
+                additionalInfo: 'No criminal record, good health status' 
+              },
+              spouse: { 
+                name: 'Jane Doe', 
+                dateOfBirth: 'March 20, 1987', 
+                nationality: 'Indian', 
+                education: "Bachelor's in Business Administration", 
+                languageProficiency: 'English: CLB 8, French: CLB 6', 
+                workExperience: '5 years in Marketing' 
+              },
+              dependents: { 
+                children: [{ name: 'Alex Doe', dateOfBirth: 'June 15, 2015', relationship: 'Son', nationality: 'Indian' }] 
+              }
+            }
           }
         ];
         
@@ -108,7 +194,7 @@ export const TenantUsers: React.FC = () => {
     if (isTenantAdmin) {
       loadUsers();
     }
-  }, [isTenantAdmin]);
+  }, [isTenantAdmin, cachedUsers]);
 
   // Filter users based on search and filters
   const filteredUsers = users.filter(user => {
@@ -161,6 +247,19 @@ export const TenantUsers: React.FC = () => {
           <p className="mt-4 text-gray-600">Loading users...</p>
         </div>
       </div>
+    );
+  }
+
+  // Show user details if a user is selected
+  if (showUserDetails && selectedUser) {
+    return (
+      <UserDetailsReadOnly 
+        user={selectedUser} 
+        onBack={() => {
+          setShowUserDetails(false);
+          setSelectedUser(null);
+        }} 
+      />
     );
   }
 
@@ -319,7 +418,11 @@ export const TenantUsers: React.FC = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 * index }}
-                      className="hover:bg-gray-50"
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setShowUserDetails(true);
+                      }}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">

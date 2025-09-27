@@ -56,11 +56,12 @@ export const CSSInjectionProvider: React.FC<CSSInjectionProviderProps> = ({
   const currentTenantId = tenant?._id || tenantId;
 
   // Load CSS injections on mount and when tenant changes
-  useEffect(() => {
-    if (currentTenantId) {
-      loadCSSInjections();
-    }
-  }, [currentTenantId]);
+  // Temporarily disabled until backend endpoint is implemented
+  // useEffect(() => {
+  //   if (currentTenantId) {
+  //     loadCSSInjections();
+  //   }
+  // }, [currentTenantId]);
 
   // Update CSS injection service configuration
   useEffect(() => {
@@ -599,6 +600,7 @@ export const withCSSInjection = <P extends object>(Component: React.ComponentTyp
     
     return (
       <Component
+        {...(props as any)}
         {...props}
         ref={ref}
         currentCSS={cssInjectionContext.currentCSS}

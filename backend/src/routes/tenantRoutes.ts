@@ -6,6 +6,7 @@ import { resolveTenant } from '../middleware/tenantResolution';
 import { rowLevelSecurity } from '../middleware/rowLevelSecurity';
 import { asyncHandler } from '../middleware/errorHandler';
 import { TenantController } from '../controllers/tenantController';
+import { tenantCacheMiddleware, userCacheMiddleware } from '../middleware/cacheMiddleware';
 
 const router = Router();
 
@@ -34,5 +35,13 @@ router.get('/:id/settings', authorize(['super_admin', 'admin']), asyncHandler(Te
 router.put('/:id/settings', authorize(['super_admin', 'admin']), asyncHandler(TenantController.updateTenantSettings));
 router.get('/:id/users', authorize(['super_admin', 'admin']), asyncHandler(TenantController.getTenantUsers));
 router.get('/:id/analytics', authorize(['super_admin', 'admin']), asyncHandler(TenantController.getTenantAnalytics));
+
+// Simplified tenant routes for frontend with caching
+router.get('/settings', authorize(['admin']), tenantCacheMiddleware(5 * 60 * 1000), asyncHandler(TenantController.getTenantSettings));
+router.put('/settings', authorize(['admin']), asyncHandler(TenantController.updateTenantSettings));
+router.get('/users', authorize(['admin']), tenantCacheMiddleware(3 * 60 * 1000), asyncHandler(TenantController.getTenantUsers));
+router.get('/analytics', authorize(['admin']), tenantCacheMiddleware(2 * 60 * 1000), asyncHandler(TenantController.getTenantAnalytics));
+router.get('/branding', authorize(['admin']), tenantCacheMiddleware(10 * 60 * 1000), asyncHandler(TenantController.getTenantBranding));
+router.put('/branding', authorize(['admin']), asyncHandler(TenantController.updateTenantBranding));
 
 export default router;

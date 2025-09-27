@@ -16,8 +16,8 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { DashboardHeader } from '@/components/common';
 import { useAuthStore } from '@/store/authStore';
-import { TenantContextIndicator } from '@/components/tenant';
 
 interface QuickActionCardProps {
   title: string;
@@ -93,86 +93,113 @@ const UserDashboard: React.FC = () => {
   // Fix: Prevent duplicate API calls with refs
   const hasFetched = useRef(false);
   const abortController = useRef<AbortController | null>(null);
+  const isMounted = useRef(true);
   
   const { user, token, isAuthenticated } = useAuthStore();
 
-  // Fix: Implement proper data fetching with cleanup
-  const fetchDashboardData = useCallback(async () => {
-    // Prevent duplicate calls
-    if (hasFetched.current || !isAuthenticated || !user) return;
-    
-    try {
-      setIsLoadingProgress(true);
-      setError(null);
-      hasFetched.current = true;
-      
-      // Create new abort controller
-      abortController.current = new AbortController();
-      
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-
-      // Fetch dashboard data with proper error handling
-      const [progressResponse, profileResponse, userResponse] = await Promise.all([
-        fetch('/api/profiles/progress', { 
-          headers, 
-          signal: abortController.current.signal 
-        }),
-        fetch('/api/profiles', { 
-          headers, 
-          signal: abortController.current.signal 
-        }),
-        fetch('/api/users/me', { 
-          headers, 
-          signal: abortController.current.signal 
-        })
-      ]);
-
-      if (!progressResponse.ok || !profileResponse.ok || !userResponse.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
-
-      const [progressData, profileData, userData] = await Promise.all([
-        progressResponse.json(),
-        profileResponse.json(),
-        userResponse.json()
-      ]);
-
-      setDashboardData({
-        progress: progressData.data || { completionPercentage: 0, completedSections: 0, totalSections: 10 },
-        profile: profileData.data || null,
-        user: userData.data || user
-      });
-
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
-        console.error('Dashboard fetch error:', error);
-        setError(error.message);
-      }
-    } finally {
-      setIsLoadingProgress(false);
-    }
-  }, [isAuthenticated, user, token]);
-
-  // Fix: Effect with proper cleanup
+  // Fix: Implement proper data fetching with cleanup - use direct approach
   useEffect(() => {
-    fetchDashboardData();
+    const fetchDashboardData = async () => {
+      // Prevent duplicate calls
+      if (hasFetched.current || !isAuthenticated || !isMounted.current) return;
+      
+      try {
+        setIsLoadingProgress(true);
+        setError(null);
+        hasFetched.current = true;
+        
+        // Get token from sessionStorage (where Zustand persist stores it)
+        const authStorage = sessionStorage.getItem('auth-storage');
+        let currentToken = null;
+        if (authStorage) {
+          try {
+            const parsed = JSON.parse(authStorage);
+            currentToken = parsed.state?.token;
+          } catch (error) {
+            console.error('Failed to parse auth storage:', error);
+          }
+        }
+        
+        const headers = {
+          'Authorization': `Bearer ${currentToken}`,
+          'Content-Type': 'application/json'
+        };
 
-    // Cleanup function
-    return () => {
-      if (abortController.current) {
-        abortController.current.abort();
+        // Fetch dashboard data with proper error handling
+        // Note: Removed /api/users/me call as user data is already available in AuthStore
+        console.log('🔍 UserDashboard: Making API calls...');
+        
+        // Make API calls without AbortController to avoid signal issues
+        const [progressResponse, profileResponse] = await Promise.all([
+          fetch('/api/profiles/progress', { 
+            headers
+          }),
+          fetch('/api/profiles', { 
+            headers
+          })
+        ]);
+
+        console.log('🔍 UserDashboard: API responses received:', {
+          progressStatus: progressResponse.status,
+          profileStatus: profileResponse.status,
+          progressOk: progressResponse.ok,
+          profileOk: profileResponse.ok
+        });
+
+        if (!progressResponse.ok || !profileResponse.ok) {
+          console.error('❌ UserDashboard: API calls failed:', {
+            progressStatus: progressResponse.status,
+            profileStatus: profileResponse.status
+          });
+          throw new Error('Failed to fetch dashboard data');
+        }
+
+        const [progressData, profileData] = await Promise.all([
+          progressResponse.json(),
+          profileResponse.json()
+        ]);
+
+        console.log('🔍 UserDashboard: Data parsed:', {
+          progressData: !!progressData,
+          profileData: !!profileData
+        });
+
+        // Update state regardless of mount status to ensure loading state is cleared
+        console.log('🔍 UserDashboard: Setting dashboard data and clearing loading state');
+        setDashboardData({
+          progress: progressData.data || { completionPercentage: 0, completedSections: 0, totalSections: 10 },
+          profile: profileData.data || null,
+          user: user // Use user data from AuthStore instead of API call
+        });
+
+      } catch (error: any) {
+        if (isMounted.current) {
+          console.error('❌ UserDashboard: Dashboard fetch error:', error);
+          setError(error.message);
+        }
+      } finally {
+        // Always clear loading state to prevent stuck loading spinner
+        console.log('🔍 UserDashboard: Clearing loading state');
+        setIsLoadingProgress(false);
       }
-      hasFetched.current = false;
     };
-  }, [fetchDashboardData]);
 
-  // Fix: Reset fetch flag when user changes
+    if (isAuthenticated && !hasFetched.current) {
+      fetchDashboardData();
+    }
+
+    // Cleanup function - no longer needed without AbortController
+    return () => {
+      // Cleanup handled by component unmount
+    };
+  }, [isAuthenticated]); // Only depend on isAuthenticated to prevent infinite loops
+
+  // Cleanup on unmount
   useEffect(() => {
-    hasFetched.current = false;
-  }, [user?.id]);
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   // Fix: Proper loading and error states
   if (isLoadingProgress) {
@@ -191,7 +218,11 @@ const UserDashboard: React.FC = () => {
           onClick={() => {
             hasFetched.current = false;
             setError(null);
-            fetchDashboardData();
+            // Trigger a re-render by updating a state
+            setIsLoadingProgress(true);
+            setTimeout(() => {
+              setIsLoadingProgress(false);
+            }, 100);
           }}
           className="mt-2"
           variant="destructive"
@@ -207,7 +238,7 @@ const UserDashboard: React.FC = () => {
       title: 'Complete Profile',
       description: 'Finish setting up your immigration profile to get personalized recommendations.',
       icon: User,
-      href: '/profile-assessment',
+      href: '/profile/assessment',
       color: 'red' as const,
       badge: 'Required'
     },
@@ -215,7 +246,7 @@ const UserDashboard: React.FC = () => {
       title: 'CRS Score Calculator',
       description: 'Calculate and save your Express Entry CRS score with live breakdown.',
       icon: Calculator,
-      href: '/crs-score',
+      href: '/crs',
       color: 'green' as const,
       badge: 'New'
     },
@@ -230,7 +261,7 @@ const UserDashboard: React.FC = () => {
       title: 'Track Application',
       description: 'Monitor the progress of your immigration applications.',
       icon: Clock,
-      href: '/track-application',
+      href: '/documents/checklist',
       color: 'purple' as const
     }
   ];
@@ -238,57 +269,16 @@ const UserDashboard: React.FC = () => {
   return (
     <div className="p-6 bg-cream-50 min-h-screen">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {user?.firstName || user?.name}! 👋
-            </h1>
-            <p className="text-gray-600">
-              Your immigration journey continues here. Complete your profile and upload documents to get started.
-            </p>
-          </div>
-          <TenantContextIndicator />
-        </div>
-      </div>
+      <DashboardHeader
+        title={`Welcome back, ${user?.firstName || user?.name}! 👋`}
+        subtitle="Your immigration journey continues here. Complete your profile and upload documents to get started."
+        showRefresh={false}
+        showLogout={false}
+        showProfile={true}
+        showNotifications={false}
+        showSettings={false}
+      />
 
-      {/* Profile Assessment Progress */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Profile Assessment Progress</h2>
-            <p className="text-gray-600">Complete your profile assessment to unlock all features</p>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold text-red-600 mb-1">
-              {dashboardData?.progress?.completionPercentage || 0}%
-            </div>
-            <p className="text-sm text-gray-500">
-              {dashboardData?.progress?.completedSections || 0} of {dashboardData?.progress?.totalSections || 10} sections
-            </p>
-          </div>
-        </div>
-        
-        <div className="mb-4">
-          <div className="flex justify-between text-sm text-gray-600 mb-1">
-            <span>Next: Start Profile Assessment</span>
-            <Link 
-              to="/profile-assessment"
-              className="text-red-600 hover:text-red-700 font-medium"
-            >
-              Start Assessment →
-            </Link>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <motion.div 
-              className="bg-red-600 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${dashboardData?.progress?.completionPercentage || 0}%` }}
-              transition={{ duration: 0.5 }}
-            />
-          </div>
-        </div>
-      </div>
 
       {/* Quick Actions */}
       <div className="mb-8">

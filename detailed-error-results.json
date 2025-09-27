@@ -1,0 +1,2509 @@
+{
+  "timestamp": "2025-09-22T22:43:18.810Z",
+  "errors": [
+    {
+      "timestamp": 1102,
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "status": 500,
+      "type": "http_error"
+    },
+    {
+      "timestamp": 1105,
+      "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "type": "console_error"
+    },
+    {
+      "timestamp": 1109,
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "type": "console_error"
+    },
+    {
+      "timestamp": 4926,
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "status": 500,
+      "type": "http_error"
+    },
+    {
+      "timestamp": 4927,
+      "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "type": "console_error"
+    },
+    {
+      "timestamp": 6719,
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "status": 500,
+      "type": "http_error"
+    },
+    {
+      "timestamp": 6722,
+      "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "type": "console_error"
+    },
+    {
+      "timestamp": 8494,
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "status": 500,
+      "type": "http_error"
+    },
+    {
+      "timestamp": 8495,
+      "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "type": "console_error"
+    }
+  ],
+  "allRequests": [
+    {
+      "timestamp": 33,
+      "method": "GET",
+      "url": "http://localhost:5174/",
+      "type": "request"
+    },
+    {
+      "timestamp": 51,
+      "url": "http://localhost:5174/",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 150,
+      "method": "GET",
+      "url": "http://localhost:5174/@vite/client",
+      "type": "request"
+    },
+    {
+      "timestamp": 277,
+      "method": "GET",
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap",
+      "type": "request"
+    },
+    {
+      "timestamp": 330,
+      "method": "GET",
+      "url": "http://localhost:5174/src/main.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 416,
+      "method": "GET",
+      "url": "http://localhost:5174/@react-refresh",
+      "type": "request"
+    },
+    {
+      "timestamp": 434,
+      "url": "http://localhost:5174/src/main.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 450,
+      "url": "http://localhost:5174/@vite/client",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 462,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/vite/dist/client/env.mjs",
+      "type": "request"
+    },
+    {
+      "timestamp": 463,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=72588811",
+      "type": "request"
+    },
+    {
+      "timestamp": 464,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react.js?v=72588811",
+      "type": "request"
+    },
+    {
+      "timestamp": 465,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=708eac2f",
+      "type": "request"
+    },
+    {
+      "timestamp": 467,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-router-dom.js?v=cd17cec9",
+      "type": "request"
+    },
+    {
+      "timestamp": 478,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query.js?v=5efc8602",
+      "type": "request"
+    },
+    {
+      "timestamp": 481,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query-devtools.js?v=0c489329",
+      "type": "request"
+    },
+    {
+      "timestamp": 482,
+      "method": "GET",
+      "url": "http://localhost:5174/src/App.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 483,
+      "method": "GET",
+      "url": "http://localhost:5174/src/index.css?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 484,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/AuthContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 486,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/TenantContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 500,
+      "method": "GET",
+      "url": "http://localhost:5174/src/config/sentry.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 612,
+      "url": "http://localhost:5174/@react-refresh",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 613,
+      "url": "http://localhost:5174/node_modules/vite/dist/client/env.mjs",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 614,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react.js?v=72588811",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 615,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=708eac2f",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 616,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-BG45W2ER.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 616,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-HXA6O6EE.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 617,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-QYFCA5BS.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 632,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=72588811",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 645,
+      "url": "http://localhost:5174/src/contexts/TenantContext.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 797,
+      "method": "GET",
+      "url": "http://localhost:5174/src/store/authStore.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 866,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/api.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 977,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/domainResolutionService.ts?t=1758580766303",
+      "type": "request"
+    },
+    {
+      "timestamp": 980,
+      "method": "GET",
+      "url": "http://localhost:5174/src/utils/logger.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 981,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query.js?v=5efc8602",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 982,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-Z4HRIXNX.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 982,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-MZFEWTVJ.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 983,
+      "url": "http://localhost:5174/src/App.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 983,
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 984,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query-devtools.js?v=0c489329",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 985,
+      "url": "http://localhost:5174/src/contexts/AuthContext.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 985,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-router-dom.js?v=cd17cec9",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 986,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/ToastContext.tsx",
+      "type": "request"
+    },
+    {
+      "timestamp": 988,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/ThemeContext.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 989,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/LogoContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 994,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/CSSInjectionContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 994,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantRouter.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 995,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/ErrorBoundary.tsx",
+      "type": "request"
+    },
+    {
+      "timestamp": 996,
+      "url": "http://localhost:5174/src/index.css?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 997,
+      "url": "http://localhost:5174/src/config/sentry.ts",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 998,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-HXA6O6EE.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 999,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-BG45W2ER.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1002,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_react.js?v=2eead097",
+      "type": "request"
+    },
+    {
+      "timestamp": 1002,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_tracing.js?v=910eb07e",
+      "type": "request"
+    },
+    {
+      "timestamp": 1007,
+      "url": "http://localhost:5174/src/services/api.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1009,
+      "url": "http://localhost:5174/src/store/authStore.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1011,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/axios.js?v=217a873d",
+      "type": "request"
+    },
+    {
+      "timestamp": 1011,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand.js?v=3f9b06f5",
+      "type": "request"
+    },
+    {
+      "timestamp": 1012,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand_middleware.js?v=2aa9ed3f",
+      "type": "request"
+    },
+    {
+      "timestamp": 1012,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/auth.service.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 1013,
+      "url": "http://localhost:5174/src/services/domainResolutionService.ts?t=1758580766303",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1013,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-MZFEWTVJ.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1014,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-QYFCA5BS.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1015,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-Z4HRIXNX.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1016,
+      "url": "http://localhost:5174/src/utils/logger.ts",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1016,
+      "url": "http://localhost:5174/src/contexts/ToastContext.tsx",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1017,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/framer-motion.js?v=bccd4ed0",
+      "type": "request"
+    },
+    {
+      "timestamp": 1018,
+      "url": "http://localhost:5174/src/contexts/LogoContext.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1019,
+      "method": "GET",
+      "url": "http://localhost:5174/src/types/logo.types.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 1019,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/logoService.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 1061,
+      "url": "http://localhost:5174/src/contexts/CSSInjectionContext.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1062,
+      "url": "http://localhost:5174/src/components/ErrorBoundary.tsx",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1062,
+      "url": "http://localhost:5174/src/components/tenant/TenantRouter.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1063,
+      "method": "GET",
+      "url": "http://localhost:5174/src/types/cssInjection.types.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 1063,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/cssInjectionService.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 1064,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantLayout.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 1064,
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand.js?v=3f9b06f5",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1065,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-OIFVPICB.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 1066,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_tracing.js?v=910eb07e",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1066,
+      "url": "http://localhost:5174/src/services/auth.service.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1067,
+      "url": "http://localhost:5174/src/types/logo.types.ts",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1068,
+      "url": "http://localhost:5174/src/types/cssInjection.types.ts",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1069,
+      "url": "http://localhost:5174/src/services/cssInjectionService.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1072,
+      "url": "http://localhost:5174/src/contexts/ThemeContext.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1077,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 1085,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-OIFVPICB.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1090,
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand_middleware.js?v=2aa9ed3f",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1091,
+      "url": "http://localhost:5174/node_modules/.vite/deps/axios.js?v=217a873d",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1092,
+      "url": "http://localhost:5174/src/services/logoService.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1093,
+      "url": "http://localhost:5174/node_modules/.vite/deps/framer-motion.js?v=bccd4ed0",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1093,
+      "url": "http://localhost:5174/src/components/tenant/TenantLayout.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1094,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantNavigation.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 1094,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantContextIndicator.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 1094,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/theme/ThemeToggle.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 1095,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/lucide-react.js?v=2e4be72e",
+      "type": "request"
+    },
+    {
+      "timestamp": 1095,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@heroicons_react_24_outline.js?v=2478b211",
+      "type": "request"
+    },
+    {
+      "timestamp": 1095,
+      "url": "http://localhost:5174/src/components/tenant/TenantNavigation.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1096,
+      "url": "http://localhost:5174/src/components/tenant/TenantContextIndicator.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1096,
+      "url": "http://localhost:5174/src/components/theme/ThemeToggle.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1098,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_react.js?v=2eead097",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1099,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@heroicons_react_24_outline.js?v=2478b211",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 1102,
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "status": 500,
+      "type": "response"
+    },
+    {
+      "timestamp": 1108,
+      "url": "http://localhost:5174/node_modules/.vite/deps/lucide-react.js?v=2e4be72e",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4675,
+      "method": "GET",
+      "url": "http://localhost:5174/",
+      "type": "request"
+    },
+    {
+      "timestamp": 4696,
+      "url": "http://localhost:5174/",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4725,
+      "method": "GET",
+      "url": "http://localhost:5174/@vite/client",
+      "type": "request"
+    },
+    {
+      "timestamp": 4726,
+      "method": "GET",
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap",
+      "type": "request"
+    },
+    {
+      "timestamp": 4726,
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4728,
+      "method": "GET",
+      "url": "http://localhost:5174/src/main.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 4729,
+      "url": "http://localhost:5174/@vite/client",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4729,
+      "url": "http://localhost:5174/src/main.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4732,
+      "method": "GET",
+      "url": "http://localhost:5174/@react-refresh",
+      "type": "request"
+    },
+    {
+      "timestamp": 4732,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/vite/dist/client/env.mjs",
+      "type": "request"
+    },
+    {
+      "timestamp": 4749,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=72588811",
+      "type": "request"
+    },
+    {
+      "timestamp": 4749,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=72588811",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4759,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react.js?v=72588811",
+      "type": "request"
+    },
+    {
+      "timestamp": 4760,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react.js?v=72588811",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4760,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=708eac2f",
+      "type": "request"
+    },
+    {
+      "timestamp": 4761,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=708eac2f",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4762,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-router-dom.js?v=cd17cec9",
+      "type": "request"
+    },
+    {
+      "timestamp": 4762,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-router-dom.js?v=cd17cec9",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4762,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query.js?v=5efc8602",
+      "type": "request"
+    },
+    {
+      "timestamp": 4763,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query.js?v=5efc8602",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4763,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query-devtools.js?v=0c489329",
+      "type": "request"
+    },
+    {
+      "timestamp": 4764,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query-devtools.js?v=0c489329",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4764,
+      "method": "GET",
+      "url": "http://localhost:5174/src/App.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 4764,
+      "method": "GET",
+      "url": "http://localhost:5174/src/index.css?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 4765,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/AuthContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4765,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/TenantContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4765,
+      "method": "GET",
+      "url": "http://localhost:5174/src/config/sentry.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 4767,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-BG45W2ER.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 4767,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-BG45W2ER.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4769,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-HXA6O6EE.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 4769,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-HXA6O6EE.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4770,
+      "url": "http://localhost:5174/@react-refresh",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4771,
+      "url": "http://localhost:5174/node_modules/vite/dist/client/env.mjs",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4782,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-QYFCA5BS.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 4783,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-QYFCA5BS.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4789,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-Z4HRIXNX.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 4789,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-Z4HRIXNX.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4793,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-MZFEWTVJ.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 4794,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-MZFEWTVJ.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4796,
+      "url": "http://localhost:5174/src/App.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4796,
+      "url": "http://localhost:5174/src/index.css?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4797,
+      "url": "http://localhost:5174/src/contexts/AuthContext.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4798,
+      "url": "http://localhost:5174/src/config/sentry.ts",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4801,
+      "url": "http://localhost:5174/src/contexts/TenantContext.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4809,
+      "method": "GET",
+      "url": "http://localhost:5174/src/store/authStore.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4809,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/ToastContext.tsx",
+      "type": "request"
+    },
+    {
+      "timestamp": 4810,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/ThemeContext.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 4812,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/LogoContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4812,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/CSSInjectionContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4812,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantRouter.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 4813,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/ErrorBoundary.tsx",
+      "type": "request"
+    },
+    {
+      "timestamp": 4841,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_react.js?v=2eead097",
+      "type": "request"
+    },
+    {
+      "timestamp": 4842,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_react.js?v=2eead097",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4842,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_tracing.js?v=910eb07e",
+      "type": "request"
+    },
+    {
+      "timestamp": 4844,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_tracing.js?v=910eb07e",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4844,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/api.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4845,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/domainResolutionService.ts?t=1758580766303",
+      "type": "request"
+    },
+    {
+      "timestamp": 4845,
+      "method": "GET",
+      "url": "http://localhost:5174/src/utils/logger.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 4855,
+      "url": "http://localhost:5174/src/store/authStore.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4856,
+      "url": "http://localhost:5174/src/contexts/ToastContext.tsx",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4857,
+      "url": "http://localhost:5174/src/contexts/ThemeContext.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4859,
+      "url": "http://localhost:5174/src/contexts/LogoContext.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4861,
+      "url": "http://localhost:5174/src/components/tenant/TenantRouter.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4862,
+      "url": "http://localhost:5174/src/contexts/CSSInjectionContext.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4864,
+      "url": "http://localhost:5174/src/components/ErrorBoundary.tsx",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4866,
+      "url": "http://localhost:5174/src/services/api.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4867,
+      "url": "http://localhost:5174/src/services/domainResolutionService.ts?t=1758580766303",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4872,
+      "url": "http://localhost:5174/src/utils/logger.ts",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4890,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand.js?v=3f9b06f5",
+      "type": "request"
+    },
+    {
+      "timestamp": 4891,
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand.js?v=3f9b06f5",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4892,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand_middleware.js?v=2aa9ed3f",
+      "type": "request"
+    },
+    {
+      "timestamp": 4893,
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand_middleware.js?v=2aa9ed3f",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4894,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/auth.service.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4896,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/framer-motion.js?v=bccd4ed0",
+      "type": "request"
+    },
+    {
+      "timestamp": 4897,
+      "url": "http://localhost:5174/node_modules/.vite/deps/framer-motion.js?v=bccd4ed0",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4899,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 4899,
+      "method": "GET",
+      "url": "http://localhost:5174/src/types/logo.types.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 4899,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/logoService.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4902,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantLayout.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 4903,
+      "method": "GET",
+      "url": "http://localhost:5174/src/types/cssInjection.types.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 4904,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/cssInjectionService.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4907,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/axios.js?v=217a873d",
+      "type": "request"
+    },
+    {
+      "timestamp": 4908,
+      "url": "http://localhost:5174/node_modules/.vite/deps/axios.js?v=217a873d",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4911,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-OIFVPICB.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 4911,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-OIFVPICB.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4914,
+      "url": "http://localhost:5174/src/services/auth.service.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4915,
+      "url": "http://localhost:5174/src/types/logo.types.ts",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4916,
+      "url": "http://localhost:5174/src/services/logoService.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4917,
+      "url": "http://localhost:5174/src/components/tenant/TenantLayout.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4921,
+      "url": "http://localhost:5174/src/types/cssInjection.types.ts",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4923,
+      "url": "http://localhost:5174/src/services/cssInjectionService.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4926,
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "status": 500,
+      "type": "response"
+    },
+    {
+      "timestamp": 4960,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantNavigation.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4960,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantContextIndicator.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 4960,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/theme/ThemeToggle.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 4961,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/lucide-react.js?v=2e4be72e",
+      "type": "request"
+    },
+    {
+      "timestamp": 4961,
+      "url": "http://localhost:5174/node_modules/.vite/deps/lucide-react.js?v=2e4be72e",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4962,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@heroicons_react_24_outline.js?v=2478b211",
+      "type": "request"
+    },
+    {
+      "timestamp": 4962,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@heroicons_react_24_outline.js?v=2478b211",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 4966,
+      "url": "http://localhost:5174/src/components/tenant/TenantNavigation.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4970,
+      "url": "http://localhost:5174/src/components/tenant/TenantContextIndicator.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 4972,
+      "url": "http://localhost:5174/src/components/theme/ThemeToggle.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 6507,
+      "method": "GET",
+      "url": "http://localhost:5174/",
+      "type": "request"
+    },
+    {
+      "timestamp": 6513,
+      "url": "http://localhost:5174/",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6533,
+      "method": "GET",
+      "url": "http://localhost:5174/@vite/client",
+      "type": "request"
+    },
+    {
+      "timestamp": 6537,
+      "method": "GET",
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap",
+      "type": "request"
+    },
+    {
+      "timestamp": 6540,
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6542,
+      "method": "GET",
+      "url": "http://localhost:5174/src/main.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 6544,
+      "url": "http://localhost:5174/src/main.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6544,
+      "url": "http://localhost:5174/@vite/client",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6545,
+      "method": "GET",
+      "url": "http://localhost:5174/@react-refresh",
+      "type": "request"
+    },
+    {
+      "timestamp": 6545,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/vite/dist/client/env.mjs",
+      "type": "request"
+    },
+    {
+      "timestamp": 6559,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=72588811",
+      "type": "request"
+    },
+    {
+      "timestamp": 6568,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=72588811",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6571,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react.js?v=72588811",
+      "type": "request"
+    },
+    {
+      "timestamp": 6572,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react.js?v=72588811",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6572,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=708eac2f",
+      "type": "request"
+    },
+    {
+      "timestamp": 6573,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=708eac2f",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6574,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-router-dom.js?v=cd17cec9",
+      "type": "request"
+    },
+    {
+      "timestamp": 6574,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-router-dom.js?v=cd17cec9",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6575,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query.js?v=5efc8602",
+      "type": "request"
+    },
+    {
+      "timestamp": 6575,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query.js?v=5efc8602",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6576,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query-devtools.js?v=0c489329",
+      "type": "request"
+    },
+    {
+      "timestamp": 6577,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query-devtools.js?v=0c489329",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6577,
+      "method": "GET",
+      "url": "http://localhost:5174/src/App.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 6578,
+      "method": "GET",
+      "url": "http://localhost:5174/src/index.css?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 6578,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/AuthContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6578,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/TenantContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6579,
+      "method": "GET",
+      "url": "http://localhost:5174/src/config/sentry.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 6590,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-BG45W2ER.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 6591,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-BG45W2ER.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6592,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-HXA6O6EE.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 6592,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-HXA6O6EE.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6598,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-QYFCA5BS.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 6598,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-QYFCA5BS.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6599,
+      "url": "http://localhost:5174/node_modules/vite/dist/client/env.mjs",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6601,
+      "url": "http://localhost:5174/@react-refresh",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6608,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-Z4HRIXNX.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 6609,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-Z4HRIXNX.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6611,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-MZFEWTVJ.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 6612,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-MZFEWTVJ.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6614,
+      "url": "http://localhost:5174/src/App.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6614,
+      "url": "http://localhost:5174/src/index.css?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6615,
+      "url": "http://localhost:5174/src/contexts/AuthContext.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6615,
+      "url": "http://localhost:5174/src/config/sentry.ts",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6616,
+      "url": "http://localhost:5174/src/contexts/TenantContext.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6624,
+      "method": "GET",
+      "url": "http://localhost:5174/src/store/authStore.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6625,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/ToastContext.tsx",
+      "type": "request"
+    },
+    {
+      "timestamp": 6625,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/ThemeContext.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 6626,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/LogoContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6627,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/CSSInjectionContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6627,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantRouter.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 6627,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/ErrorBoundary.tsx",
+      "type": "request"
+    },
+    {
+      "timestamp": 6658,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_react.js?v=2eead097",
+      "type": "request"
+    },
+    {
+      "timestamp": 6659,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_react.js?v=2eead097",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6660,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_tracing.js?v=910eb07e",
+      "type": "request"
+    },
+    {
+      "timestamp": 6661,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_tracing.js?v=910eb07e",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6662,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/api.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6663,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/domainResolutionService.ts?t=1758580766303",
+      "type": "request"
+    },
+    {
+      "timestamp": 6663,
+      "method": "GET",
+      "url": "http://localhost:5174/src/utils/logger.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 6664,
+      "url": "http://localhost:5174/src/store/authStore.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6666,
+      "url": "http://localhost:5174/src/contexts/ToastContext.tsx",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6672,
+      "url": "http://localhost:5174/src/components/ErrorBoundary.tsx",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6672,
+      "url": "http://localhost:5174/src/contexts/ThemeContext.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6680,
+      "url": "http://localhost:5174/src/contexts/LogoContext.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6681,
+      "url": "http://localhost:5174/src/components/tenant/TenantRouter.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6682,
+      "url": "http://localhost:5174/src/contexts/CSSInjectionContext.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6685,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand.js?v=3f9b06f5",
+      "type": "request"
+    },
+    {
+      "timestamp": 6686,
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand.js?v=3f9b06f5",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6686,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand_middleware.js?v=2aa9ed3f",
+      "type": "request"
+    },
+    {
+      "timestamp": 6687,
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand_middleware.js?v=2aa9ed3f",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6688,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/auth.service.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6692,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/framer-motion.js?v=bccd4ed0",
+      "type": "request"
+    },
+    {
+      "timestamp": 6693,
+      "url": "http://localhost:5174/node_modules/.vite/deps/framer-motion.js?v=bccd4ed0",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6695,
+      "url": "http://localhost:5174/src/services/api.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6695,
+      "url": "http://localhost:5174/src/utils/logger.ts",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6697,
+      "url": "http://localhost:5174/src/services/domainResolutionService.ts?t=1758580766303",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6698,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 6698,
+      "method": "GET",
+      "url": "http://localhost:5174/src/types/logo.types.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 6699,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/logoService.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6699,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantLayout.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 6705,
+      "method": "GET",
+      "url": "http://localhost:5174/src/types/cssInjection.types.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 6706,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/cssInjectionService.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6707,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-OIFVPICB.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 6707,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-OIFVPICB.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6709,
+      "url": "http://localhost:5174/src/services/auth.service.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6710,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/axios.js?v=217a873d",
+      "type": "request"
+    },
+    {
+      "timestamp": 6711,
+      "url": "http://localhost:5174/node_modules/.vite/deps/axios.js?v=217a873d",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6712,
+      "url": "http://localhost:5174/src/types/logo.types.ts",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6712,
+      "url": "http://localhost:5174/src/services/logoService.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6713,
+      "url": "http://localhost:5174/src/types/cssInjection.types.ts",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6715,
+      "url": "http://localhost:5174/src/components/tenant/TenantLayout.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6715,
+      "url": "http://localhost:5174/src/services/cssInjectionService.ts?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6719,
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "status": 500,
+      "type": "response"
+    },
+    {
+      "timestamp": 6748,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantNavigation.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6748,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantContextIndicator.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 6749,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/theme/ThemeToggle.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 6752,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/lucide-react.js?v=2e4be72e",
+      "type": "request"
+    },
+    {
+      "timestamp": 6753,
+      "url": "http://localhost:5174/node_modules/.vite/deps/lucide-react.js?v=2e4be72e",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6754,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@heroicons_react_24_outline.js?v=2478b211",
+      "type": "request"
+    },
+    {
+      "timestamp": 6755,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@heroicons_react_24_outline.js?v=2478b211",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6756,
+      "url": "http://localhost:5174/src/components/tenant/TenantNavigation.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6758,
+      "url": "http://localhost:5174/src/components/theme/ThemeToggle.tsx?t=1758580958192",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 6759,
+      "url": "http://localhost:5174/src/components/tenant/TenantContextIndicator.tsx?t=1758580766312",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8289,
+      "method": "GET",
+      "url": "http://localhost:5174/",
+      "type": "request"
+    },
+    {
+      "timestamp": 8297,
+      "url": "http://localhost:5174/",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8319,
+      "method": "GET",
+      "url": "http://localhost:5174/@vite/client",
+      "type": "request"
+    },
+    {
+      "timestamp": 8320,
+      "method": "GET",
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap",
+      "type": "request"
+    },
+    {
+      "timestamp": 8321,
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8321,
+      "method": "GET",
+      "url": "http://localhost:5174/src/main.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 8326,
+      "url": "http://localhost:5174/@vite/client",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8327,
+      "url": "http://localhost:5174/src/main.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8330,
+      "method": "GET",
+      "url": "http://localhost:5174/@react-refresh",
+      "type": "request"
+    },
+    {
+      "timestamp": 8334,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/vite/dist/client/env.mjs",
+      "type": "request"
+    },
+    {
+      "timestamp": 8348,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=72588811",
+      "type": "request"
+    },
+    {
+      "timestamp": 8351,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=72588811",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8361,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react.js?v=72588811",
+      "type": "request"
+    },
+    {
+      "timestamp": 8361,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react.js?v=72588811",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8362,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=708eac2f",
+      "type": "request"
+    },
+    {
+      "timestamp": 8363,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-dom_client.js?v=708eac2f",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8363,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-router-dom.js?v=cd17cec9",
+      "type": "request"
+    },
+    {
+      "timestamp": 8364,
+      "url": "http://localhost:5174/node_modules/.vite/deps/react-router-dom.js?v=cd17cec9",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8365,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query.js?v=5efc8602",
+      "type": "request"
+    },
+    {
+      "timestamp": 8366,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query.js?v=5efc8602",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8368,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query-devtools.js?v=0c489329",
+      "type": "request"
+    },
+    {
+      "timestamp": 8368,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@tanstack_react-query-devtools.js?v=0c489329",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8369,
+      "method": "GET",
+      "url": "http://localhost:5174/src/App.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 8369,
+      "method": "GET",
+      "url": "http://localhost:5174/src/index.css?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 8370,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/AuthContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8370,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/TenantContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8371,
+      "method": "GET",
+      "url": "http://localhost:5174/src/config/sentry.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 8374,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-BG45W2ER.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 8374,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-BG45W2ER.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8375,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-HXA6O6EE.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 8375,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-HXA6O6EE.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8379,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-QYFCA5BS.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 8379,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-QYFCA5BS.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8380,
+      "url": "http://localhost:5174/@react-refresh",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8382,
+      "url": "http://localhost:5174/node_modules/vite/dist/client/env.mjs",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8389,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-Z4HRIXNX.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 8390,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-Z4HRIXNX.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8390,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-MZFEWTVJ.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 8391,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-MZFEWTVJ.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8392,
+      "url": "http://localhost:5174/src/App.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8393,
+      "url": "http://localhost:5174/src/index.css?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8394,
+      "url": "http://localhost:5174/src/contexts/AuthContext.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8395,
+      "url": "http://localhost:5174/src/contexts/TenantContext.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8395,
+      "url": "http://localhost:5174/src/config/sentry.ts",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8407,
+      "method": "GET",
+      "url": "http://localhost:5174/src/store/authStore.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8407,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/ToastContext.tsx",
+      "type": "request"
+    },
+    {
+      "timestamp": 8408,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/ThemeContext.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 8409,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/LogoContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8410,
+      "method": "GET",
+      "url": "http://localhost:5174/src/contexts/CSSInjectionContext.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8411,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantRouter.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 8412,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/ErrorBoundary.tsx",
+      "type": "request"
+    },
+    {
+      "timestamp": 8412,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/api.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8413,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/domainResolutionService.ts?t=1758580766303",
+      "type": "request"
+    },
+    {
+      "timestamp": 8413,
+      "method": "GET",
+      "url": "http://localhost:5174/src/utils/logger.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 8440,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_react.js?v=2eead097",
+      "type": "request"
+    },
+    {
+      "timestamp": 8441,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_react.js?v=2eead097",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8441,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_tracing.js?v=910eb07e",
+      "type": "request"
+    },
+    {
+      "timestamp": 8443,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@sentry_tracing.js?v=910eb07e",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8444,
+      "url": "http://localhost:5174/src/store/authStore.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8444,
+      "url": "http://localhost:5174/src/contexts/ToastContext.tsx",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8445,
+      "url": "http://localhost:5174/src/contexts/ThemeContext.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8446,
+      "url": "http://localhost:5174/src/contexts/LogoContext.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8447,
+      "url": "http://localhost:5174/src/contexts/CSSInjectionContext.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8447,
+      "url": "http://localhost:5174/src/components/tenant/TenantRouter.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8451,
+      "url": "http://localhost:5174/src/services/api.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8452,
+      "url": "http://localhost:5174/src/components/ErrorBoundary.tsx",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8455,
+      "url": "http://localhost:5174/src/services/domainResolutionService.ts?t=1758580766303",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8455,
+      "url": "http://localhost:5174/src/utils/logger.ts",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8462,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand.js?v=3f9b06f5",
+      "type": "request"
+    },
+    {
+      "timestamp": 8462,
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand.js?v=3f9b06f5",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8463,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand_middleware.js?v=2aa9ed3f",
+      "type": "request"
+    },
+    {
+      "timestamp": 8464,
+      "url": "http://localhost:5174/node_modules/.vite/deps/zustand_middleware.js?v=2aa9ed3f",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8464,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/auth.service.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8473,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/framer-motion.js?v=bccd4ed0",
+      "type": "request"
+    },
+    {
+      "timestamp": 8474,
+      "url": "http://localhost:5174/node_modules/.vite/deps/framer-motion.js?v=bccd4ed0",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8475,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 8475,
+      "method": "GET",
+      "url": "http://localhost:5174/src/types/logo.types.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 8476,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/logoService.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8477,
+      "method": "GET",
+      "url": "http://localhost:5174/src/types/cssInjection.types.ts",
+      "type": "request"
+    },
+    {
+      "timestamp": 8477,
+      "method": "GET",
+      "url": "http://localhost:5174/src/services/cssInjectionService.ts?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8477,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantLayout.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 8479,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/axios.js?v=217a873d",
+      "type": "request"
+    },
+    {
+      "timestamp": 8480,
+      "url": "http://localhost:5174/node_modules/.vite/deps/axios.js?v=217a873d",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8485,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-OIFVPICB.js?v=d56f774b",
+      "type": "request"
+    },
+    {
+      "timestamp": 8486,
+      "url": "http://localhost:5174/node_modules/.vite/deps/chunk-OIFVPICB.js?v=d56f774b",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8488,
+      "url": "http://localhost:5174/src/services/auth.service.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8489,
+      "url": "http://localhost:5174/src/types/logo.types.ts",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8491,
+      "url": "http://localhost:5174/src/services/logoService.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8492,
+      "url": "http://localhost:5174/src/types/cssInjection.types.ts",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8493,
+      "url": "http://localhost:5174/src/services/cssInjectionService.ts?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8494,
+      "url": "http://localhost:5174/src/components/tenant/TenantLayout.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8494,
+      "url": "http://localhost:5174/src/services/themeService.ts?t=1758580958192",
+      "status": 500,
+      "type": "response"
+    },
+    {
+      "timestamp": 8526,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantNavigation.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8526,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/tenant/TenantContextIndicator.tsx?t=1758580766312",
+      "type": "request"
+    },
+    {
+      "timestamp": 8526,
+      "method": "GET",
+      "url": "http://localhost:5174/src/components/theme/ThemeToggle.tsx?t=1758580958192",
+      "type": "request"
+    },
+    {
+      "timestamp": 8527,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/lucide-react.js?v=2e4be72e",
+      "type": "request"
+    },
+    {
+      "timestamp": 8528,
+      "url": "http://localhost:5174/node_modules/.vite/deps/lucide-react.js?v=2e4be72e",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8528,
+      "method": "GET",
+      "url": "http://localhost:5174/node_modules/.vite/deps/@heroicons_react_24_outline.js?v=2478b211",
+      "type": "request"
+    },
+    {
+      "timestamp": 8529,
+      "url": "http://localhost:5174/node_modules/.vite/deps/@heroicons_react_24_outline.js?v=2478b211",
+      "status": 200,
+      "type": "response"
+    },
+    {
+      "timestamp": 8530,
+      "url": "http://localhost:5174/src/components/tenant/TenantNavigation.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8531,
+      "url": "http://localhost:5174/src/components/tenant/TenantContextIndicator.tsx?t=1758580766312",
+      "status": 304,
+      "type": "response"
+    },
+    {
+      "timestamp": 8531,
+      "url": "http://localhost:5174/src/components/theme/ThemeToggle.tsx?t=1758580958192",
+      "status": 304,
+      "type": "response"
+    }
+  ],
+  "themeCalls": [],
+  "themeCallCounts": {},
+  "uniqueEndpoints": [],
+  "apiCallCounts": {},
+  "duplicateAPICalls": []
+}
