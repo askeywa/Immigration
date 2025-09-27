@@ -17,7 +17,7 @@ try {
     console.log('🔍 Environment Info:', envInfo);
   }
 } catch (error) {
-  console.error('❌ Environment validation failed:', error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error));
+  console.error('❌ Environment validation failed:', error instanceof Error ? error.message : String(error));
   process.exit(1);
 }
 
@@ -35,61 +35,16 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
-import { connectDatabase } from './config/database';
+import { connectDatabase, disconnectDatabase, isDatabaseConnected, getDatabaseInfo } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import { initializeRowLevelSecurity } from './middleware/rowLevelSecurity';
 import { requestResponseLogging } from './middleware/requestResponseLogging';
 import { 
   sentryMiddleware, 
-  newRelicMiddleware, 
-  performanceMonitoringMiddleware,
   errorTrackingMiddleware,
-  databaseMonitoringMiddleware,
-  apmHealthCheckMiddleware
 } from './middleware/apmMiddleware';
 import { comprehensiveLogging } from './middleware/loggingMiddleware';
-import DNSAutomationService from './services/dnsAutomationService';
-import SSLAutomationService from './services/sslAutomationService';
-import SubdomainProvisioningService from './services/subdomainProvisioningService';
-import APMService from './services/apmService';
-import LoggingManagementService from './services/loggingService';
-import BackupService from './services/backupService';
 import { PerformanceMonitoringService } from './services/performanceMonitoringService';
-import CriticalAreasIntegration from './integration/criticalAreasIntegration';
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import profileRoutes from './routes/profileRoutes';
-import drawRoutes from './routes/drawRoutes';
-import fileRoutes from './routes/fileRoutes';
-import tenantRoutes from './routes/tenantRoutes';
-import subscriptionRoutes from './routes/subscriptionRoutes';
-import auditLogRoutes from './routes/auditLogRoutes';
-import notificationRoutes from './routes/notificationRoutes';
-import reportRoutes from './routes/reportRoutes';
-import healthRoutes from './routes/healthRoutes';
-import mfaRoutes from './routes/mfaRoutes';
-import apiKeyRoutes from './routes/apiKeyRoutes';
-import tenantValidationRoutes from './routes/tenantValidationRoutes';
-import requestLoggingRoutes from './routes/requestLoggingRoutes';
-import logoRoutes from './routes/logoRoutes';
-import tenantActivityRoutes from './routes/tenantActivityRoutes';
-import performanceMonitoringRoutes from './routes/performanceMonitoringRoutes';
-import dnsAutomationRoutes from './routes/dnsAutomationRoutes';
-import sslAutomationRoutes from './routes/sslAutomationRoutes';
-import subdomainProvisioningRoutes from './routes/subdomainProvisioningRoutes';
-import loggingRoutes from './routes/loggingRoutes';
-import backupRoutes from './routes/backupRoutes';
-import indexingRoutes from './routes/indexingRoutes';
-import enhancedAuditRoutes from './routes/enhancedAuditRoutes';
-import rateLimitRoutes from './routes/rateLimitRoutes';
-import sessionRoutes from './routes/sessionRoutes';
-import securityRoutes from './routes/securityRoutes';
-import dataIsolationRoutes from './routes/dataIsolationRoutes';
-import impersonationRoutes from './routes/impersonationRoutes';
-import tenantResolutionRoutes from './routes/tenantResolutionRoutes';
-import databaseMigrationRoutes from './routes/databaseMigrationRoutes';
-import themeRoutes from './routes/themeRoutes';
-import superAdminRoutes from './routes/superAdminRoutes';
 import mongoose from 'mongoose';
 import { log } from './utils/logger';
 import { NotificationService } from './services/notificationService';
@@ -133,28 +88,46 @@ import {
 import { sanitizeRequest } from './utils/sanitization';
 import { LightweightMonitoring } from './utils/lightweightMonitoring';
 
+// Import routes
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import profileRoutes from './routes/profileRoutes';
+import drawRoutes from './routes/drawRoutes';
+import fileRoutes from './routes/fileRoutes';
+import tenantRoutes from './routes/tenantRoutes';
+import subscriptionRoutes from './routes/subscriptionRoutes';
+import auditLogRoutes from './routes/auditLogRoutes';
+import notificationRoutes from './routes/notificationRoutes';
+import reportRoutes from './routes/reportRoutes';
+import healthRoutes from './routes/healthRoutes';
+import mfaRoutes from './routes/mfaRoutes';
+import apiKeyRoutes from './routes/apiKeyRoutes';
+import tenantValidationRoutes from './routes/tenantValidationRoutes';
+import requestLoggingRoutes from './routes/requestLoggingRoutes';
+import logoRoutes from './routes/logoRoutes';
+import tenantActivityRoutes from './routes/tenantActivityRoutes';
+import performanceMonitoringRoutes from './routes/performanceMonitoringRoutes';
+import dnsAutomationRoutes from './routes/dnsAutomationRoutes';
+import sslAutomationRoutes from './routes/sslAutomationRoutes';
+import subdomainProvisioningRoutes from './routes/subdomainProvisioningRoutes';
+import loggingRoutes from './routes/loggingRoutes';
+import backupRoutes from './routes/backupRoutes';
+import indexingRoutes from './routes/indexingRoutes';
+import enhancedAuditRoutes from './routes/enhancedAuditRoutes';
+import rateLimitRoutes from './routes/rateLimitRoutes';
+import sessionRoutes from './routes/sessionRoutes';
+import securityRoutes from './routes/securityRoutes';
+import dataIsolationRoutes from './routes/dataIsolationRoutes';
+import impersonationRoutes from './routes/impersonationRoutes';
+import tenantResolutionRoutes from './routes/tenantResolutionRoutes';
+import databaseMigrationRoutes from './routes/databaseMigrationRoutes';
+import themeRoutes from './routes/themeRoutes';
+import superAdminRoutes from './routes/superAdminRoutes';
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Initialize Critical Areas Integration - DISABLED FOR MEMORY REDUCTION
-// ❌ DISABLED - Memory leak source (50-200MB)
-// const criticalAreasIntegration = new CriticalAreasIntegration();
-
-// Critical Areas Integration Middleware - DISABLED FOR MEMORY DEBUGGING
-// try {
-//   const integratedMiddleware = criticalAreasIntegration.getIntegratedMiddleware();
-//   log.info('Integrated middleware retrieved', { middlewareCount: integratedMiddleware?.length || 0 });
-//   if (integratedMiddleware && integratedMiddleware.length > 0) {
-//     app.use(...integratedMiddleware);
-//     log.info('Integrated middleware applied successfully');
-//   }
-// } catch (error) {
-//   log.error('Failed to apply integrated middleware', { error: error instanceof Error ? error.message : String(error) });
-// }
-
-// Request processing middleware
-
-// APM Middleware - REACTIVATING SYSTEMATICALLY
+// APM Middleware
 try {
   app.use(sentryMiddleware);
   log.info('Sentry middleware applied');
@@ -162,28 +135,7 @@ try {
   log.error('Sentry middleware error', { error: error instanceof Error ? error.message : String(error) });
 }
 
-// try {
-//   app.use(newRelicMiddleware);
-//   log.info('New Relic middleware applied');
-// } catch (error) {
-//   log.error('New Relic middleware error', { error: error instanceof Error ? error.message : String(error) });
-// }
-
-// try {
-//   app.use(databaseMonitoringMiddleware);
-//   log.info('Database monitoring middleware applied');
-// } catch (error) {
-//   log.error('Database monitoring middleware error', { error: error instanceof Error ? error.message : String(error) });
-// }
-
-// try {
-//   app.use(apmHealthCheckMiddleware);
-//   log.info('APM health check middleware applied');
-// } catch (error) {
-//   log.error('APM health check middleware error', { error: error instanceof Error ? error.message : String(error) });
-// }
-
-// Comprehensive Logging Middleware - REACTIVATED
+// Comprehensive Logging Middleware
 app.use(comprehensiveLogging);
 
 // Security middleware (order is important!)
@@ -198,7 +150,7 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
   skip: (req: any) => {
     // Skip rate limiting for health checks
-    return (req as any).url === '/api/health';
+    return (req as any).url === '/api/health' || (req as any).url.startsWith('/api/health');
   }
 });
 app.use(limiter);
@@ -210,10 +162,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Input sanitization middleware (must be after body parsing)
 app.use(sanitizeRequest);
 
-// Request/Response logging middleware - REACTIVATED (Optimized)
+// Request/Response logging middleware
 app.use(requestResponseLogging);
 
-// Performance monitoring middleware - REACTIVATED (OPTIMIZED)
+// Performance monitoring middleware
 app.use(PerformanceMonitoringService.createMonitoringMiddleware());
 
 // Security hardening middleware
@@ -229,15 +181,83 @@ app.use(compression());
 // Logging middleware
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// Health check route
+// Basic health check route (no database dependency)
 app.get('/api/health', (req: any, res: any) => {
+  const dbInfo = getDatabaseInfo();
   (res as any).status(200).json({
     status: 'OK',
     message: 'Immigration Portal API is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    database: {
+      connected: isDatabaseConnected(),
+      readyState: dbInfo.readyState,
+      host: dbInfo.host,
+      port: dbInfo.port,
+      name: dbInfo.name
+    }
   });
 });
+
+// Enhanced health check route
+app.get('/api/health/detailed', async (req: any, res: any) => {
+  try {
+    const dbInfo = getDatabaseInfo();
+    const isDbConnected = isDatabaseConnected();
+    
+    // Try to ping database if connected
+    let dbPing = false;
+    if (isDbConnected) {
+      try {
+        await mongoose.connection.db?.admin().ping();
+        dbPing = true;
+      } catch (error) {
+        log.warn('Database ping failed', { error: error instanceof Error ? error.message : String(error) });
+      }
+    }
+
+    (res as any).status(200).json({
+      status: isDbConnected && dbPing ? 'OK' : 'PARTIAL',
+      message: 'Immigration Portal API Health Check',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      database: {
+        connected: isDbConnected,
+        pingSuccess: dbPing,
+        readyState: dbInfo.readyState,
+        readyStateDescription: getReadyStateDescription(dbInfo.readyState),
+        host: dbInfo.host,
+        port: dbInfo.port,
+        name: dbInfo.name
+      },
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+        external: Math.round(process.memoryUsage().external / 1024 / 1024),
+        rss: Math.round(process.memoryUsage().rss / 1024 / 1024)
+      },
+      uptime: Math.round(process.uptime())
+    });
+  } catch (error) {
+    (res as any).status(500).json({
+      status: 'ERROR',
+      message: 'Health check failed',
+      error: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Function to get readable description of mongoose ready state
+function getReadyStateDescription(state: number): string {
+  switch (state) {
+    case 0: return 'disconnected';
+    case 1: return 'connected';
+    case 2: return 'connecting';
+    case 3: return 'disconnecting';
+    default: return 'unknown';
+  }
+}
 
 // Health check routes (no authentication required)
 app.use('/api/health', healthRoutes);
@@ -284,224 +304,280 @@ app.use('*', (req: any, res: any) => {
   });
 });
 
-// Global error handler (must be last)
 // Error tracking middleware (before error handler)
 app.use(errorTrackingMiddleware);
 
+// Global error handler (must be last)
 app.use(errorHandler);
+
+// Initialize services with proper error handling
+const initializeServices = async () => {
+  const services = [
+    {
+      name: 'Rate Limiting Service',
+      init: () => RateLimitService.initialize(),
+      critical: false
+    },
+    {
+      name: 'Session Management Service',
+      init: () => SessionService.initialize(),
+      critical: false
+    },
+    {
+      name: 'Security Service',
+      init: () => SecurityService.initialize(),
+      critical: false
+    },
+    {
+      name: 'Data Isolation Service',
+      init: () => DataIsolationService.initialize(),
+      critical: false
+    },
+    {
+      name: 'Impersonation Service',
+      init: () => ImpersonationService.initialize(),
+      critical: false
+    },
+    {
+      name: 'Tenant Resolution Service',
+      init: () => TenantResolutionService.initialize(),
+      critical: false
+    },
+    {
+      name: 'Database Migration Service',
+      init: () => DatabaseMigrationService.initialize(),
+      critical: false
+    }
+  ];
+
+  for (const service of services) {
+    try {
+      await service.init();
+      log.info(`✅ ${service.name} initialized`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (service.critical) {
+        log.error(`❌ ${service.name} failed to initialize (CRITICAL)`, { error: errorMessage });
+        throw error;
+      } else {
+        log.warn(`⚠️  ${service.name} failed to initialize (non-critical)`, { error: errorMessage });
+      }
+    }
+  }
+};
 
 // Database connection and server startup
 const startServer = async () => {
   try {
-    // Connect to MongoDB
-    await connectDatabase();
-    log.info('✅ Database connected successfully');
+    log.info('🚀 Starting Immigration Portal Server...', {
+      environment: process.env.NODE_ENV,
+      port: PORT,
+      nodeVersion: process.version
+    });
+
+    // Connect to MongoDB with better error handling
+    try {
+      await connectDatabase();
+      log.info('✅ Database connected successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error('❌ Database connection failed', { error: errorMessage });
+      
+      // In production, we must have a database connection
+      if (process.env.NODE_ENV === 'production') {
+        throw error;
+      } else {
+        log.warn('⚠️  Continuing without database in development mode');
+      }
+    }
 
     // Initialize Row-Level Security system
     initializeRowLevelSecurity();
     
-    // Initialize Rate Limiting Service
-    try {
-      await RateLimitService.initialize();
-      log.info('✅ Rate Limiting Service initialized');
-    } catch (error) {
-      log.error('❌ Rate Limiting Service failed to initialize', { error: error instanceof Error ? error.message : String(error) });
-      log.warn('⚠️  Continuing without rate limiting - service will be unavailable');
-    }
+    // Initialize services
+    await initializeServices();
     
-    // Initialize Session Management Service
-    try {
-      await SessionService.initialize();
-      log.info('✅ Session Management Service initialized');
-    } catch (error) {
-      log.error('❌ Session Management Service failed to initialize', { error: error instanceof Error ? error.message : String(error) });
-      log.warn('⚠️  Continuing without session management - service will be unavailable');
-    }
-    
-    // Initialize Security Service
-    try {
-      await SecurityService.initialize();
-      log.info('✅ Security Service initialized');
-    } catch (error) {
-      log.error('❌ Security Service failed to initialize', { error: error instanceof Error ? error.message : String(error) });
-      log.warn('⚠️  Continuing without security service - service will be unavailable');
-    }
-    
-    // Initialize Data Isolation Service (Optional - requires all models)
-    try {
-      await DataIsolationService.initialize();
-      log.info('✅ Data Isolation Service initialized');
-    } catch (error) {
-      log.warn('⚠️  Data Isolation Service skipped - some models not yet implemented');
-    }
-    
-    // Initialize Impersonation Service (Optional - requires all models)
-    try {
-      await ImpersonationService.initialize();
-      log.info('✅ Impersonation Service initialized');
-    } catch (error) {
-      log.warn('⚠️  Impersonation Service skipped - some models not yet implemented');
-    }
-    
-    // Initialize Tenant Resolution Service
-    try {
-      await TenantResolutionService.initialize();
-      log.info('✅ Tenant Resolution Service initialized');
-    } catch (error) {
-      log.error('❌ Tenant Resolution Service failed to initialize', { error: error instanceof Error ? error.message : String(error) });
-      log.warn('⚠️  Continuing without tenant resolution - service will be unavailable');
-    }
-    
-    // Initialize Database Migration Service (Optional)
-    try {
-      await DatabaseMigrationService.initialize();
-      log.info('✅ Database Migration Service initialized');
-    } catch (error) {
-      log.warn('⚠️  Database Migration Service skipped - some models not yet implemented');
-    }
-    
-    // Initialize Performance Monitoring Service - REACTIVATED (OPTIMIZED)
-    // ✅ REACTIVATED - Now optimized for memory usage
+    // Initialize Performance Monitoring Service
     try {
       PerformanceMonitoringService.initialize();
       log.info('✅ Performance Monitoring Service initialized (memory optimized)');
     } catch (error) {
-      log.error('❌ Performance Monitoring Service failed to initialize', { error: error instanceof Error ? error.message : String(error) });
+      log.error('❌ Performance Monitoring Service failed to initialize', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
       log.warn('⚠️  Continuing without performance monitoring - service will be unavailable');
     }
     
-    // ✅ ADD instead - Lightweight alternative
-    app.use((req: any, res: any, next: any) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`${req.method} ${req.path}`);
-      }
-      next();
-    });
-    
-    // Initialize Lightweight Monitoring (replaces heavy monitoring services)
+    // Initialize Lightweight Monitoring
     LightweightMonitoring.initialize();
-    
-    // Initialize DNS automation service - DISABLED FOR MEMORY
-    // try {
-    //   const dnsAutomationService = DNSAutomationService.getInstance();
-    //   await dnsAutomationService.initialize();
-    //   log.info('✅ DNS Automation Service initialized');
-    // } catch (error) {
-    //   log.error('❌ DNS Automation Service failed to initialize', { error: error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) });
-    //   log.warn('⚠️  Continuing without DNS automation - service will be unavailable');
-    // }
-    
-    // Initialize SSL automation service - DISABLED FOR MEMORY
-    // SSL automation service disabled to reduce memory usage
-    
-    // Initialize subdomain provisioning service - DISABLED FOR MEMORY
-    // Subdomain provisioning service disabled to reduce memory usage
-    
-    // Initialize APM service - DISABLED FOR MEMORY
-    // APM service disabled to reduce memory usage
-    
-    // Initialize Logging Management service - DISABLED FOR MEMORY
-    // Logging management service disabled to reduce memory usage
-    
-    // Initialize Backup service - DISABLED FOR MEMORY
-    // Backup service disabled to reduce memory usage
-
-    // Start Critical Areas Integration
-    try {
-      // await criticalAreasIntegration.startIntegration(); // DISABLED FOR MEMORY
-      log.info('✅ Critical Areas Integration initialized');
-      
-      // Run initial health check
-      // const healthCheck = await criticalAreasIntegration.performHealthCheck(); // DISABLED FOR MEMORY
-      log.info('🏥 System Health Check', { 
-        overall: 'healthy',
-        activeComponents: 0,
-        totalComponents: 0,
-        note: 'Critical Areas Integration disabled for memory optimization'
-      });
-      
-    } catch (error) {
-      log.error('❌ Critical Areas Integration failed to initialize', { error: error instanceof Error ? error instanceof Error ? error.message : String(error) : String(error) });
-      log.warn('⚠️  Continuing without critical areas integration - some features may be unavailable');
-    }
+    log.info('✅ Lightweight Monitoring initialized');
     
     // Configure session middleware
-    app.use(SessionService.createSessionMiddleware() as any);
-    app.use(sessionActivityTracking());
-    app.use(sessionSecurityPolicy());
+    try {
+      app.use(SessionService.createSessionMiddleware() as any);
+      app.use(sessionActivityTracking());
+      app.use(sessionSecurityPolicy());
+      log.info('✅ Session middleware configured');
+    } catch (error) {
+      log.warn('⚠️  Session middleware configuration skipped', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
     
     // Configure comprehensive tenant resolution middleware
-    app.use(comprehensiveTenantResolution());
+    try {
+      app.use(comprehensiveTenantResolution());
+      log.info('✅ Tenant resolution middleware configured');
+    } catch (error) {
+      log.warn('⚠️  Tenant resolution middleware configuration skipped', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
     
     // Configure comprehensive data isolation middleware
-    app.use(comprehensiveDataIsolation());
+    try {
+      app.use(comprehensiveDataIsolation());
+      log.info('✅ Data isolation middleware configured');
+    } catch (error) {
+      log.warn('⚠️  Data isolation middleware configuration skipped', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
     
     // Configure comprehensive impersonation middleware
-    app.use(comprehensiveImpersonation());
+    try {
+      app.use(comprehensiveImpersonation());
+      log.info('✅ Impersonation middleware configured');
+    } catch (error) {
+      log.warn('⚠️  Impersonation middleware configuration skipped', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
 
     // Start the server
     const server = app.listen(PORT, () => {
       log.info(`🚀 Server running on port ${PORT}`, {
         port: PORT,
         apiDocs: `http://localhost:${PORT}/api/health`,
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
+        database: {
+          connected: isDatabaseConnected(),
+          info: getDatabaseInfo()
+        }
       });
       
-      // Start automated notification checks
-      NotificationService.startAutomatedChecks();
+      // Start automated notification checks only if database is connected
+      if (isDatabaseConnected()) {
+        try {
+          NotificationService.startAutomatedChecks();
+          log.info('✅ Notification service automated checks started');
+        } catch (error) {
+          log.warn('⚠️  Failed to start notification automated checks', { 
+            error: error instanceof Error ? error.message : String(error) 
+          });
+        }
+      }
     });
 
     // Graceful shutdown handling
-    const gracefulShutdown = (signal: string) => {
+    const gracefulShutdown = async (signal: string) => {
       log.info(`👋 ${signal} received. Shutting down gracefully...`, { signal });
       
       // Close server gracefully
-      server.close(() => {
+      server.close(async () => {
         log.info('✅ Server closed');
         
-        // Close database connection
-        mongoose.connection.close().then(() => {
-          log.info('✅ Database connection closed');
-          process.exit(0);
-        });
+        // Close database connection if connected
+        if (isDatabaseConnected()) {
+          try {
+            await disconnectDatabase();
+            log.info('✅ Database connection closed');
+          } catch (error) {
+            log.error('❌ Error closing database connection', { 
+              error: error instanceof Error ? error.message : String(error) 
+            });
+          }
+        }
+        
+        process.exit(0);
       });
       
-      // Force close after 10 seconds
+      // Force close after 15 seconds
       setTimeout(() => {
         log.error('❌ Could not close connections in time, forcefully shutting down');
         process.exit(1);
-      }, 10000);
+      }, 15000);
     };
 
     process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
     process.on('SIGINT', () => gracefulShutdown('SIGINT'));
     
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    log.error('❌ Failed to start server', { 
+      error: errorMessage,
+      stack: errorStack,
+      environment: process.env.NODE_ENV
+    });
+    
+    console.error('❌ Failed to start server:', errorMessage);
     process.exit(1);
   }
 };
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err: any) => {
+process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+  const errorMessage = reason instanceof Error ? reason.message : String(reason);
+  const errorStack = reason instanceof Error ? reason.stack : undefined;
+  
   log.error('❌ Unhandled Promise Rejection:', { 
     error: {
       name: 'UnhandledPromiseRejection',
-      message: err instanceof Error ? (err as any).message : String(err),
-      stack: err instanceof Error ? (err as any).stack : undefined
+      message: errorMessage,
+      stack: errorStack
     }
   });
-  // Log error but don't exit immediately - allow graceful shutdown
-  // process.exit(1);
+  
+  // In production, log the error but don't crash immediately
+  if (process.env.NODE_ENV === 'production') {
+    log.warn('⚠️  Continuing despite unhandled promise rejection in production');
+  } else {
+    // In development, we might want to crash to catch issues early
+    console.error('Unhandled Promise Rejection:', reason);
+    // Uncomment the line below if you want to crash on unhandled rejections in dev
+    // process.exit(1);
+  }
 });
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (err: Error) => {
-  log.error('❌ Uncaught Exception:', { error: (err as any).message, stack: (err as any).stack });
-  // Log error but don't exit immediately - allow graceful shutdown
-  // process.exit(1);
+process.on('uncaughtException', (error: Error) => {
+  log.error('❌ Uncaught Exception:', { 
+    error: error.message, 
+    stack: error.stack,
+    name: error.name
+  });
+  
+  // Log the error and exit gracefully
+  console.error('Uncaught Exception:', error);
+  
+  // Give some time for logging before exiting
+  setTimeout(() => {
+    process.exit(1);
+  }, 1000);
 });
 
+// Handle process warnings
+process.on('warning', (warning) => {
+  log.warn('⚠️  Process Warning:', {
+    name: warning.name,
+    message: warning.message,
+    stack: warning.stack
+  });
+});
+
+// Start the server
 startServer();
 
 export default app;
