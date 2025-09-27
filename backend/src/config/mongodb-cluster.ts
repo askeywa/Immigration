@@ -32,9 +32,9 @@ export class MongoDBClusterManager {
     const isDevelopment = process.env.NODE_ENV === 'development';
 
     if (isProduction) {
-      // Production cluster configuration
+      // Production cluster configuration - use MONGODB_URI directly for Atlas
       return {
-        primary: process.env.MONGODB_PRIMARY_URI || 'mongodb://mongodb-primary:27017',
+        primary: process.env.MONGODB_URI || process.env.MONGODB_PRIMARY_URI || 'mongodb://mongodb-primary:27017',
         secondaries: [
           process.env.MONGODB_SECONDARY_1_URI || 'mongodb://mongodb-secondary-1:27017',
           process.env.MONGODB_SECONDARY_2_URI || 'mongodb://mongodb-secondary-2:27017'
@@ -102,6 +102,11 @@ export class MongoDBClusterManager {
    */
   buildConnectionURI(config: MongoDBClusterConfig): string {
     const isProduction = process.env.NODE_ENV === 'production';
+    
+    // If MONGODB_URI is provided and it's an Atlas URI, use it directly
+    if (process.env.MONGODB_URI && process.env.MONGODB_URI.includes('mongodb+srv://')) {
+      return process.env.MONGODB_URI;
+    }
     
     if (isProduction && config.replicaSetName) {
       // Production cluster with replica set
