@@ -475,7 +475,7 @@ export class TenantController {
       const settings = {
         name: tenant?.name || 'Atlantic Immigration Solutions',
         domain: tenant?.domain || 'atlantic-immigration-solutions.com',
-        email: tenant?.email || 'admin@atlantic-immigration-solutions.com',
+        email: (tenant as any)?.email || 'admin@atlantic-immigration-solutions.com',
         phone: '+1-555-0123',
         timezone: 'UTC',
         language: 'en',
@@ -510,7 +510,7 @@ export class TenantController {
 
     } catch (error) {
       log.error('Failed to get tenant settings', { 
-        tenantId: id,
+        tenantId: tenant?._id?.toString(),
         error: error instanceof Error ? error.message : String(error) 
       });
       
@@ -640,15 +640,15 @@ export class TenantController {
     try {
       // Mock branding data for now
       const branding = {
-        logo: tenant?.logo || null,
-        primaryColor: tenant?.settings?.branding?.primaryColor || '#3B82F6',
-        secondaryColor: tenant?.settings?.branding?.secondaryColor || '#1E40AF',
-        fontFamily: tenant?.settings?.branding?.fontFamily || 'Inter',
-        customCSS: tenant?.settings?.branding?.customCSS || null
+        logo: (tenant as any)?.logo || null,
+        primaryColor: (tenant as any)?.settings?.branding?.primaryColor || '#3B82F6',
+        secondaryColor: (tenant as any)?.settings?.branding?.secondaryColor || '#1E40AF',
+        fontFamily: (tenant as any)?.settings?.branding?.fontFamily || 'Inter',
+        customCSS: (tenant as any)?.settings?.branding?.customCSS || null
       };
 
       log.info('Tenant branding retrieved', { 
-        tenantId: tenant?._id, 
+        tenantId: tenant?._id?.toString(), 
         userId: user._id
       });
 
@@ -658,7 +658,7 @@ export class TenantController {
       });
     } catch (error: any) {
       log.error('Failed to get tenant branding', { 
-        tenantId: tenant?._id, 
+        tenantId: tenant?._id?.toString(), 
         userId: user._id, 
         error: error.message 
       });
@@ -684,7 +684,7 @@ export class TenantController {
       // await TenantService.updateTenantBranding(tenant._id, brandingData, user._id);
 
       log.info('Tenant branding updated', { 
-        tenantId: tenant?._id, 
+        tenantId: tenant?._id?.toString(), 
         userId: user._id,
         brandingData: Object.keys(brandingData)
       });
@@ -696,7 +696,7 @@ export class TenantController {
       });
     } catch (error: any) {
       log.error('Failed to update tenant branding', { 
-        tenantId: tenant?._id, 
+        tenantId: tenant?._id?.toString(), 
         userId: user._id, 
         error: error.message 
       });

@@ -6,7 +6,7 @@ import { backwardCompatibility, apiVersionValidator, featureFlagCompatibility } 
 import ComprehensiveTestFramework from '../testing/testFramework';
 import ScalabilityManager from '../scalability/scalabilityManager';
 import SecurityHardening from '../security/securityHardening';
-import EnhancedMonitoring from '../monitoring/enhancedMonitoring';
+// import EnhancedMonitoring from '../monitoring/enhancedMonitoring';
 import CodePatternOptimizer from '../optimization/codePatternOptimizer';
 
 interface IntegrationConfig {
@@ -163,7 +163,7 @@ class CriticalAreasIntegration {
       if (this.config.monitoring.enabled) {
         try {
           this.components.set('monitoring', {
-            instance: new EnhancedMonitoring(),
+            // instance: new EnhancedMonitoring(),
             realTime: this.config.monitoring.realTime,
             alerting: this.config.monitoring.alerting
           });
