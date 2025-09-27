@@ -1,4 +1,7 @@
 // backend/src/server.ts
+// Load New Relic FIRST before any other modules
+import 'newrelic';
+
 import dotenv from 'dotenv';
 
 // Load environment variables first, before any other imports
