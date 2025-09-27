@@ -28,21 +28,14 @@ cd ../frontend
 npm ci
 npm run build
 
-# Create environment file
-echo "⚙️ Creating environment file..."
-cat > ../backend/.env << EOL
-NODE_ENV=production
-PORT=5000
-MONGODB_URI=mongodb+srv://immigration_db_user:Qwsaqwsa1234@rcicdb.npymiqt.mongodb.net/?retryWrites=true&w=majority&appName=RCICDB
-JWT_SECRET=3fc9908663650cc993389d8b02330b90dbe6d977966266ea34482690fdac889556936a69507fe97554e3824b1e60eb92a6a448bbda9c1bf1119bfb9e1a779b03
-FRONTEND_URL=https://ibuyscrap.ca
-EOL
+# Environment file is now created by GitHub Actions with secrets
+echo "⚙️ Environment file created by GitHub Actions with secure secrets..."
 
 # Restart applications with PM2
 echo "🔄 Restarting backend..."
 cd ../backend
 pm2 delete immigration-api || true
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.js --env production
 pm2 save
 
 # Copy frontend build to nginx
