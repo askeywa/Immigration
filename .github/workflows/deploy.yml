@@ -55,11 +55,4 @@ jobs:
           script: |
             cd /var/www/immigration-portal
             git pull origin main
-            cd backend
-            npm ci --only=production
-            npm run build
-            cd ../frontend
-            npm ci
-            npm run build
-            cd /var/www/immigration-portal
             ./deploy.sh
