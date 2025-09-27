@@ -28,8 +28,8 @@ cd ../frontend
 npm ci
 npm run build
 
-# Environment file is now created by GitHub Actions with secrets
-echo "⚙️ Environment file created by GitHub Actions with secure secrets..."
+# Environment variables are now set by GitHub Actions
+echo "⚙️ Environment variables set by GitHub Actions with secure secrets..."
 
 # Restart applications with PM2
 echo "🔄 Restarting backend..."
