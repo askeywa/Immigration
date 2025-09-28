@@ -12,7 +12,7 @@ export const authService = {
       const response = await api.post<LoginResponse>('/auth/login', {
         email,
         password,
-        tenantDomain,
+        tenantDomain: tenantDomain || '',
       });
       console.log('🔍 AuthService: API response received:', {
         success: response.data.success,

@@ -42,7 +42,7 @@ export const Login: React.FC = () => {
     setIsLoggingIn(true);
     try {
       console.log('🔍 Calling login function...');
-      await login(email, password, tenantDomain || undefined);
+      await login(email, password, tenantDomain || '');
       console.log('✅ Login successful!');
       
       // Simple redirect after successful login

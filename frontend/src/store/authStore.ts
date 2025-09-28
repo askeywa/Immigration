@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string, tenantDomain?: string) => {
         try {
           console.log('🔐 AuthStore: Calling authService.login...');
-          const response = await authService.login(email, password, tenantDomain);
+          const response = await authService.login(email, password, tenantDomain || '');
           console.log('🔐 AuthStore: Response received');
           
           // Set initial state immediately with empty permissions
