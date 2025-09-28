@@ -41,6 +41,14 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
     // Remove port if present
     const domain = host.split(':')[0].toLowerCase();
     
+    // Debug logging for domain resolution
+    console.log('🔍 Tenant Resolution Debug:', {
+      host,
+      domain,
+      allowedSuperAdminDomains: config.allowedSuperAdminDomains,
+      protocol
+    });
+    
     // Check for super admin domain (including localhost for development)
     // Use dynamic domain list from environment variables
     const isSuperAdminDomain = config.allowedSuperAdminDomains.some(allowedDomain => {
@@ -50,7 +58,14 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
       return domain === allowedDomain;
     });
     
+    console.log('🔍 Super Admin Domain Check:', {
+      domain,
+      isSuperAdminDomain,
+      allowedDomains: config.allowedSuperAdminDomains
+    });
+    
     if (isSuperAdminDomain) {
+      console.log('✅ Super Admin Domain Detected:', domain);
       (req as any).tenant = undefined;
       (req as any).tenantId = undefined;
       (req as any).isSuperAdmin = true;
@@ -89,6 +104,11 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
     }
     
     // No valid domain pattern found
+    console.log('❌ No valid domain pattern found:', {
+      domain,
+      host,
+      allowedSuperAdminDomains: config.allowedSuperAdminDomains
+    });
     return next(new ValidationError(
       'Invalid domain format',
       'domain',
