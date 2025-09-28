@@ -71,4 +71,6 @@ jobs:
             NEW_RELIC_ENABLED=${{ secrets.NEW_RELIC_ENABLED }}
             EOF
             
+            # Make deploy script executable and run it
+            chmod +x deploy.sh
             ./deploy.sh
