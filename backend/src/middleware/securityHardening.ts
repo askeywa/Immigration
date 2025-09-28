@@ -60,7 +60,9 @@ export const corsSecurity = () => {
         'http://localhost:3000',
         'http://localhost:5174', // Frontend dev server
         'http://localhost:5175', // Alternative frontend port
-        'http://localhost:5173'  // Alternative Vite port
+        'http://localhost:5173', // Alternative Vite port
+        'https://ibuyscrap.ca', // Production domain
+        'https://www.ibuyscrap.ca' // Production domain with www
       ];
       
       if (allowedOrigins.includes(origin)) {
