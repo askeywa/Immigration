@@ -54,7 +54,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /var/www/immigration-portal
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
             
             # Create .env file for PM2 to use
             cat > backend/.env << EOF
