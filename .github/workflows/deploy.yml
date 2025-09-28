@@ -62,7 +62,7 @@ jobs:
             cat > backend/.env << EOF
             NODE_ENV=production
             PORT=5000
-            MONGODB_URI=mongodb+srv://immigration_db_user:ImmigrationDB2024@rcicdb.npymiqt.mongodb.net/?retryWrites=true&w=majority&appName=RCICDB
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
             FRONTEND_URL=${{ secrets.FRONTEND_URL }}
