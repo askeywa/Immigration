@@ -38,54 +38,53 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
     const host = (req as any).get('host') || (req as any).get('x-forwarded-host') || '';
     const protocol = (req as any).get('x-forwarded-proto') || (req as any).protocol || 'http';
     
-    // Extract domain information
-    const { tenantDomain, isSuperAdmin, isApiDomain } = parseDomain(host);
+    // Remove port if present
+    const domain = host.split(':')[0].toLowerCase();
     
-    // Set super admin flag
-    (req as any).isSuperAdmin = isSuperAdmin;
-    (req as any).tenantDomain = tenantDomain;
+    // Check for super admin domain (including localhost for development)
+    // Use dynamic domain list from environment variables
+    const isSuperAdminDomain = config.allowedSuperAdminDomains.some(allowedDomain => {
+      if (allowedDomain === 'localhost') {
+        return domain === 'localhost' || domain.startsWith('localhost:');
+      }
+      return domain === allowedDomain;
+    });
     
-    // Handle super admin domain
-    if (isSuperAdmin) {
+    if (isSuperAdminDomain) {
       (req as any).tenant = undefined;
       (req as any).tenantId = undefined;
+      (req as any).isSuperAdmin = true;
       return next();
     }
     
-    // Handle API domain (no tenant resolution needed)
-    if (isApiDomain) {
-      return next();
-    }
+    // Check if domain belongs to any registered tenant
+    const tenant = await resolveTenantByDomain(domain);
     
-    // Handle tenant domain
-    if (tenantDomain) {
-      const tenant = await resolveTenantByDomain(tenantDomain);
-      
-      if (!tenant) {
-        return next(new ValidationError(
-          'Tenant not found', 
-          'domain', 
-          tenantDomain
-        ));
-      }
-      
+    if (tenant) {
+      // This is a registered tenant domain
       // Check if tenant is active
       if (!tenant.isActive()) {
         return next(new ValidationError(
           'Tenant account is suspended',
           'domain',
-          tenantDomain
+          domain
         ));
       }
       
       // Add tenant information to request
       (req as any).tenant = tenant;
       (req as any).tenantId = (tenant._id as any).toString();
+      (req as any).isSuperAdmin = false;
       
       // Add tenant context to response headers for debugging
       (res as any).set('X-Tenant-ID', (tenant._id as any).toString());
       (res as any).set('X-Tenant-Name', tenant.name);
       
+      return next();
+    }
+    
+    // Check for API domain
+    if (domain === 'api.sehwagimmigration.com' || domain === config.apiDomain) {
       return next();
     }
     
