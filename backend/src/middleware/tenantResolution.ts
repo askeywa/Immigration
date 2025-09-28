@@ -129,15 +129,46 @@ function parseDomain(host: string): {
   const domain = host.split(':')[0].toLowerCase();
   
   // Check for super admin domain (including localhost for development)
-  if (domain === config.superAdminDomain || 
-      domain === 'www.sehwagimmigration.com' || 
-      domain === 'localhost' || 
-      domain.startsWith('localhost:')) {
+  // Use dynamic domain list from environment variables
+  const isSuperAdminDomain = config.allowedSuperAdminDomains.some(allowedDomain => {
+    if (allowedDomain === 'localhost') {
+      return domain === 'localhost' || domain.startsWith('localhost:');
+    }
+    return domain === allowedDomain;
+  });
+  
+  if (isSuperAdminDomain) {
     return {
       tenantDomain: null,
       isSuperAdmin: true,
       isApiDomain: false
     };
+  }
+  
+  // Check if domain belongs to any registered tenant
+  const tenant = await resolveTenantByDomain(domain);
+  
+  if (tenant) {
+    // This is a registered tenant domain
+    // Check if tenant is active
+    if (!tenant.isActive()) {
+      return next(new ValidationError(
+        'Tenant account is suspended',
+        'domain',
+        domain
+      ));
+    }
+    
+    // Add tenant information to request
+    (req as any).tenant = tenant;
+    (req as any).tenantId = (tenant._id as any).toString();
+    (req as any).isSuperAdmin = false;
+    
+    // Add tenant context to response headers for debugging
+    (res as any).set('X-Tenant-ID', (tenant._id as any).toString());
+    (res as any).set('X-Tenant-Name', tenant.name);
+    
+    return next();
   }
   
   // Check for API domain
@@ -209,8 +240,8 @@ function isValidTenantName(tenantName: string): boolean {
  */
 async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
   try {
-    // First, try to find by exact domain match
-    let tenant = await Tenant.findOne({ 
+    // Find tenant by exact domain match
+    const tenant = await Tenant.findOne({ 
       domain: domain,
       status: { $in: ['active', 'trial'] }
     }).lean();
@@ -229,7 +260,7 @@ async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
       const tenantName = match[1];
       
       // Try to find tenant by name (for backwards compatibility)
-      tenant = await Tenant.findOne({
+      const subdomainTenant = await Tenant.findOne({
         $or: [
           { domain: tenantName },
           { name: { $regex: new RegExp(tenantName, 'i') } }
@@ -237,8 +268,8 @@ async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
         status: { $in: ['active', 'trial'] }
       }).lean();
       
-      if (tenant) {
-        return tenant as ITenant;
+      if (subdomainTenant) {
+        return subdomainTenant as ITenant;
       }
     }
     

@@ -23,6 +23,12 @@ export const config = {
     tenantDomainPrefix: process.env.TENANT_DOMAIN_PREFIX || 'portal',
     apiDomain: process.env.API_BASE_URL || 'api.sehwagimmigration.com',
     
+    // Allowed domains for super admin access (comma-separated)
+    allowedSuperAdminDomains: (process.env.ALLOWED_SUPER_ADMIN_DOMAINS || 'ibuyscrap.ca,www.ibuyscrap.ca,localhost')
+      .split(',')
+      .map(domain => domain.trim())
+      .filter(domain => domain.length > 0),
+    
     // App Configuration
     appName: process.env.APP_NAME || 'Immigration Portal',
     
