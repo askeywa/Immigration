@@ -33,26 +33,51 @@ export class AuthService {
     subscription?: ISubscription;
   }> {
     try {
+      console.log('🔍 AuthService.login called with:', { 
+        email, 
+        passwordLength: password?.length, 
+        tenantDomain, 
+        tenantId 
+      });
+
       // SECURITY: Validate inputs
       if (!email || !password) {
+        console.log('❌ Missing email or password');
         throw new AuthenticationError('Email and password are required');
       }
 
       if (typeof email !== 'string' || typeof password !== 'string') {
+        console.log('❌ Invalid input types:', { emailType: typeof email, passwordType: typeof password });
         throw new AuthenticationError('Invalid input format');
       }
 
+      console.log('🔍 Searching for user with email:', email);
       // Find user by email with timeout
       const user = await User.findOne({ email, isActive: true }).populate('tenantId').maxTimeMS(10000);
+      
       if (!user) {
+        console.log('❌ User not found for email:', email);
         throw new AuthenticationError('Invalid email or password');
       }
 
-    // Check if password matches using the model's comparePassword method
-    const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
-      throw new AuthenticationError('Invalid email or password');
-    }
+      console.log('✅ User found:', { 
+        userId: user._id?.toString(), 
+        email: user.email, 
+        role: user.role, 
+        isActive: user.isActive,
+        isSuperAdmin: user.isSuperAdmin?.() || false
+      });
+
+      // Check if password matches using the model's comparePassword method
+      console.log('🔍 Checking password...');
+      const isPasswordValid = await user.comparePassword(password);
+      
+      if (!isPasswordValid) {
+        console.log('❌ Password does not match for user:', user.email);
+        throw new AuthenticationError('Invalid email or password');
+      }
+
+      console.log('✅ Password is valid for user:', user.email);
 
     // For super admins, no tenant validation needed
     if (user.isSuperAdmin()) {

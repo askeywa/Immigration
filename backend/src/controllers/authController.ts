@@ -56,11 +56,24 @@ export const login = asyncHandler(async (req: TenantRequest, res: Response) => {
     const tenantId = req.tenantId;
     const isSuperAdmin = req.isSuperAdmin;
     
-    log.info('Login attempt', { email, tenantId, isSuperAdmin });
+    log.info('🔐 Login attempt started', { 
+      email, 
+      tenantId, 
+      isSuperAdmin, 
+      tenantDomain,
+      userAgent: req.headers['user-agent'],
+      ip: req.ip
+    });
     
     const { user, token, tenant, subscription } = await AuthService.login(email, password, tenantDomain, tenantId);
     
-    log.info('AuthService.login completed', { userId: user._id?.toString(), tenantId: tenant?._id?.toString() });
+    log.info('✅ AuthService.login completed successfully', { 
+      userId: user._id?.toString(), 
+      userEmail: user.email,
+      userRole: user.role,
+      tenantId: tenant?._id?.toString(),
+      tenantName: tenant?.name
+    });
     
     // Create secure session (with timeout protection)
     try {
@@ -84,9 +97,9 @@ export const login = asyncHandler(async (req: TenantRequest, res: Response) => {
         new Promise((_, reject) => setTimeout(() => reject(new Error('Session timeout')), 5000))
       ]);
       
-      log.info('Session created successfully');
+      log.info('✅ Session created successfully');
     } catch (sessionError) {
-      log.warn('Session creation failed, continuing without session', { error: sessionError instanceof Error ? sessionError.message : String(sessionError) });
+      log.warn('⚠️ Session creation failed, continuing without session', { error: sessionError instanceof Error ? sessionError.message : String(sessionError) });
       // Continue without failing the login - session is optional for JWT-based auth
     }
     
@@ -101,6 +114,13 @@ export const login = asyncHandler(async (req: TenantRequest, res: Response) => {
       res.set('X-Is-Super-Admin', 'true');
     }
     
+    log.info('🎉 Login successful - sending response', { 
+      userId: user._id?.toString(),
+      userRole: user.role,
+      hasToken: !!token,
+      hasTenant: !!tenant
+    });
+    
     res.json({
       success: true,
       message: 'Login successful',
@@ -112,9 +132,53 @@ export const login = asyncHandler(async (req: TenantRequest, res: Response) => {
       },
     });
   } catch (error) {
-    res.status(401).json({ 
+    // Enhanced error logging and specific error messages
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorType = error instanceof Error ? error.constructor.name : 'UnknownError';
+    
+    log.error('❌ Login failed', {
+      email,
+      error: errorMessage,
+      errorType,
+      stack: error instanceof Error ? error.stack : undefined,
+      tenantDomain,
+      tenantId: req.tenantId,
+      isSuperAdmin: req.isSuperAdmin
+    });
+    
+    // Return specific error messages based on error type
+    let statusCode = 401;
+    let message = 'Login failed';
+    
+    if (errorMessage.includes('Invalid email or password')) {
+      message = 'Invalid email or password';
+    } else if (errorMessage.includes('Account access is temporarily suspended')) {
+      message = 'Account access is temporarily suspended';
+      statusCode = 403;
+    } else if (errorMessage.includes('Account subscription has expired')) {
+      message = 'Account subscription has expired. Please contact your administrator.';
+      statusCode = 403;
+    } else if (errorMessage.includes('User account is not properly configured')) {
+      message = 'User account is not properly configured';
+      statusCode = 400;
+    } else if (errorMessage.includes('Invalid tenant access')) {
+      message = 'Invalid tenant access';
+      statusCode = 403;
+    } else if (errorMessage.includes('Email and password are required')) {
+      message = 'Email and password are required';
+      statusCode = 400;
+    } else if (errorMessage.includes('Invalid input format')) {
+      message = 'Invalid input format';
+      statusCode = 400;
+    } else {
+      // For unknown errors, provide more context
+      message = `Login failed: ${errorMessage}`;
+    }
+    
+    res.status(statusCode).json({ 
       success: false, 
-      message: error instanceof Error ? error instanceof Error ? error.message : String(error) : 'Login failed' 
+      message,
+      error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     });
   }
  });
