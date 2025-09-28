@@ -141,6 +141,10 @@ app.use(comprehensiveLogging);
 // Security middleware (order is important!)
 app.use(securityHeaders());
 app.use(corsSecurity());
+
+// Trust proxy for rate limiting with X-Forwarded-For headers
+app.set('trust proxy', 1);
+
 app.use(requestSizeLimit('10mb'));
 
 // Rate limiting middleware
