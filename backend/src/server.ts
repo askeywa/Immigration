@@ -143,6 +143,7 @@ app.use(securityHeaders());
 app.use(corsSecurity());
 
 // Trust proxy for rate limiting with X-Forwarded-For headers
+// This is essential for proper rate limiting behind a reverse proxy (Nginx)
 app.set('trust proxy', 1);
 
 app.use(requestSizeLimit('10mb'));
