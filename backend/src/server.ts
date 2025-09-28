@@ -5,8 +5,8 @@ import 'newrelic';
 import dotenv from 'dotenv';
 
 // Load environment variables first, before any other imports
-// Look for .env file in the root directory (one level up from backend/)
-dotenv.config({ path: '../.env' });
+// Look for .env file in the current directory (backend/)
+dotenv.config({ path: './.env' });
 
 // Validate environment variables
 import { validateEnvironmentVariables, getEnvironmentInfo } from './config/envValidation';
