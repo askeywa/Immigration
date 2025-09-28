@@ -25,8 +25,8 @@ export interface TenantRequest extends Request {
  * and adds it to the request object for use throughout the application.
  * 
  * Domain patterns supported:
- * - Super Admin: www.sehwagimmigration.com
- * - Tenant: portal.{tenantname}.com
+ * - Super Admin: ibuyscrap.ca, www.ibuyscrap.ca, localhost
+ * - Tenant: Any domain registered in the database
  * - API: api.sehwagimmigration.com
  * 
  * @param req Express request object
@@ -144,71 +144,12 @@ function parseDomain(host: string): {
     };
   }
   
-  // Check if domain belongs to any registered tenant
-  const tenant = await resolveTenantByDomain(domain);
-  
-  if (tenant) {
-    // This is a registered tenant domain
-    // Check if tenant is active
-    if (!tenant.isActive()) {
-      return next(new ValidationError(
-        'Tenant account is suspended',
-        'domain',
-        domain
-      ));
-    }
-    
-    // Add tenant information to request
-    (req as any).tenant = tenant;
-    (req as any).tenantId = (tenant._id as any).toString();
-    (req as any).isSuperAdmin = false;
-    
-    // Add tenant context to response headers for debugging
-    (res as any).set('X-Tenant-ID', (tenant._id as any).toString());
-    (res as any).set('X-Tenant-Name', tenant.name);
-    
-    return next();
-  }
-  
   // Check for API domain
   if (domain === 'api.sehwagimmigration.com' || domain === config.apiDomain) {
     return {
       tenantDomain: null,
       isSuperAdmin: false,
       isApiDomain: true
-    };
-  }
-  
-  // Check for tenant subdomain pattern: portal.{tenantname}.com
-  const tenantPrefix = config.tenantDomainPrefix || 'portal';
-  const subdomainPattern = new RegExp(`^${tenantPrefix}\\.(.+)\\.sehwagimmigration\\.com$`);
-  const match = domain.match(subdomainPattern);
-  
-  if (match) {
-    const tenantName = match[1];
-    
-    // Validate tenant name format
-    if (!isValidTenantName(tenantName)) {
-      return {
-        tenantDomain: null,
-        isSuperAdmin: false,
-        isApiDomain: false
-      };
-    }
-    
-    return {
-      tenantDomain: domain,
-      isSuperAdmin: false,
-      isApiDomain: false
-    };
-  }
-  
-  // Check for custom tenant domains (for future use)
-  if (domain.includes('.sehwagimmigration.com') || domain.includes('.')) {
-    return {
-      tenantDomain: domain,
-      isSuperAdmin: false,
-      isApiDomain: false
     };
   }
   
