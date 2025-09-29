@@ -121,15 +121,15 @@ cd ../frontend
 
 # Clean previous builds
 print_status "Cleaning frontend build artifacts..."
-rm -rf dist node_modules/.cache
+rm -rf dist node_modules/.cache .vite
 
 # Install dependencies with clean cache
 print_status "Installing frontend dependencies..."
 npm ci --cache /tmp/empty-cache
 
-# Build frontend
+# Build frontend with production environment
 print_status "Building frontend application..."
-npm run build
+NODE_ENV=production npm run build
 
 # Verify frontend build
 if [ ! -d "dist" ]; then

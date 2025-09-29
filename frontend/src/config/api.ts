@@ -1,10 +1,10 @@
 // Frontend API Configuration
 export const apiConfig = {
   // Base API URL - uses environment variables
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || (import.meta.env.MODE === 'development' ? 'http://localhost:5000' : 'https://ibuyscrap.ca'),
   
   // Super Admin API URL
-  superAdminApiUrl: import.meta.env.VITE_SUPER_ADMIN_API_URL || 'http://localhost:5000',
+  superAdminApiUrl: import.meta.env.VITE_SUPER_ADMIN_API_URL || (import.meta.env.MODE === 'development' ? 'http://localhost:5000' : 'https://ibuyscrap.ca'),
   
   // Tenant API URL template
   tenantApiUrlTemplate: import.meta.env.VITE_TENANT_API_URL_TEMPLATE || 'https://{domain}',
@@ -21,15 +21,8 @@ export const apiConfig = {
       return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
     }
     
-    // For production, determine API URL based on domain
-    if (domain) {
-      const template = import.meta.env.VITE_TENANT_API_URL_TEMPLATE || 'https://{domain}';
-      return template.replace('{domain}', domain);
-    }
-    
-    // Fallback to EC2 IP for production
-    const ec2Ip = import.meta.env.VITE_EC2_PUBLIC_IP || '52.15.148.97';
-    return `https://${ec2Ip}:5000`;
+    // For production, use the current domain (ibuyscrap.ca) for super admin
+    return 'https://ibuyscrap.ca';
   },
   
   // Get tenant-specific API URL with /immigration-portal/ path
@@ -52,9 +45,8 @@ export const apiConfig = {
       return 'http://localhost:5000/api';
     }
     
-    // For production, use EC2 IP or domain
-    const ec2Ip = import.meta.env.VITE_EC2_PUBLIC_IP || '52.15.148.97';
-    return `https://${ec2Ip}:5000/api`;
+    // For production, use the domain
+    return 'https://ibuyscrap.ca/api';
   }
 };
 

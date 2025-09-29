@@ -88,6 +88,19 @@ jobs:
             MAIN_DOMAIN=${{ secrets.MAIN_DOMAIN }}
             EOF
             
+            # Create frontend .env file for production build
+            cat > frontend/.env << EOF
+            VITE_API_BASE_URL=https://ibuyscrap.ca
+            VITE_SUPER_ADMIN_API_URL=https://ibuyscrap.ca
+            VITE_TENANT_API_URL_TEMPLATE=https://{domain}/immigration-portal
+            VITE_EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
+            VITE_EC2_PUBLIC_DNS=${{ secrets.EC2_PUBLIC_DNS }}
+            VITE_CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
+            VITE_CLOUDFLARE_ZONE_ID=${{ secrets.CLOUDFLARE_ZONE_ID }}
+            VITE_CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+            VITE_MAIN_DOMAIN=${{ secrets.MAIN_DOMAIN }}
+            EOF
+            
             # Make deploy script executable and run it
             chmod +x deploy.sh
             ./deploy.sh
