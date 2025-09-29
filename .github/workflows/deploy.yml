@@ -90,8 +90,8 @@ jobs:
             
             # Create frontend .env file for production build
             cat > frontend/.env << EOF
-            VITE_API_BASE_URL=https://ibuyscrap.ca
-            VITE_SUPER_ADMIN_API_URL=https://ibuyscrap.ca
+            VITE_API_BASE_URL=https://ibuyscrap.ca/api
+            VITE_SUPER_ADMIN_API_URL=https://ibuyscrap.ca/api
             VITE_TENANT_API_URL_TEMPLATE=https://{domain}/immigration-portal
             VITE_EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
             VITE_EC2_PUBLIC_DNS=${{ secrets.EC2_PUBLIC_DNS }}
