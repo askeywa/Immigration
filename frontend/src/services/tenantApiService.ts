@@ -255,7 +255,7 @@ class TenantApiService {
 
     return {
       success: true,
-      data: response.data,
+      data: (response.data as any)?.data || response.data,
       tenant: this.currentConfig.tenantId ? {
         _id: this.currentConfig.tenantId,
         name: '', // Will be populated by backend
