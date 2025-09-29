@@ -22,7 +22,7 @@ export const apiConfig = {
     }
     
     // For production, use the current domain (ibuyscrap.ca) for super admin
-    return 'https://ibuyscrap.ca';
+    return 'https://ibuyscrap.ca/api';
   },
   
   // Get tenant-specific API URL with /immigration-portal/ path
