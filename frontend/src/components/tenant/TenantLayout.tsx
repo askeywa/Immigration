@@ -1,5 +1,6 @@
 // frontend/src/components/tenant/TenantLayout.tsx
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
 import { domainResolutionService } from '@/services/domainResolutionService';
@@ -28,6 +29,7 @@ interface TenantLayoutProps {
 }
 
 export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
+  const location = useLocation();
   const { tenant, isLoading, error, isSuperAdmin, isActive, isTrialExpired } = useTenant();
   const { user } = useAuthStore();
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline'>('online');
@@ -188,35 +190,55 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
               <nav className="flex-1 px-4 py-6 space-y-2">
                 <a
                   href="/super-admin"
-                  className="flex items-center px-3 py-2 text-sm font-medium rounded-lg bg-blue-50 text-blue-700 border border-blue-200"
+                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    location.pathname === '/super-admin'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
                   <HomeIcon className="w-5 h-5 mr-3" />
                   Dashboard
                 </a>
                 <a
                   href="/super-admin/tenants"
-                  className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    location.pathname === '/super-admin/tenants'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
                   <UserGroupIcon className="w-5 h-5 mr-3" />
                   Tenants
                 </a>
                 <a
                   href="/super-admin/users"
-                  className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    location.pathname === '/super-admin/users'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
                   <UsersIcon className="w-5 h-5 mr-3" />
                   Users
                 </a>
                 <a
                   href="/super-admin/reports"
-                  className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    location.pathname === '/super-admin/reports'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
                   <ChartBarIcon className="w-5 h-5 mr-3" />
                   Reports
                 </a>
                 <a
                   href="/super-admin/analytics"
-                  className="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    location.pathname === '/super-admin/analytics'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
                 >
                   <ChartPieIcon className="w-5 h-5 mr-3" />
                   Analytics
