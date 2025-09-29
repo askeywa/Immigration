@@ -263,7 +263,9 @@ export class TenantController {
 
       res.json({
         success: true,
-        tenants: Array.isArray(result) ? result : result?.tenants || [],
+        data: {
+          tenants: Array.isArray(result) ? result : result?.tenants || []
+        },
         pagination: result?.pagination || {
           currentPage: page,
           totalPages: 1,
