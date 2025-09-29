@@ -29,7 +29,7 @@ export const apiConfig = {
     
     // Fallback to EC2 IP for production
     const ec2Ip = import.meta.env.VITE_EC2_PUBLIC_IP || '52.15.148.97';
-    return `http://${ec2Ip}:5000`;
+    return `https://${ec2Ip}:5000`;
   },
   
   // Get tenant-specific API URL with /immigration-portal/ path
@@ -54,7 +54,7 @@ export const apiConfig = {
     
     // For production, use EC2 IP or domain
     const ec2Ip = import.meta.env.VITE_EC2_PUBLIC_IP || '52.15.148.97';
-    return `http://${ec2Ip}:5000/api`;
+    return `https://${ec2Ip}:5000/api`;
   }
 };
 
