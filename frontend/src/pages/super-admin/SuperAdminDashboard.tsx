@@ -549,6 +549,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
+                    onClick={() => window.location.href = '/super-admin/tenants'}
                     className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
                   >
                     <BuildingOfficeIcon className="w-4 h-4 mr-2" />
@@ -556,6 +557,7 @@ export const SuperAdminDashboard: React.FC = () => {
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
+                    onClick={() => window.location.href = '/super-admin/users'}
                     className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors duration-200"
                   >
                     <UserGroupIcon className="w-4 h-4 mr-2" />
@@ -563,6 +565,7 @@ export const SuperAdminDashboard: React.FC = () => {
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
+                    onClick={() => window.location.href = '/super-admin/reports'}
                     className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 transition-colors duration-200"
                   >
                     <DocumentChartBarIcon className="w-4 h-4 mr-2" />

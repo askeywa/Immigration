@@ -1,0 +1,17 @@
+# Honey & Wild Immigration Portal Integration
+# This file should be placed in the root directory of honeynwild.com
+
+# Enable mod_rewrite
+RewriteEngine On
+
+# Proxy requests for the immigration portal API
+RewriteRule ^immigration-portal/api/v1/(.*)$ http://52.15.148.97:5000/api/v1/$1 [P,L]
+
+# Serve the immigration portal login page
+RewriteRule ^immigration-portal/login$ /immigration-portal-login.html [L]
+
+# Serve the immigration portal dashboard page
+RewriteRule ^immigration-portal/dashboard$ /immigration-portal-dashboard.html [L]
+
+# Optional: Redirect root to immigration portal login
+# RewriteRule ^$ /immigration-portal/login [R=301,L]

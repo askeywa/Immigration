@@ -57,10 +57,10 @@ const tenantSchema = new Schema<ITenant>({
     index: true,
     validate: {
       validator: function(v: string) {
-        // Basic domain validation
-        return /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$/.test(v);
+        // Allow domains with dots (e.g., example.com, subdomain.example.com)
+        return /^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$/.test(v) && v.includes('.');
       },
-      message: 'Invalid domain format'
+      message: 'Invalid domain format - must be a valid domain with dots (e.g., example.com)'
     }
   },
   status: {

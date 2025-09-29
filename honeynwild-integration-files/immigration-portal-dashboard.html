@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honey & Wild - Immigration Portal Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .user-text h3 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .user-text p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-section h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-section p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .status-section {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .status-section h3 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+        
+        .status-section p {
+            color: #155724;
+            margin-bottom: 5px;
+        }
+        
+        .actions-section {
+            text-align: center;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .footer {
+            background: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin-bottom: 10px;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .user-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🍯 Honey & Wild</h1>
+            <p>Immigration Portal Dashboard</p>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-details">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-text">
+                    <h3 id="userName">Loading...</h3>
+                    <p id="userEmail">Loading...</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="welcome-section">
+                <h2>Welcome to Your Immigration Portal!</h2>
+                <p>You have successfully logged in to your dedicated immigration services portal. Here you can manage your immigration applications, track your status, and access all the services you need.</p>
+            </div>
+            
+            <div class="status-section">
+                <h3>📊 Account Status</h3>
+                <p><strong>Status:</strong> Active</p>
+                <p><strong>Plan:</strong> Trial</p>
+                <p><strong>Expires:</strong> 30 days from now</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Application Management</h3>
+                    <p>Track and manage your immigration applications with real-time updates and status notifications.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📄</div>
+                    <h3>Document Center</h3>
+                    <p>Upload, organize, and securely store all your immigration documents in one place.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📞</div>
+                    <h3>Support Center</h3>
+                    <p>Get help from our immigration experts and access comprehensive support resources.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Progress Tracking</h3>
+                    <p>Monitor your application progress with detailed timelines and milestone tracking.</p>
+                </div>
+            </div>
+            
+            <div class="actions-section">
+                <button class="action-btn" onclick="alert('Feature coming soon!')">Start New Application</button>
+                <button class="action-btn" onclick="alert('Feature coming soon!')">View Documents</button>
+                <button class="action-btn" onclick="alert('Feature coming soon!')">Contact Support</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 Honey & Wild Night Club. All rights reserved.</p>
+            <p>Powered by <a href="https://ibuyscrap.ca" target="_blank">Immigration Portal</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Load user data from localStorage
+        function loadUserData() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const token = localStorage.getItem('token');
+            
+            if (!user.email || !token) {
+                // Redirect to login if no user data
+                window.location.href = '/immigration-portal/login';
+                return;
+            }
+            
+            // Update UI with user data
+            document.getElementById('userName').textContent = `${user.firstName} ${user.lastName}`;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userAvatar').textContent = user.firstName.charAt(0).toUpperCase();
+        }
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
+                window.location.href = '/immigration-portal/login';
+            }
+        }
+        
+        // Load user data when page loads
+        window.addEventListener('load', loadUserData);
+        
+        // Check for token expiration (basic check)
+        setInterval(() => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Your session has expired. Please login again.');
+                window.location.href = '/immigration-portal/login';
+            }
+        }, 300000); // Check every 5 minutes
+    </script>
+</body>
+</html>

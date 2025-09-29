@@ -1,10 +1,12 @@
 // frontend/src/services/api.ts
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import { apiConfig } from '@/config/api';
 // Temporarily disabled problematic interceptor
 // import { tenantApiInterceptor, tenantApi } from './tenantApiInterceptor';
 
-const API_URL = '/api'; // Force relative path to use Vite proxy
+// Use dynamic API URL based on environment
+const API_URL = apiConfig.getApiUrl();
 
 // Create the base API instance
 export const api = axios.create({

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immigration Portal - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #1A202C;
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #4A5568;
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+        }
+        button {
+            background-color: #EF4444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+        }
+        button:hover {
+            background-color: #DC2626;
+        }
+        .user-info {
+            background-color: #F7FAFC;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-trial {
+            background-color: #F59E0B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Your Immigration Portal!</h1>
+        <p>You have successfully logged in to your dedicated portal.</p>
+        
+        <div class="user-info">
+            <h3>Account Information</h3>
+            <p id="user-info">Loading...</p>
+            <p id="tenant-info">Loading...</p>
+        </div>
+        
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        // Get current domain for API calls
+        const hostname = window.location.hostname;
+        const apiBaseUrl = `https://${hostname}/api/v1`;
+        
+        // Load user and tenant information
+        async function loadUserInfo() {
+            try {
+                // Try to get user info from localStorage first
+                const userInfo = localStorage.getItem('tenant_user_info');
+                if (userInfo) {
+                    const user = JSON.parse(userInfo);
+                    document.getElementById('user-info').innerHTML = `
+                        <strong>User:</strong> ${user.firstName} ${user.lastName} (${user.email})<br>
+                        <strong>Role:</strong> ${user.role}
+                    `;
+                }
+                
+                // Get tenant info
+                const response = await fetch(`${apiBaseUrl}/tenant/info`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('tenant-info').innerHTML = `
+                        <strong>Tenant:</strong> ${result.data.name}<br>
+                        <strong>Domain:</strong> ${result.data.domain}<br>
+                        <strong>Status:</strong> <span class="status-indicator ${result.data.status === 'active' ? 'status-active' : 'status-trial'}"></span>${result.data.status}
+                    `;
+                } else {
+                    document.getElementById('tenant-info').innerHTML = '<strong>Tenant:</strong> Information not available';
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+                document.getElementById('user-info').innerHTML = '<strong>User:</strong> Information not available';
+                document.getElementById('tenant-info').innerHTML = '<strong>Tenant:</strong> Information not available';
+            }
+        }
+        
+        function logout() {
+            // Clear stored user info
+            localStorage.removeItem('tenant_user_info');
+            localStorage.removeItem('tenant_auth_token');
+            
+            // Redirect to login page
+            window.location.href = `https://${hostname}/immigration-portal/login`;
+        }
+        
+        // Load user info when page loads
+        loadUserInfo();
+    </script>
+</body>
+</html>

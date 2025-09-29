@@ -123,3 +123,26 @@ run-*.js
 check-*.js
 api-*.js
 browser-*.js
+
+# Additional test and temporary files
+*test*.js
+*test*.ts
+*test*.html
+*test*.json
+*test*.md
+*test*.txt
+*test*.sh
+*test*.py
+*test*.sql
+*test*.log
+
+# Environment files (all variations)
+.env*
+!.env.example
+!.env.template
+!.env.sample
+
+# Production environment files
+production-env-template.txt
+backend/.env.production
+frontend/.env.production

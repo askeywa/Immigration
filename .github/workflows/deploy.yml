@@ -66,9 +66,26 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
             FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            SUPER_ADMIN_FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            TENANT_FRONTEND_URL_TEMPLATE=https://{domain}/immigration-portal
+            ALLOWED_SUPER_ADMIN_DOMAINS=${{ secrets.SUPER_ADMIN_DOMAIN }},www.${{ secrets.SUPER_ADMIN_DOMAIN }}
+            ALLOW_START_WITHOUT_DB=false
+            REDIS_ENABLED=false
             NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
             NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}
-            NEW_RELIC_ENABLED=${{ secrets.NEW_RELIC_ENABLED }}
+            NEW_RELIC_AI_MONITORING_ENABLED=true
+            SUPER_ADMIN_DOMAIN=${{ secrets.SUPER_ADMIN_DOMAIN }}
+            TENANT_DOMAIN_PREFIX=immigration-portal
+            API_BASE_URL=${{ secrets.API_BASE_URL }}
+            EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
+            EC2_PRIVATE_IP=${{ secrets.EC2_PRIVATE_IP }}
+            EC2_PUBLIC_DNS=${{ secrets.EC2_PUBLIC_DNS }}
+            TENANT_API_BASE_URL=https://{domain}/immigration-portal
+            TENANT_API_VERSION=v1
+            CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
+            CLOUDFLARE_ZONE_ID=${{ secrets.CLOUDFLARE_ZONE_ID }}
+            CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+            MAIN_DOMAIN=${{ secrets.MAIN_DOMAIN }}
             EOF
             
             # Make deploy script executable and run it

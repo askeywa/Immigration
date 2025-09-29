@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immigration Portal Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tenant-widget {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="tenant-widget max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="px-6 py-4 bg-blue-600">
+            <div class="flex items-center justify-center">
+                <h2 class="text-xl font-semibold text-white" id="company-name">
+                    Immigration Portal
+                </h2>
+            </div>
+        </div>
+
+        <!-- Form Toggle -->
+        <div class="px-6 py-4 border-b">
+            <div class="flex space-x-1 bg-gray-100 rounded-lg p-1">
+                <button
+                    id="login-tab"
+                    class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-white text-gray-900 shadow-sm"
+                    onclick="showLogin()"
+                >
+                    Login
+                </button>
+                <button
+                    id="register-tab"
+                    class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-900"
+                    onclick="showRegister()"
+                >
+                    Register
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="error-message" class="hidden px-6 py-3 bg-red-50 border-l-4 border-red-400">
+            <p class="text-sm text-red-600" id="error-text"></p>
+        </div>
+        
+        <div id="success-message" class="hidden px-6 py-3 bg-green-50 border-l-4 border-green-400">
+            <p class="text-sm text-green-600" id="success-text"></p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="px-6 py-4 space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                </label>
+                <input
+                    type="email"
+                    id="login-email"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                </label>
+                <input
+                    type="password"
+                    id="login-password"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+            </div>
+            
+            <button
+                type="submit"
+                id="login-btn"
+                class="w-full py-2 px-4 rounded-md text-white font-medium bg-blue-600 hover:bg-blue-700 transition-colors"
+            >
+                Sign In
+            </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="px-6 py-4 space-y-4 hidden">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        First Name
+                    </label>
+                    <input
+                        type="text"
+                        id="register-firstname"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                    />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Last Name
+                    </label>
+                    <input
+                        type="text"
+                        id="register-lastname"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                    />
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                </label>
+                <input
+                    type="email"
+                    id="register-email"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                />
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                </label>
+                <input
+                    type="password"
+                    id="register-password"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                    minlength="8"
+                />
+            </div>
+            
+            <button
+                type="submit"
+                id="register-btn"
+                class="w-full py-2 px-4 rounded-md text-white font-medium bg-blue-600 hover:bg-blue-700 transition-colors"
+            >
+                Create Account
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Configuration
+        const config = {
+            apiBaseUrl: window.location.hostname === 'localhost' 
+                ? 'http://localhost:5000/api/v1' 
+                : `https://api.${window.location.hostname}/api/v1`,
+            branding: {
+                companyName: 'Immigration Portal',
+                primaryColor: '#3B82F6'
+            }
+        };
+
+        // Get API base URL
+        function getApiBaseUrl() {
+            return config.apiBaseUrl;
+        }
+
+        // Show/hide messages
+        function showError(message) {
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+            document.getElementById('error-text').textContent = message;
+        }
+
+        function showSuccess(message) {
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-text').textContent = message;
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+
+        // Form toggle
+        function showLogin() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-tab').classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+            document.getElementById('login-tab').classList.remove('text-gray-600');
+            document.getElementById('register-tab').classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+            document.getElementById('register-tab').classList.add('text-gray-600');
+            hideMessages();
+        }
+
+        function showRegister() {
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-tab').classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+            document.getElementById('register-tab').classList.remove('text-gray-600');
+            document.getElementById('login-tab').classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+            document.getElementById('login-tab').classList.add('text-gray-600');
+            hideMessages();
+        }
+
+        // Login handler
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
+            
+            btn.textContent = 'Signing in...';
+            btn.disabled = true;
+            hideMessages();
+
+            try {
+                const response = await fetch(`${getApiBaseUrl()}/tenant/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('Login successful!');
+                    if (result.data.frontendUrl) {
+                        setTimeout(() => {
+                            window.location.href = result.data.frontendUrl;
+                        }, 1000);
+                    }
+                } else {
+                    showError(result.error || 'Login failed');
+                }
+            } catch (err) {
+                showError('Network error. Please try again.');
+            } finally {
+                btn.textContent = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+
+        // Register handler
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('register-firstname').value;
+            const lastName = document.getElementById('register-lastname').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const btn = document.getElementById('register-btn');
+            
+            btn.textContent = 'Creating Account...';
+            btn.disabled = true;
+            hideMessages();
+
+            try {
+                const response = await fetch(`${getApiBaseUrl()}/tenant/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ firstName, lastName, email, password }),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('Registration successful!');
+                    if (result.data.frontendUrl) {
+                        setTimeout(() => {
+                            window.location.href = result.data.frontendUrl;
+                        }, 1000);
+                    }
+                } else {
+                    showError(result.error || 'Registration failed');
+                }
+            } catch (err) {
+                showError('Network error. Please try again.');
+            } finally {
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update company name if provided
+            if (config.branding.companyName) {
+                document.getElementById('company-name').textContent = config.branding.companyName;
+            }
+        });
+    </script>
+</body>
+</html>

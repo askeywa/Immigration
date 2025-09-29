@@ -369,12 +369,14 @@ export class TenantController {
     } catch (error) {
       log.error('Failed to create tenant', { 
         error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
         createdBy: req.user?._id 
       });
       
       res.status(500).json({
         success: false,
-        message: 'Failed to create tenant'
+        message: 'Failed to create tenant',
+        error: error instanceof Error ? error.message : String(error)
       });
     }
   }

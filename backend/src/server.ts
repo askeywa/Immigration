@@ -301,6 +301,10 @@ app.use('/api/logos', logoRoutes);
 app.use('/api/tenant', tenantActivityRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 
+// Tenant-specific API routes (for tenant website integration)
+import tenantApiRoutes from './routes/tenantApiRoutes';
+app.use('/api/v1', tenantApiRoutes);
+
 // 404 handler
 app.use('*', (req: any, res: any) => {
   (res as any).status(404).json({

@@ -6,6 +6,8 @@ import { Subscription } from '../models/Subscription';
 import { Profile } from '../models/Profile';
 import { SubscriptionPlan } from '../models/SubscriptionPlan';
 import bcrypt from 'bcryptjs';
+import CloudflareService from './cloudflareService';
+import { log } from '../utils/logger';
 
 export class TenantService {
   static async getAllTenants(page: number = 1, limit: number = 10) {
@@ -153,41 +155,61 @@ export class TenantService {
     const session = await Tenant.startSession();
     
     try {
+      console.log('🔍 Starting tenant creation with data:', {
+        name: tenantData.name,
+        domain: tenantData.domain,
+        subscriptionPlan: tenantData.subscriptionPlan,
+        adminEmail: tenantData.adminUser.email
+      });
+
       return await session.withTransaction(async () => {
         // 1. Create the tenant
+        console.log('📝 Step 1: Creating tenant...');
         const tenant = new Tenant({
           name: tenantData.name,
-          domain: tenantData.domain,
-          description: tenantData.description || '',
-          status: 'active',
+          domain: tenantData.domain.toLowerCase().replace(/[^a-zA-Z0-9.-]/g, ''), // Clean domain format
+          status: 'trial', // Start with trial status
           settings: {
-            allowRegistration: true,
-            requireEmailVerification: true,
             maxUsers: 100,
-            features: {
-              profiles: true,
-              documents: true,
-              analytics: true,
-              reports: true
+            maxAdmins: 2,
+            features: ['basic', 'advanced'] // Array of strings, not object
+          },
+          contactInfo: {
+            email: tenantData.adminUser.email, // Use admin email as contact email
+            phone: '', // Optional
+            address: {
+              street: '',
+              city: '',
+              state: '',
+              zipCode: '',
+              country: ''
             }
           }
         });
 
         await tenant.save({ session });
+        console.log('✅ Step 1: Tenant created successfully with ID:', tenant._id);
 
         // 2. Get default subscription plan (or use provided one)
+        console.log('📝 Step 2: Finding subscription plan...');
         let planId;
         if (tenantData.subscriptionPlan) {
+          console.log('🔍 Looking for specific plan:', tenantData.subscriptionPlan);
           const plan = await SubscriptionPlan.findOne({ name: tenantData.subscriptionPlan });
           planId = plan?._id;
+          console.log('📊 Found plan:', plan ? plan.displayName : 'NOT FOUND');
         } else {
+          console.log('🔍 Looking for default plan...');
           // Get the first available plan as default
           const defaultPlan = await SubscriptionPlan.findOne().sort({ createdAt: 1 });
           planId = defaultPlan?._id;
+          console.log('📊 Found default plan:', defaultPlan ? defaultPlan.displayName : 'NOT FOUND');
         }
 
         // 3. Create subscription for the tenant
+        console.log('📝 Step 3: Creating subscription...');
         if (planId) {
+          console.log('🔍 Creating subscription with plan ID:', planId);
           const subscription = new Subscription({
             tenantId: tenant._id,
             planId: planId,
@@ -210,6 +232,7 @@ export class TenantService {
           });
 
           await subscription.save({ session });
+          console.log('✅ Step 3: Subscription created successfully with ID:', subscription._id);
 
           // Update tenant with subscription reference
           tenant.subscription = {
@@ -222,6 +245,7 @@ export class TenantService {
         }
 
         // 4. Create admin user for the tenant
+        console.log('📝 Step 4: Creating admin user...');
         const hashedPassword = await bcrypt.hash(tenantData.adminUser.password, 12);
         
         const adminUser = new User({
@@ -250,6 +274,63 @@ export class TenantService {
         });
 
         await adminUser.save({ session });
+        console.log('✅ Step 4: Admin user created successfully with ID:', adminUser._id);
+
+        // 5. Setup Cloudflare DNS (if configured)
+        console.log('📝 Step 5: Setting up Cloudflare DNS...');
+        let dnsSetup = null;
+        try {
+          if (process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ZONE_ID) {
+            const cloudflareService = CloudflareService.getInstance();
+            const isConnected = await cloudflareService.testConnection();
+            
+            if (isConnected) {
+              // For tenant domains, we'll create a CNAME record pointing to our EC2
+              const ec2PublicIp = process.env.EC2_PUBLIC_IP || '52.15.148.97';
+              
+              // Create CNAME record for tenant domain
+              const dnsRecord = await cloudflareService.createDNSRecord({
+                type: 'CNAME',
+                name: tenantData.domain,
+                content: `${process.env.EC2_PUBLIC_DNS || 'ec2-52-15-148-97.us-east-2.compute.amazonaws.com'}`,
+                proxied: true,
+                ttl: 1
+              });
+              
+              dnsSetup = {
+                success: true,
+                recordId: dnsRecord.id,
+                domain: tenantData.domain,
+                target: dnsRecord.content
+              };
+              
+              console.log('✅ Step 5: Cloudflare DNS setup successful');
+              log.info('Tenant DNS configured', {
+                tenantId: (tenant._id as any).toString(),
+                domain: tenantData.domain,
+                recordId: dnsRecord.id
+              });
+            } else {
+              console.log('⚠️ Step 5: Cloudflare connection failed, skipping DNS setup');
+              dnsSetup = { success: false, error: 'Cloudflare connection failed' };
+            }
+          } else {
+            console.log('⚠️ Step 5: Cloudflare not configured, skipping DNS setup');
+            dnsSetup = { success: false, error: 'Cloudflare not configured' };
+          }
+        } catch (dnsError) {
+          console.error('❌ Step 5: DNS setup failed:', dnsError);
+          dnsSetup = { 
+            success: false, 
+            error: dnsError instanceof Error ? dnsError.message : String(dnsError) 
+          };
+          // Don't fail tenant creation if DNS setup fails
+          log.warning('DNS setup failed for tenant', {
+            tenantId: (tenant._id as any).toString(),
+            domain: tenantData.domain,
+            error: dnsError instanceof Error ? dnsError.message : String(dnsError)
+          });
+        }
 
         return {
           tenant,
@@ -265,11 +346,41 @@ export class TenantService {
             status: 'trial',
             isTrial: true,
             trialEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-          } : null
+          } : null,
+          dnsSetup
         };
       });
+    } catch (error) {
+      console.error('❌ Error in tenant creation:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        tenantData: {
+          name: tenantData.name,
+          domain: tenantData.domain,
+          subscriptionPlan: tenantData.subscriptionPlan
+        }
+      });
+      // Don't call abortTransaction() here as withTransaction handles it automatically
+      throw error;
     } finally {
       await session.endSession();
+    }
+  }
+
+  /**
+   * Get tenant by domain
+   */
+  static async getTenantByDomain(domain: string) {
+    try {
+      const tenant = await Tenant.findOne({ 
+        domain: domain.toLowerCase(),
+        status: { $in: ['active', 'trial'] }
+      }).lean();
+      
+      return tenant;
+    } catch (error) {
+      console.error('Error getting tenant by domain:', error);
+      throw error;
     }
   }
 }
