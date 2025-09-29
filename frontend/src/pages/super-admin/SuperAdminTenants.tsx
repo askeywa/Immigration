@@ -216,10 +216,14 @@ const SuperAdminTenants: React.FC = () => {
   const fetchTenants = async () => {
     try {
       setLoading(true);
+      console.log('🔍 SuperAdminTenants: Starting fetchTenants...');
       const response = await tenantApiService.getAllTenants();
+      console.log('🔍 SuperAdminTenants: API response:', response);
+      console.log('🔍 SuperAdminTenants: Tenants data:', response.data?.tenants);
       setTenants(response.data?.tenants || []);
+      console.log('🔍 SuperAdminTenants: Tenants state updated');
     } catch (error) {
-      console.error('Error fetching tenants:', error);
+      console.error('❌ SuperAdminTenants: Error fetching tenants:', error);
     } finally {
       setLoading(false);
     }

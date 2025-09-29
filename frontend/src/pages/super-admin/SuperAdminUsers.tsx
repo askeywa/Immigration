@@ -33,11 +33,15 @@ const SuperAdminUsers: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('🔍 SuperAdminUsers: Starting fetchUsers...');
       // This would be a super admin endpoint to get all users across all tenants
       const response = await tenantApiService.getAllUsers();
+      console.log('🔍 SuperAdminUsers: API response:', response);
+      console.log('🔍 SuperAdminUsers: Users data:', response.data?.users);
       setUsers(response.data?.users || []);
+      console.log('🔍 SuperAdminUsers: Users state updated');
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('❌ SuperAdminUsers: Error fetching users:', error);
     } finally {
       setLoading(false);
     }
