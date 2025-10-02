@@ -183,6 +183,59 @@ jobs:
             cd /var/www/immigration-portal/frontend
             npm run build
             
+            echo "Setting up Nginx..."
+            sudo apt update
+            sudo apt install nginx -y
+            sudo systemctl start nginx
+            sudo systemctl enable nginx
+            
+            # Create Nginx configuration for immigration-portal
+            sudo tee /etc/nginx/sites-available/immigration-portal > /dev/null << 'NGINX_EOF'
+            server {
+                listen 80;
+                server_name ibuyscrap.ca www.ibuyscrap.ca;
+                
+                # Serve frontend static files
+                root /var/www/immigration-portal/frontend/dist;
+                index index.html;
+                
+                # Handle frontend routing (SPA)
+                location / {
+                    try_files $uri $uri/ /index.html;
+                }
+                
+                # Proxy API requests to backend
+                location /api/ {
+                    proxy_pass http://localhost:5000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_cache_bypass $http_upgrade;
+                }
+            }
+            NGINX_EOF
+            
+            # Enable the site and remove default
+            sudo ln -sf /etc/nginx/sites-available/immigration-portal /etc/nginx/sites-enabled/
+            sudo rm -f /etc/nginx/sites-enabled/default
+            
+            # Test Nginx configuration
+            sudo nginx -t
+            
+            # Reload Nginx
+            sudo systemctl reload nginx
+            
+            # Configure firewall for web traffic
+            sudo ufw --force enable
+            sudo ufw allow 'Nginx Full'
+            sudo ufw allow 22
+            sudo ufw allow 80
+            sudo ufw allow 443
+            
             echo "Installing PM2 if needed..."
             if ! command -v pm2 &> /dev/null; then
               sudo npm install -g pm2
