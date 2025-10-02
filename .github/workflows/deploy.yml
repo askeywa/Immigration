@@ -154,12 +154,36 @@ jobs:
             fi
             
             # Install dependencies
+            echo "Installing backend dependencies..."
             cd /var/www/immigration-portal/backend && npm install
+            if [ $? -ne 0 ]; then
+              echo "❌ Backend dependency installation failed!"
+              exit 1
+            fi
+            
+            echo "Installing frontend dependencies..."
             cd /var/www/immigration-portal/frontend && npm install
+            if [ $? -ne 0 ]; then
+              echo "❌ Frontend dependency installation failed!"
+              exit 1
+            fi
             
             # Build applications
+            echo "Building backend..."
             cd /var/www/immigration-portal/backend && npm run build
+            if [ $? -ne 0 ]; then
+              echo "❌ Backend build failed!"
+              exit 1
+            fi
+            
+            echo "Building frontend..."
             cd /var/www/immigration-portal/frontend && npm run build
+            if [ $? -ne 0 ]; then
+              echo "❌ Frontend build failed!"
+              exit 1
+            fi
+            
+            echo "✅ All builds completed successfully!"
             
             # Install PM2 globally if not installed
             if ! command -v pm2 &> /dev/null; then
@@ -201,15 +225,57 @@ jobs:
             sudo systemctl restart redis-server
             sudo systemctl enable redis-server
             
+            # Create logs directory
+            mkdir -p /var/www/immigration-portal/backend/logs
+            
             # Start/Restart application with PM2
             cd /var/www/immigration-portal/backend
             pm2 delete immigration-portal 2>/dev/null || true
-            pm2 start ecosystem.config.js --env production
+            
+            # Try to start with ecosystem config first
+            if [ -f "ecosystem.config.js" ]; then
+              echo "Starting with ecosystem.config.js..."
+              pm2 start ecosystem.config.js --env production
+            else
+              echo "ecosystem.config.js not found, starting directly..."
+              pm2 start dist/server.js --name "immigration-portal" --env production
+            fi
+            
+            # Check if PM2 started successfully
+            sleep 5
+            if pm2 list | grep -q "immigration-portal.*online"; then
+              echo "✅ Application started successfully!"
+            else
+              echo "❌ Application failed to start. Checking logs..."
+              pm2 logs immigration-portal --lines 20
+              exit 1
+            fi
+            
             pm2 save
             pm2 startup
           '
           
           # Copy environment file after directory structure is created
           scp -i private_key.pem -o StrictHostKeyChecking=no env.production ${USER}@${HOST}:/var/www/immigration-portal/backend/.env
+          
+          # Final verification
+          echo "🔍 Final verification..."
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} '
+            echo "Checking PM2 status..."
+            pm2 status
+            
+            echo "Checking if application is responding..."
+            sleep 10
+            if curl -f http://localhost:5000/api/health > /dev/null 2>&1; then
+              echo "✅ Application is responding to health check!"
+            else
+              echo "❌ Application is not responding to health check"
+              echo "PM2 logs:"
+              pm2 logs immigration-portal --lines 10
+              exit 1
+            fi
+            
+            echo "🎉 Deployment completed successfully!"
+          '
           
           rm -f private_key.pem
