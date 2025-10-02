@@ -197,7 +197,7 @@ jobs:
             fi
             
             # Configure Redis with password
-            sudo tee /etc/redis/redis.conf > /dev/null << '\''EOF'\''
+            sudo tee /etc/redis/redis.conf > /dev/null << 'REDIS_EOF'
             # Redis configuration for Immigration Portal
             bind 127.0.0.1
             port 6379
@@ -219,7 +219,7 @@ jobs:
             maxclients 10000
             slowlog-log-slower-than 10000
             slowlog-max-len 128
-            EOF
+            REDIS_EOF
             
             # Start and enable Redis
             sudo systemctl restart redis-server
