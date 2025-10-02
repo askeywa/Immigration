@@ -197,7 +197,7 @@ jobs:
             fi
             
             # Configure Redis with password
-            sudo tee /etc/redis/redis.conf > /dev/null << 'REDIS_EOF'
+            sudo tee /etc/redis/redis.conf > /dev/null << REDIS_EOF
             # Redis configuration for Immigration Portal
             bind 127.0.0.1
             port 6379
