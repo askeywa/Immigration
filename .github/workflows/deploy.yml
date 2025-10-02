@@ -236,6 +236,21 @@ jobs:
             sudo ufw allow 80
             sudo ufw allow 443
             
+            echo "Setting up SSL certificates with Let's Encrypt..."
+            # Install Certbot for Let's Encrypt
+            sudo apt install certbot python3-certbot-nginx -y
+            
+            # Generate SSL certificate for your domain
+            sudo certbot --nginx -d ibuyscrap.ca -d www.ibuyscrap.ca --non-interactive --agree-tos --email askeywa@gmail.com --redirect
+            
+            # Set up automatic certificate renewal
+            echo "0 12 * * * /usr/bin/certbot renew --quiet" | sudo crontab -
+            
+            # Verify SSL certificate
+            sudo certbot certificates
+            
+            echo "SSL setup completed successfully!"
+            
             echo "Installing PM2 if needed..."
             if ! command -v pm2 &> /dev/null; then
               sudo npm install -g pm2
