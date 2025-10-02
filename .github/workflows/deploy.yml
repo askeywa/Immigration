@@ -135,6 +135,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
@@ -251,16 +252,16 @@ jobs:
               sudo apt install redis-server redis-tools -y
             fi
             
-            # Configure Redis with proper sudo permissions
+            # Configure Redis with secure password from secrets
             sudo sed -i 's/^bind .*/bind 127.0.0.1/' /etc/redis/redis.conf
-            sudo sed -i 's/^# *requirepass .*/requirepass Qwsaqwsa!@34/' /etc/redis/redis.conf
-            sudo sed -i 's/^requirepass .*/requirepass Qwsaqwsa!@34/' /etc/redis/redis.conf
+            sudo sed -i "s/^# *requirepass .*/requirepass ${REDIS_PASSWORD}/" /etc/redis/redis.conf
+            sudo sed -i "s/^requirepass .*/requirepass ${REDIS_PASSWORD}/" /etc/redis/redis.conf
             sudo sed -i 's/^# *maxmemory .*/maxmemory 512mb/' /etc/redis/redis.conf
             sudo sed -i 's/^# *maxmemory-policy .*/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf
             
-            # Ensure requirepass exists (use sudo for grep too)
+            # Ensure requirepass exists with secure password
             if ! sudo grep -q "^requirepass" /etc/redis/redis.conf; then
-              echo "requirepass Qwsaqwsa!@34" | sudo tee -a /etc/redis/redis.conf > /dev/null
+              echo "requirepass ${REDIS_PASSWORD}" | sudo tee -a /etc/redis/redis.conf > /dev/null
             fi
             
             # Test Redis config before restarting
@@ -282,9 +283,15 @@ jobs:
             echo "Creating logs directory..."
             mkdir -p /var/www/immigration-portal/backend/logs
             
-            echo "Stopping existing PM2 processes..."
-            pm2 delete all 2>/dev/null || true
-            pm2 kill 2>/dev/null || true
+            echo "Checking existing PM2 processes..."
+            # Check if immigration-portal is already running
+            if pm2 list | grep -q "immigration-portal.*online"; then
+              echo "Application is running, will perform zero-downtime reload..."
+              DEPLOYMENT_MODE="reload"
+            else
+              echo "Application not running, will perform fresh start..."
+              DEPLOYMENT_MODE="start"
+            fi
             
             echo "Verifying build artifacts..."
             cd /var/www/immigration-portal/backend
@@ -300,16 +307,52 @@ jobs:
               exit 1
             fi
             
-            echo "Starting application with PM2..."
+            echo "Deploying application with PM2..."
             if [ -f "ecosystem.config.js" ]; then
-              pm2 start ecosystem.config.js --env production
+              if [ "$DEPLOYMENT_MODE" = "reload" ]; then
+                echo "Performing zero-downtime reload with ecosystem.config.js..."
+                pm2 reload ecosystem.config.js --env production
+              else
+                echo "Starting fresh with ecosystem.config.js..."
+                pm2 start ecosystem.config.js --env production
+              fi
             else
-              pm2 start dist/server.js --name "immigration-portal" --env production
+              if [ "$DEPLOYMENT_MODE" = "reload" ]; then
+                echo "Performing zero-downtime reload with dist/server.js..."
+                pm2 reload dist/server.js --name "immigration-portal" --env production
+              else
+                echo "Starting fresh with dist/server.js..."
+                pm2 start dist/server.js --name "immigration-portal" --env production
+              fi
             fi
             
-            # Wait for application to start
+            # Wait for application to start and verify health
             echo "Waiting for application to start..."
-            sleep 15
+            sleep 10
+            
+            # Health check with retry logic
+            echo "Performing health check..."
+            HEALTH_CHECK_ATTEMPTS=0
+            MAX_HEALTH_CHECK_ATTEMPTS=6
+            
+            while [ $HEALTH_CHECK_ATTEMPTS -lt $MAX_HEALTH_CHECK_ATTEMPTS ]; do
+              if curl -f http://localhost:5000/api/health > /dev/null 2>&1; then
+                echo "✅ Health check passed!"
+                break
+              else
+                HEALTH_CHECK_ATTEMPTS=$((HEALTH_CHECK_ATTEMPTS + 1))
+                echo "⏳ Health check attempt $HEALTH_CHECK_ATTEMPTS/$MAX_HEALTH_CHECK_ATTEMPTS failed, retrying in 5 seconds..."
+                sleep 5
+              fi
+            done
+            
+            if [ $HEALTH_CHECK_ATTEMPTS -eq $MAX_HEALTH_CHECK_ATTEMPTS ]; then
+              echo "❌ Health check failed after $MAX_HEALTH_CHECK_ATTEMPTS attempts!"
+              echo "Checking PM2 status and logs..."
+              pm2 status
+              pm2 logs immigration-portal --lines 20
+              exit 1
+            fi
             
             echo "PM2 Status:"
             pm2 status
