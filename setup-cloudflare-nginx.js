@@ -33,9 +33,9 @@ NGINX_ENABLED_PATH=/etc/nginx/sites-enabled/multi-tenant
 NGINX_LOG_PATH=/var/log/nginx
 
 # EC2 Configuration
-EC2_PUBLIC_IP=52.15.148.97
+EC2_PUBLIC_IP=18.220.224.109
 EC2_PRIVATE_IP=172.31.40.28
-EC2_PUBLIC_DNS=ec2-52-15-148-97.us-east-2.compute.amazonaws.com
+EC2_PUBLIC_DNS=ec2-18-220-224-109.us-east-2.compute.amazonaws.com
 
 # Service Ports
 BACKEND_PORT=5000
@@ -79,7 +79,7 @@ async function testCloudflare() {
             const testRecord = await cloudflare.createDNSRecord({
                 type: 'A',
                 name: 'test-subdomain',
-                content: '52.15.148.97',
+                content: '18.220.224.109',
                 proxied: true,
                 ttl: 1
             });
@@ -185,7 +185,7 @@ Edit backend/.env and replace:
 ### 2.1 Install Nginx on EC2
 \`\`\`bash
 # SSH into your EC2
-ssh -i your-key.pem ubuntu@52.15.148.97
+ssh -i your-key.pem ubuntu@18.220.224.109
 
 # Update system
 sudo apt update && sudo apt upgrade -y
@@ -305,7 +305,7 @@ echo "========================================"
 if [ ! -f /sys/hypervisor/uuid ] || [ \`head -c 3 /sys/hypervisor/uuid\` != "ec2" ]; then
     echo "❌ This script should be run on your EC2 instance"
     echo "Please SSH into your EC2 first:"
-    echo "ssh -i your-key.pem ubuntu@52.15.148.97"
+    echo "ssh -i your-key.pem ubuntu@18.220.224.109"
     exit 1
 fi
 
@@ -374,9 +374,9 @@ NGINX_ENABLED_PATH=/etc/nginx/sites-enabled/multi-tenant
 NGINX_LOG_PATH=/var/log/nginx
 
 # === EC2 CONFIGURATION ===
-EC2_PUBLIC_IP=52.15.148.97
+EC2_PUBLIC_IP=18.220.224.109
 EC2_PRIVATE_IP=172.31.40.28
-EC2_PUBLIC_DNS=ec2-52-15-148-97.us-east-2.compute.amazonaws.com
+EC2_PUBLIC_DNS=ec2-18-220-224-109.us-east-2.compute.amazonaws.com
 
 # === SERVICE PORTS ===
 BACKEND_PORT=5000

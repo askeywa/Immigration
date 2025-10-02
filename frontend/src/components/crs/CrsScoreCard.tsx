@@ -110,9 +110,9 @@ export const CrsScoreCard: React.FC<CrsScoreCardProps> = ({
 
           {/* Progress Bar */}
           <div className="mt-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Progress to Maximum (1200)</span>
-              <span className="font-medium">{progressPercentage.toFixed(1)}%</span>
+            <div className="flex justify-between text-sm min-w-0">
+              <span className="text-gray-600 truncate flex-shrink-0">Progress to Maximum (1200)</span>
+              <span className="font-medium flex-shrink-0 ml-2">{progressPercentage.toFixed(1)}%</span>
             </div>
             <Progress 
               value={progressPercentage} 

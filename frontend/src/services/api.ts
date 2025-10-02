@@ -5,12 +5,28 @@ import { apiConfig } from '@/config/api';
 // Temporarily disabled problematic interceptor
 // import { tenantApiInterceptor, tenantApi } from './tenantApiInterceptor';
 
-// Use dynamic API URL based on environment
-const API_URL = apiConfig.getApiUrl();
+// Get API URL dynamically
+const getApiUrl = () => {
+  const isDevelopment = import.meta.env.MODE === 'development' || 
+                       import.meta.env.DEV || 
+                       (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
+  
+  const apiUrl = isDevelopment ? 'http://localhost:5000/api' : 'https://ibuyscrap.ca/api';
+  
+  console.log('🔍 API Configuration:', {
+    mode: import.meta.env.MODE,
+    dev: import.meta.env.DEV,
+    hostname: typeof window !== 'undefined' ? window.location.hostname : 'server-side',
+    isDevelopment,
+    apiUrl
+  });
+  
+  return apiUrl;
+};
 
 // Create the base API instance
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: getApiUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -19,7 +35,22 @@ export const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config: any) => {
-    const token = useAuthStore.getState().token;
+    // Try to get token from authStore first
+    let token = useAuthStore.getState().token;
+    
+    // Fallback to sessionStorage if authStore token is not available (SECURITY: Use sessionStorage)
+    if (!token && typeof window !== 'undefined') {
+      try {
+        const authStorage = sessionStorage.getItem('auth-storage');
+        if (authStorage) {
+          const authData = JSON.parse(authStorage);
+          token = authData?.state?.token;
+        }
+      } catch (error) {
+        console.warn('Failed to get token from sessionStorage:', error);
+      }
+    }
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -70,7 +101,7 @@ export const fileService = {
   },
   listMine: async () => api.get('/files').then(r => r.data),
   listByUser: async (userId: string) => api.get(`/files/user/${userId}`).then(r => r.data),
-  downloadUrl: (id: string) => `${API_URL}/files/download/${id}`,
+  downloadUrl: (id: string) => `${getApiUrl()}/files/download/${id}`,
   delete: async (id: string) => api.delete(`/files/${id}`).then(r => r.data),
   download: async (id: string, suggestedName?: string) => {
     const res = await api.get(`/files/download/${id}`, { responseType: 'blob' });

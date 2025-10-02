@@ -6,7 +6,13 @@ export const authService = {
   login: async (email: string, password: string, tenantDomain?: string): Promise<LoginResponse> => {
     console.log('🔍 AuthService: Making API call to /auth/login');
     console.log('🔍 AuthService: Request data:', { email, password: '[HIDDEN]', tenantDomain });
-    console.log('🔍 AuthService: API base URL:', '/api');
+    console.log('🔍 AuthService: API base URL:', api.defaults.baseURL);
+    console.log('🔍 AuthService: Environment check:', {
+      mode: import.meta.env.MODE,
+      dev: import.meta.env.DEV,
+      hostname: window.location.hostname,
+      fullUrl: window.location.href
+    });
     
     try {
       const response = await api.post<LoginResponse>('/auth/login', {

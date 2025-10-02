@@ -608,15 +608,163 @@ class TenantApiService {
   /**
    * Get all tenants (Super Admin only)
    */
-  async getAllTenants(): Promise<TenantApiResponse<{ tenants: any[] }>> {
-    return this.get<{ tenants: any[] }>('/super-admin/tenants');
+  async getAllTenants(page: number = 1, limit: number = 10, cacheBuster?: number): Promise<TenantApiResponse<{ tenants: any[] }> & { pagination?: any }> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    
+    // Add cache-busting parameter if provided
+    if (cacheBuster) {
+      params.append('_t', cacheBuster.toString());
+    }
+    
+    try {
+      const response = await this.get<{ tenants: any[] }>(`/super-admin/tenants?${params.toString()}`);
+      
+      // The API response includes pagination data, but the get method strips it
+      // We need to make a direct API call to get the full response with pagination
+      const endpoint = `/super-admin/tenants?${params.toString()}`;
+      
+      // Get the API base URL from the environment
+      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://ibuyscrap.ca/api';
+      const url = `${apiBaseUrl}${endpoint}`;
+      const headers = this.buildHeaders();
+      
+      // Get the token from sessionStorage (auth store uses sessionStorage)
+      const authStorage = sessionStorage.getItem('auth-storage');
+      let token = '';
+      if (authStorage) {
+        try {
+          const authData = JSON.parse(authStorage);
+          token = authData.state?.token || '';
+        } catch (e) {
+          console.warn('Failed to parse auth storage');
+        }
+      }
+      
+      const fullResponse = await fetch(url, {
+        method: 'GET',
+        headers: {
+          ...headers,
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!fullResponse.ok) {
+        throw new Error(`HTTP error! status: ${fullResponse.status}`);
+      }
+      
+      const fullData = await fullResponse.json();
+      console.log('🔍 TenantApiService: Full API response with pagination:', fullData);
+      
+      return {
+        ...response,
+        pagination: fullData.pagination
+      };
+    } catch (error) {
+      console.error('❌ TenantApiService: Error in getAllTenants:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a user (Super Admin only)
+   */
+  async deleteUser(userId: string): Promise<TenantApiResponse<any>> {
+    const result = await this.delete(`/super-admin/users/${userId}`);
+    
+    // Clear user-related caches after successful deletion
+    if (result.success) {
+      this.clearUserCaches();
+    }
+    
+    return result;
+  }
+
+  /**
+   * Clear user-related caches
+   */
+  private clearUserCaches(): void {
+    const keysToDelete: string[] = [];
+    
+    // Find all cache keys that contain '/users'
+    for (const key of this.cachedResponses.keys()) {
+      if (key.includes('/users')) {
+        keysToDelete.push(key);
+      }
+    }
+    
+    // Delete the cached responses
+    keysToDelete.forEach(key => {
+      this.cachedResponses.delete(key);
+      this.lastRequestTime.delete(key);
+    });
+    
+    console.log(`🗑️ TenantApiService: Cleared ${keysToDelete.length} user-related caches`);
   }
 
   /**
    * Get all users across all tenants (Super Admin only)
    */
-  async getAllUsers(): Promise<TenantApiResponse<{ users: any[] }>> {
-    return this.get<{ users: any[] }>('/super-admin/users');
+  async getAllUsers(page: number = 1, limit: number = 10, cacheBuster?: number): Promise<TenantApiResponse<{ users: any[] }> & { pagination?: any }> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    
+    // Add cache-busting parameter if provided
+    if (cacheBuster) {
+      params.append('_t', cacheBuster.toString());
+    }
+    
+    try {
+      const response = await this.get<{ users: any[] }>(`/super-admin/users?${params.toString()}`);
+      
+      // The API response includes pagination data, but the get method strips it
+      // We need to make a direct API call to get the full response with pagination
+      const endpoint = `/super-admin/users?${params.toString()}`;
+      
+      // Get the API base URL from the environment
+      const apiBaseUrl = import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://ibuyscrap.ca/api';
+      const url = `${apiBaseUrl}${endpoint}`;
+      const headers = this.buildHeaders();
+      
+      // Get the token from sessionStorage (auth store uses sessionStorage)
+      const authStorage = sessionStorage.getItem('auth-storage');
+      let token = '';
+      if (authStorage) {
+        try {
+          const authData = JSON.parse(authStorage);
+          token = authData.state?.token || '';
+        } catch (e) {
+          console.warn('Failed to parse auth storage');
+        }
+      }
+      
+      const fullResponse = await fetch(url, {
+        method: 'GET',
+        headers: {
+          ...headers,
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!fullResponse.ok) {
+        throw new Error(`HTTP error! status: ${fullResponse.status}`);
+      }
+      
+      const fullData = await fullResponse.json();
+      console.log('🔍 TenantApiService: Full users API response with pagination:', fullData);
+      
+      return {
+        ...response,
+        pagination: fullData.pagination
+      };
+    } catch (error) {
+      console.error('❌ TenantApiService: Error in getAllUsers:', error);
+      throw error;
+    }
   }
 
   /**
@@ -652,6 +800,27 @@ class TenantApiService {
       ...config,
       headers: this.buildHeaders(config?.headers)
     });
+  }
+
+  /**
+   * Update tenant (Super Admin only)
+   */
+  async updateTenant<T = any>(tenantId: string, data: any): Promise<TenantApiResponse<T>> {
+    return this.put<T>(`/super-admin/tenants/${tenantId}`, data);
+  }
+
+  /**
+   * Get tenant by ID (Super Admin only)
+   */
+  async getTenantById<T = any>(tenantId: string): Promise<TenantApiResponse<T>> {
+    return this.get<T>(`/super-admin/tenants/${tenantId}`);
+  }
+
+  /**
+   * Get tenant users (Super Admin only)
+   */
+  async getTenantUsers<T = any>(tenantId: string): Promise<TenantApiResponse<T>> {
+    return this.get<T>(`/super-admin/tenants/${tenantId}/users`);
   }
 }
 

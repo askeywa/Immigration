@@ -9,6 +9,20 @@ let permissionLoadingPromise: Promise<string[]> | null = null;
 let lastPermissionLoad = 0;
 const PERMISSION_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
+// SECURITY: Session timeout and activity monitoring
+export const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+let sessionTimeoutId: NodeJS.Timeout | null = null;
+let lastActivity = Date.now();
+
+// Auto-save service for unsaved changes
+interface AutoSaveData {
+  type: 'tenant' | 'user' | 'super-admin';
+  data: any;
+  timestamp: number;
+}
+
+const AUTO_SAVE_KEY = 'auto-save-data';
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -146,7 +160,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => sessionStorage), // SECURITY: Use sessionStorage instead of localStorage
       partialize: (state) => ({
         user: state.user,
         tenant: state.tenant,
@@ -241,3 +255,97 @@ export const refreshPermissions = () => {
   localStorage.removeItem('user_permissions');
   loadPermissionsAsync();
 };
+
+// SECURITY: Session timeout and activity monitoring functions
+export const startSessionMonitoring = () => {
+  // Clear any existing timeout
+  if (sessionTimeoutId) {
+    clearTimeout(sessionTimeoutId);
+  }
+  
+  // Set new timeout
+  sessionTimeoutId = setTimeout(() => {
+    console.log('🔒 Session timeout - auto-logging out');
+    autoSaveAndLogout();
+  }, SESSION_TIMEOUT);
+};
+
+export const updateActivity = () => {
+  lastActivity = Date.now();
+  startSessionMonitoring();
+};
+
+export const autoSaveAndLogout = async () => {
+  try {
+    // Auto-save any unsaved changes
+    await saveUnsavedChanges();
+    
+    // Clear session
+    sessionStorage.removeItem('auth-storage');
+    localStorage.removeItem(AUTO_SAVE_KEY);
+    
+    // Redirect to login
+    window.location.href = '/login';
+  } catch (error) {
+    console.error('Error during auto-save and logout:', error);
+    // Force logout even if auto-save fails
+    sessionStorage.removeItem('auth-storage');
+    window.location.href = '/login';
+  }
+};
+
+export const saveUnsavedChanges = async () => {
+  try {
+    const autoSaveData = localStorage.getItem(AUTO_SAVE_KEY);
+    if (!autoSaveData) return;
+    
+    const data: AutoSaveData = JSON.parse(autoSaveData);
+    
+    // Only save if data is recent (within last 30 minutes)
+    if (Date.now() - data.timestamp < 30 * 60 * 1000) {
+      console.log(`💾 Auto-saving ${data.type} changes before logout`);
+      // Here you would implement actual save logic based on the data type
+      // For now, we'll just log it
+      console.log('Auto-save data:', data);
+    }
+  } catch (error) {
+    console.error('Error auto-saving changes:', error);
+  }
+};
+
+export const setAutoSaveData = (type: 'tenant' | 'user' | 'super-admin', data: any) => {
+  const autoSaveData: AutoSaveData = {
+    type,
+    data,
+    timestamp: Date.now()
+  };
+  localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(autoSaveData));
+};
+
+// Initialize session monitoring on page load
+if (typeof window !== 'undefined') {
+  // Start monitoring when the page loads
+  startSessionMonitoring();
+  
+  // Monitor user activity
+  const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+  activityEvents.forEach(event => {
+    document.addEventListener(event, updateActivity, true);
+  });
+  
+  // Monitor page visibility changes
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      // Page is hidden, pause monitoring
+      if (sessionTimeoutId) {
+        clearTimeout(sessionTimeoutId);
+      }
+    } else {
+      // Page is visible, resume monitoring
+      startSessionMonitoring();
+    }
+  });
+  
+  // Note: sessionStorage automatically clears when browser tab is closed
+  // No need for beforeunload handler as it interferes with navigation
+}

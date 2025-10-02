@@ -148,6 +148,156 @@ sudo chmod -R 755 /var/www/html/
 
 print_success "Frontend deployed!"
 
+# Configure Redis
+print_status "Configuring Redis..."
+if ! command -v redis-server &> /dev/null; then
+    print_status "Installing Redis..."
+    sudo apt update
+    sudo apt install redis-server redis-tools -y
+fi
+
+# Configure Redis with password
+print_status "Setting up Redis configuration..."
+REDIS_PASSWORD="Qwsaqwsa!@34"
+
+# Ensure Redis environment variables are set in backend .env
+print_status "Updating backend .env with Redis configuration..."
+cd backend
+if [ -f ".env" ]; then
+    # Update or add Redis configuration
+    if grep -q "REDIS_ENABLED=" .env; then
+        sed -i 's/REDIS_ENABLED=.*/REDIS_ENABLED=true/' .env
+    else
+        echo "REDIS_ENABLED=true" >> .env
+    fi
+    
+    if grep -q "REDIS_URL=" .env; then
+        sed -i 's/REDIS_URL=.*/REDIS_URL=redis:\/\/localhost:6379/' .env
+    else
+        echo "REDIS_URL=redis://localhost:6379" >> .env
+    fi
+    
+    if grep -q "REDIS_PASSWORD=" .env; then
+        sed -i "s/REDIS_PASSWORD=.*/REDIS_PASSWORD=$REDIS_PASSWORD/" .env
+    else
+        echo "REDIS_PASSWORD=$REDIS_PASSWORD" >> .env
+    fi
+    
+    # Update or add Sentry configuration
+    if grep -q "SENTRY_DSN=" .env; then
+        sed -i 's|SENTRY_DSN=.*|SENTRY_DSN=https://1fed6693d06ca399d6d51b27adb20797@o4510120878145536.ingest.us.sentry.io/4510120957050880|' .env
+    else
+        echo "SENTRY_DSN=https://1fed6693d06ca399d6d51b27adb20797@o4510120878145536.ingest.us.sentry.io/4510120957050880" >> .env
+    fi
+    
+    if grep -q "SENTRY_RELEASE=" .env; then
+        sed -i 's/SENTRY_RELEASE=.*/SENTRY_RELEASE=1.0.0/' .env
+    else
+        echo "SENTRY_RELEASE=1.0.0" >> .env
+    fi
+    
+    if grep -q "SENTRY_TRACES_SAMPLE_RATE=" .env; then
+        sed -i 's/SENTRY_TRACES_SAMPLE_RATE=.*/SENTRY_TRACES_SAMPLE_RATE=0.1/' .env
+    else
+        echo "SENTRY_TRACES_SAMPLE_RATE=0.1" >> .env
+    fi
+    
+    if grep -q "SENTRY_PROFILES_SAMPLE_RATE=" .env; then
+        sed -i 's/SENTRY_PROFILES_SAMPLE_RATE=.*/SENTRY_PROFILES_SAMPLE_RATE=0.1/' .env
+    else
+        echo "SENTRY_PROFILES_SAMPLE_RATE=0.1" >> .env
+    fi
+    
+    print_success "Backend .env updated with Redis and Sentry configuration!"
+else
+    print_warning "Backend .env file not found - creating with Redis configuration..."
+    cat > .env <<EOF
+# Redis Configuration
+REDIS_ENABLED=true
+REDIS_URL=redis://localhost:6379
+REDIS_PASSWORD=$REDIS_PASSWORD
+
+# Sentry Configuration
+SENTRY_DSN=https://1fed6693d06ca399d6d51b27adb20797@o4510120878145536.ingest.us.sentry.io/4510120957050880
+SENTRY_RELEASE=1.0.0
+SENTRY_TRACES_SAMPLE_RATE=0.1
+SENTRY_PROFILES_SAMPLE_RATE=0.1
+EOF
+    print_success "Backend .env created with Redis and Sentry configuration!"
+fi
+cd ..
+
+# Backup original Redis config
+sudo cp /etc/redis/redis.conf /etc/redis/redis.conf.backup.$(date +%Y%m%d_%H%M%S)
+
+# Update Redis configuration
+sudo tee /etc/redis/redis.conf > /dev/null <<EOF
+# Redis configuration for Immigration Portal
+# Generated on $(date)
+
+# Network
+bind 127.0.0.1
+port 6379
+timeout 0
+tcp-keepalive 300
+
+# Security
+requirepass $REDIS_PASSWORD
+
+# Memory management
+maxmemory 512mb
+maxmemory-policy allkeys-lru
+
+# Persistence
+save 900 1
+save 300 10
+save 60 10000
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+dbfilename dump.rdb
+dir /var/lib/redis
+
+# Logging
+loglevel notice
+logfile /var/log/redis/redis-server.log
+
+# Disable dangerous commands
+rename-command FLUSHDB ""
+rename-command FLUSHALL ""
+rename-command KEYS ""
+rename-command CONFIG ""
+
+# Client management
+maxclients 10000
+
+# Slow log
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+EOF
+
+# Set proper permissions
+sudo chown redis:redis /etc/redis/redis.conf
+sudo chmod 640 /etc/redis/redis.conf
+
+# Start and enable Redis
+print_status "Starting Redis service..."
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+
+# Test Redis connection
+if redis-cli -a "$REDIS_PASSWORD" ping | grep -q "PONG"; then
+    print_success "Redis is working correctly!"
+else
+    print_error "Redis connection test failed!"
+    exit 1
+fi
+
+# Configure firewall for Redis
+print_status "Configuring Redis firewall..."
+sudo ufw allow from 127.0.0.1 to any port 6379
+sudo ufw deny 6379
+
 # Start backend with PM2
 print_status "Starting backend..."
 cd ../backend
@@ -213,6 +363,16 @@ if systemctl is-active --quiet nginx; then
     print_success "Nginx is running!"
 else
     print_error "Nginx is not running!"
+fi
+
+# Check Redis status
+print_status "Verifying Redis connection..."
+if redis-cli -a "$REDIS_PASSWORD" ping | grep -q "PONG"; then
+    print_success "Redis is running and accessible!"
+else
+    print_error "Redis connection failed!"
+    print_status "Redis status:"
+    sudo systemctl status redis-server || true
 fi
 
 # Clean up old backups (keep only last 5)

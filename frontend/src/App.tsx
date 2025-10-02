@@ -6,10 +6,12 @@ import { useAuthStore } from '@/store/authStore';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { TenantProvider } from '@/contexts/TenantContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { DarkModeProvider } from '@/contexts/DarkModeContext';
 import { LogoProvider } from '@/contexts/LogoContext';
 import { CSSInjectionProvider } from '@/contexts/CSSInjectionContext';
 import { TenantRouter } from '@/components/tenant/TenantRouter';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import SessionSecurity from '@/components/security/SessionSecurity';
 
 // Lazy-loaded routes
 const Login = lazy(() => import('@/pages/auth/Login'));
@@ -65,38 +67,42 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ToastProvider>
-        <TenantProvider>
-          <ThemeProvider>
-            <LogoProvider>
-              <CSSInjectionProvider>
-                <Suspense fallback={
-                  <div className="flex justify-center items-center min-h-screen">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-                  </div>
-                }>
-                  <Routes key={`${isAuthenticated}-${user?.role}-${!!tenant}`}>
-                  {!isAuthenticated ? (
-                    <>
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/register" element={<Register />} />
-                      <Route path="*" element={<Navigate to="/login" replace />} />
-                    </>
-                  ) : !tenant && user?.role !== 'super_admin' ? (
-                    <>
-                      <Route path="/tenant-selection" element={<TenantSelection />} />
-                      <Route path="*" element={<TenantSelectionRedirect />} />
-                    </>
-                  ) : (
-                    <Route path="*" element={<TenantRouter />} />
-                  )}
-                  </Routes>
-                </Suspense>
-              </CSSInjectionProvider>
-            </LogoProvider>
-          </ThemeProvider>
-        </TenantProvider>
-      </ToastProvider>
+      <DarkModeProvider>
+        <ToastProvider>
+          <TenantProvider>
+            <ThemeProvider>
+              <LogoProvider>
+                <CSSInjectionProvider>
+                  <SessionSecurity>
+                    <Suspense fallback={
+                      <div className="flex justify-center items-center min-h-screen">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+                      </div>
+                    }>
+                      <Routes key={`${isAuthenticated}-${user?.role}-${!!tenant}`}>
+                      {!isAuthenticated ? (
+                        <>
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/register" element={<Register />} />
+                          <Route path="*" element={<Navigate to="/login" replace />} />
+                        </>
+                      ) : !tenant && user?.role !== 'super_admin' ? (
+                        <>
+                          <Route path="/tenant-selection" element={<TenantSelection />} />
+                          <Route path="*" element={<TenantSelectionRedirect />} />
+                        </>
+                      ) : (
+                        <Route path="*" element={<TenantRouter />} />
+                      )}
+                      </Routes>
+                    </Suspense>
+                  </SessionSecurity>
+                </CSSInjectionProvider>
+              </LogoProvider>
+            </ThemeProvider>
+          </TenantProvider>
+        </ToastProvider>
+      </DarkModeProvider>
     </ErrorBoundary>
   );
 }

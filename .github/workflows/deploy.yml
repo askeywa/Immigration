@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, production ]
   pull_request:
     branches: [ main ]
 
@@ -46,61 +46,85 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
+      - name: Create Production Environment File
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          SUPER_ADMIN_DOMAIN: ${{ secrets.SUPER_ADMIN_DOMAIN }}
+          MAIN_DOMAIN: ${{ secrets.MAIN_DOMAIN }}
+          TENANT_DOMAIN_PREFIX: ${{ secrets.TENANT_DOMAIN_PREFIX }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
+          EC2_PRIVATE_IP: ${{ secrets.EC2_PRIVATE_IP }}
+          EC2_PUBLIC_DNS: ${{ secrets.EC2_PUBLIC_DNS }}
+          RATE_LIMIT_WINDOW_MS: ${{ secrets.RATE_LIMIT_WINDOW_MS }}
+          RATE_LIMIT_MAX_REQUESTS: ${{ secrets.RATE_LIMIT_MAX_REQUESTS }}
+          REDIS_ENABLED: ${{ secrets.REDIS_ENABLED }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          APP_NAME: ${{ secrets.APP_NAME }}
+          ALLOW_START_WITHOUT_DB: ${{ secrets.ALLOW_START_WITHOUT_DB }}
+        run: |
+          cat > env.production << EOF
+          NODE_ENV=production
+          PORT=5000
+          FRONTEND_URL=${FRONTEND_URL}
+          
+          # Super Admin Configuration
+          SUPER_ADMIN_DOMAIN=${SUPER_ADMIN_DOMAIN}
+          
+          # Database
+          MONGODB_URI=${MONGODB_URI}
+          
+          # JWT
+          JWT_SECRET=${JWT_SECRET}
+          JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+          
+          # Domain Configuration
+          MAIN_DOMAIN=${MAIN_DOMAIN}
+          TENANT_DOMAIN_PREFIX=${TENANT_DOMAIN_PREFIX}
+          
+          # Rate Limiting
+          RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+          RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+          
+          # Redis
+          REDIS_ENABLED=${REDIS_ENABLED}
+          REDIS_URL=${REDIS_URL}
+          
+          # EC2 Configuration
+          EC2_PUBLIC_IP=${EC2_PUBLIC_IP}
+          EC2_PRIVATE_IP=${EC2_PRIVATE_IP}
+          EC2_PUBLIC_DNS=${EC2_PUBLIC_DNS}
+          
+          # API Configuration
+          API_BASE_URL=${API_BASE_URL}
+          
+          # App Configuration
+          APP_NAME=${APP_NAME}
+          ALLOW_START_WITHOUT_DB=${ALLOW_START_WITHOUT_DB}
+          EOF
+      
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /var/www/immigration-portal
-            git fetch origin
-            git reset --hard origin/main
-            git clean -fd
-            
-            # Create .env file for PM2 to use
-            cat > backend/.env << EOF
-            NODE_ENV=production
-            PORT=5000
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
-            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
-            SUPER_ADMIN_FRONTEND_URL=${{ secrets.FRONTEND_URL }}
-            TENANT_FRONTEND_URL_TEMPLATE=https://{domain}/immigration-portal
-            ALLOWED_SUPER_ADMIN_DOMAINS=${{ secrets.SUPER_ADMIN_DOMAIN }},www.${{ secrets.SUPER_ADMIN_DOMAIN }}
-            ALLOW_START_WITHOUT_DB=false
-            REDIS_ENABLED=false
-            NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
-            NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}
-            NEW_RELIC_AI_MONITORING_ENABLED=true
-            SUPER_ADMIN_DOMAIN=${{ secrets.SUPER_ADMIN_DOMAIN }}
-            TENANT_DOMAIN_PREFIX=immigration-portal
-            API_BASE_URL=${{ secrets.API_BASE_URL }}
-            EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
-            EC2_PRIVATE_IP=${{ secrets.EC2_PRIVATE_IP }}
-            EC2_PUBLIC_DNS=${{ secrets.EC2_PUBLIC_DNS }}
-            TENANT_API_BASE_URL=https://{domain}/immigration-portal
-            TENANT_API_VERSION=v1
-            CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
-            CLOUDFLARE_ZONE_ID=${{ secrets.CLOUDFLARE_ZONE_ID }}
-            CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-            MAIN_DOMAIN=${{ secrets.MAIN_DOMAIN }}
-            EOF
-            
-            # Create frontend .env file for production build
-            cat > frontend/.env << EOF
-            VITE_API_BASE_URL=https://ibuyscrap.ca/api
-            VITE_SUPER_ADMIN_API_URL=https://ibuyscrap.ca/api
-            VITE_TENANT_API_URL_TEMPLATE=https://{domain}/immigration-portal
-            VITE_EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
-            VITE_EC2_PUBLIC_DNS=${{ secrets.EC2_PUBLIC_DNS }}
-            VITE_CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
-            VITE_CLOUDFLARE_ZONE_ID=${{ secrets.CLOUDFLARE_ZONE_ID }}
-            VITE_CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-            VITE_MAIN_DOMAIN=${{ secrets.MAIN_DOMAIN }}
-            EOF
-            
-            # Make deploy script executable and run it
-            chmod +x deploy.sh
-            ./deploy.sh
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          
+          # Copy environment file
+          scp -i private_key.pem -o StrictHostKeyChecking=no env.production ${USER}@${HOST}:/home/ubuntu/app/backend/.env
+          
+          # Deploy application
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} '
+            cd /home/ubuntu/app &&
+            git pull origin main &&
+            npm install &&
+            npm run build &&
+            pm2 reload ecosystem.config.js --env production
+          '
+          
+          rm -f private_key.pem

@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-EC2_IP="52.15.148.97"
+EC2_IP="18.220.224.109"
 TENANT_DOMAIN="honeynwild.com"
 SUPER_ADMIN_DOMAIN="ibuyscrap.ca"
 BACKEND_PORT="5000"

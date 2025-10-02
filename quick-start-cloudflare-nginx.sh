@@ -8,7 +8,7 @@ echo "========================================"
 if [ ! -f /sys/hypervisor/uuid ] || [ `head -c 3 /sys/hypervisor/uuid` != "ec2" ]; then
     echo "❌ This script should be run on your EC2 instance"
     echo "Please SSH into your EC2 first:"
-    echo "ssh -i your-key.pem ubuntu@52.15.148.97"
+    echo "ssh -i your-key.pem ubuntu@18.220.224.109"
     exit 1
 fi
 

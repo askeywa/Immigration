@@ -1,19 +1,16 @@
 // frontend/src/components/common/UserProfileDropdown.tsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, 
   Settings, 
   LogOut, 
-  Shield, 
-  Bell, 
-  HelpCircle,
   ChevronDown,
-  Edit,
-  Key,
-  Globe,
-  Mail
+  Shield,
+  Building2,
+  CreditCard,
+  HelpCircle
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useTenant } from '@/contexts/TenantContext';
@@ -24,124 +21,64 @@ interface UserProfileDropdownProps {
 
 export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({ className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const { isSuperAdmin, isTenantAdmin, isTenantUser } = useTenant();
+  const { tenant } = useTenant();
+  const navigate = useNavigate();
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Close dropdown on escape key
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, []);
-
-  const handleProfileClick = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-    setIsOpen(false);
-  };
-
-  const handleProfileSettings = () => {
-    navigate('/profile/settings');
-    setIsOpen(false);
-  };
-
-  const handleAccountSettings = () => {
-    navigate('/account/settings');
-    setIsOpen(false);
-  };
-
-  const handleNotifications = () => {
-    navigate('/notifications');
-    setIsOpen(false);
-  };
-
-  const handleHelp = () => {
-    navigate('/help');
-    setIsOpen(false);
-  };
-
-  const handleChangePassword = () => {
-    navigate('/account/change-password');
-    setIsOpen(false);
-  };
-
-  const handleAdminPanel = () => {
-    if (isSuperAdmin) {
-      navigate('/super-admin');
-    } else if (isTenantAdmin) {
-      navigate('/tenant/dashboard');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Force logout even if API call fails
+      localStorage.removeItem('auth-storage');
+      sessionStorage.removeItem('auth-storage');
+      navigate('/login');
     }
-    setIsOpen(false);
   };
 
-  const getUserRoleDisplay = () => {
-    if (isSuperAdmin) return 'Super Administrator';
-    if (isTenantAdmin) return 'Tenant Administrator';
-    if (isTenantUser) return 'User';
-    return 'Guest';
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'super_admin': return 'Super Administrator';
+      case 'admin': return 'Administrator';
+      case 'user': return 'User';
+      default: return role;
+    }
   };
 
-  const getRoleColor = () => {
-    if (isSuperAdmin) return 'text-purple-600 bg-purple-100';
-    if (isTenantAdmin) return 'text-blue-600 bg-blue-100';
-    if (isTenantUser) return 'text-green-600 bg-green-100';
-    return 'text-gray-600 bg-gray-100';
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'super_admin': return <Shield className="h-4 w-4 text-purple-600 dark:text-purple-400" />;
+      case 'admin': return <Settings className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+      default: return <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
+    }
   };
+
+  if (!user) return null;
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`relative ${className}`}>
       {/* Profile Button */}
       <button
-        onClick={handleProfileClick}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        aria-label="User profile menu"
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        role="button"
-        tabIndex={0}
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
       >
-        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
-          <span className="text-sm font-medium">
-            {user?.firstName?.charAt(0) || 'U'}
-          </span>
-        </div>
-        <div className="hidden md:block text-left">
-          <p className="text-sm font-medium text-gray-900 truncate">
-            {user?.firstName} {user?.lastName}
-          </p>
-          <p className="text-xs text-gray-500 truncate">
-            {getUserRoleDisplay()}
-          </p>
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+            {user.firstName?.[0]}{user.lastName?.[0]}
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-medium text-gray-900 dark:text-white">
+              {user.firstName} {user.lastName}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {getRoleDisplayName(user.role)}
+            </p>
+          </div>
         </div>
         <ChevronDown 
-          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+          className={`h-4 w-4 text-gray-400 dark:text-gray-300 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`} 
         />
@@ -150,115 +87,140 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({ classN
       {/* Dropdown Menu */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
-            role="menu"
-            aria-label="User profile menu"
-          >
-            {/* User Info Header */}
-            <div className="px-4 py-3 border-b border-gray-100">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
-                  <span className="text-lg font-medium">
-                    {user?.firstName?.charAt(0) || 'U'}
-                  </span>
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 z-10" 
+              onClick={() => setIsOpen(false)}
+            />
+            
+            {/* Dropdown Content */}
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20"
+            >
+              {/* User Info Header */}
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white font-medium">
+                    {user.firstName?.[0]}{user.lastName?.[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {user.firstName} {user.lastName}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {user.email}
+                    </p>
+                    <div className="flex items-center space-x-1 mt-1">
+                      {getRoleIcon(user.role)}
+                      <span className="text-xs text-gray-600 dark:text-gray-300">
+                        {getRoleDisplayName(user.role)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {user?.firstName} {user?.lastName}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {user?.email}
-                  </p>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor()}`}>
-                    {getUserRoleDisplay()}
-                  </span>
-                </div>
+                
+                {/* Tenant Info (if applicable) */}
+                {tenant && (
+                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center space-x-2">
+                      <Building2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-gray-900 dark:text-white truncate">
+                          {tenant.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {tenant.domain}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
 
-            {/* Menu Items */}
-            <div className="py-1">
-              {/* Profile Settings */}
-              <button
-                onClick={handleProfileSettings}
-                className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                role="menuitem"
-              >
-                <User className="w-4 h-4 text-gray-400" />
-                Profile Settings
-              </button>
-
-              {/* Account Settings */}
-              <button
-                onClick={handleAccountSettings}
-                className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                role="menuitem"
-              >
-                <Settings className="w-4 h-4 text-gray-400" />
-                Account Settings
-              </button>
-
-              {/* Change Password */}
-              <button
-                onClick={handleChangePassword}
-                className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                role="menuitem"
-              >
-                <Key className="w-4 h-4 text-gray-400" />
-                Change Password
-              </button>
-
-              {/* Notifications */}
-              <button
-                onClick={handleNotifications}
-                className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                role="menuitem"
-              >
-                <Bell className="w-4 h-4 text-gray-400" />
-                Notifications
-              </button>
-
-              {/* Admin Panel (if applicable) */}
-              {(isSuperAdmin || isTenantAdmin) && (
+              {/* Menu Items */}
+              <div className="py-2">
+                {/* Profile Settings */}
                 <button
-                  onClick={handleAdminPanel}
-                  className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  role="menuitem"
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate('/profile');
+                  }}
+                  className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
                 >
-                  <Shield className="w-4 h-4 text-gray-400" />
-                  {isSuperAdmin ? 'Super Admin Panel' : 'Tenant Admin Panel'}
+                  <User className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <span>Profile Settings</span>
                 </button>
-              )}
 
-              {/* Help */}
-              <button
-                onClick={handleHelp}
-                className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                role="menuitem"
-              >
-                <HelpCircle className="w-4 h-4 text-gray-400" />
-                Help & Support
-              </button>
+                {/* Account Settings */}
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate('/settings');
+                  }}
+                  className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
+                >
+                  <Settings className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <span>Account Settings</span>
+                </button>
 
-              {/* Divider */}
-              <div className="border-t border-gray-100 my-1"></div>
+                {/* Super Admin specific options */}
+                {user.role === 'super_admin' && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate('/super-admin');
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
+                    >
+                      <Shield className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      <span>Super Admin Dashboard</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate('/super-admin/tenants');
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
+                    >
+                      <Building2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <span>Manage Tenants</span>
+                    </button>
+                  </>
+                )}
 
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                role="menuitem"
-              >
-                <LogOut className="w-4 h-4 text-red-500" />
-                Logout
-              </button>
-            </div>
-          </motion.div>
+                {/* Help */}
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate('/help');
+                  }}
+                  className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
+                >
+                  <HelpCircle className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <span>Help & Support</span>
+                </button>
+
+                {/* Divider */}
+                <div className="border-t border-gray-100 dark:border-gray-700 my-2" />
+
+                {/* Logout */}
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150"
+                >
+                  <LogOut className="h-4 w-4 text-red-500 dark:text-red-400" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

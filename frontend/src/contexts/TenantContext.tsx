@@ -232,6 +232,12 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       return { isValid: false, error: 'Component unmounted' };
     }
     
+    // Skip domain resolution for super admin pages
+    if (window.location.pathname.startsWith('/super-admin')) {
+      log.info('Skipping domain resolution for super admin page');
+      return { isValid: true, tenantInfo: null };
+    }
+    
     // Prevent multiple calls
     if (domainResolved.current) {
       return { isValid: true, tenantInfo: domainInfo };

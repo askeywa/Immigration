@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # --- Configuration ---
-EC2_PUBLIC_IP="52.15.148.97"
+EC2_PUBLIC_IP="18.220.224.109"
 BACKEND_PORT="5000"
 FRONTEND_PORT="5174"
 NGINX_CONFIG_FILE="/etc/nginx/sites-available/multi-tenant"

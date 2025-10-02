@@ -20,7 +20,8 @@ import {
   DocumentChartBarIcon,
   EyeIcon,
   UserGroupIcon,
-  BanknotesIcon
+  BanknotesIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
@@ -114,12 +115,12 @@ const MetricCard: React.FC<MetricCardProps> = ({
   };
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-shadow duration-300 border-0 shadow-md w-full" style={{ height: '160px' }}>
+    <Card className="p-6 hover:shadow-lg transition-shadow duration-300 border-0 shadow-md w-full bg-white dark:bg-gray-800" style={{ height: '160px' }}>
       {/* Fixed Height Container */}
       <div className="flex flex-col justify-between h-full">
         {/* Top Section - Title and Icon */}
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
           <div className={`p-2 rounded-full ${colorClasses[color]}`}>
             <Icon className="w-5 h-5" />
           </div>
@@ -127,14 +128,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
         
         {/* Middle Section - Main Value */}
         <div className="flex-1 flex flex-col justify-center">
-          <h3 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">{value}</h3>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">{value}</h3>
         </div>
         
         {/* Bottom Section - Trend and Subtitle */}
         <div className="space-y-1">
           {change && trend && (
             <div>
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${trendColors[trend]}`}>
+              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${trendColors[trend]} dark:bg-opacity-20`}>
                 {trend === 'up' && <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />}
                 {trend === 'down' && <ArrowTrendingDownIcon className="w-3 h-3 mr-1" />}
                 {change}
@@ -142,7 +143,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
             </div>
           )}
           {subtitle && (
-            <p className="text-xs text-gray-500 truncate">{subtitle}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{subtitle}</p>
           )}
         </div>
       </div>
@@ -164,73 +165,70 @@ export const SuperAdminDashboard: React.FC = () => {
 
   // Load dashboard data with enhanced mock data
   const loadDashboardData = async () => {
+    console.log('🚀 SuperAdminDashboard: loadDashboardData called');
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // REMOVED: Artificial delay that was causing slow loading
+      // await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Enhanced mock data for better visualization
-      const mockSystemStats: SystemStats = {
-        totalTenants: 24,
-        activeTenants: 21,
-        totalUsers: 1847,
-        activeUsers: 1623,
-        totalRevenue: 89750,
+      // Fetch real data from APIs
+      console.log('🔍 SuperAdminDashboard: Fetching real system statistics...');
+      
+      // Configure tenantApiService for super admin context
+      tenantApiService.setTenantContext({
+        isSuperAdmin: true,
+        includeTenantContext: false
+      });
+      
+      // Fetch real tenants data
+      const tenantsResponse = await tenantApiService.getAllTenants(1, 1000); // Get all tenants
+      const totalTenants = tenantsResponse.pagination?.totalTenants || tenantsResponse.data?.tenants?.length || 0;
+      const activeTenants = tenantsResponse.data?.tenants?.filter((tenant: any) => tenant.status === 'active').length || 0;
+      
+      // Fetch real users data
+      const usersResponse = await tenantApiService.getAllUsers(1, 1000); // Get all users
+      const totalUsers = usersResponse.pagination?.total || usersResponse.data?.users?.length || 0;
+      const activeUsers = usersResponse.data?.users?.filter((user: any) => user.isActive !== false).length || 0;
+      
+      console.log('🔍 SuperAdminDashboard: Real data fetched:', {
+        totalTenants,
+        activeTenants,
+        totalUsers,
+        activeUsers
+      });
+      
+      const realSystemStats: SystemStats = {
+        totalTenants,
+        activeTenants,
+        totalUsers,
+        activeUsers,
+        totalRevenue: 89750, // Keep mock revenue data for now
         monthlyRevenue: 12450,
         systemUptime: 99.8,
         lastBackup: new Date().toISOString(),
-        newTenantsThisMonth: 3,
+        newTenantsThisMonth: 3, // Keep mock growth data for now
         newUsersThisMonth: 127,
         revenueGrowth: 18.5,
         systemHealth: 'excellent'
       };
 
-      const mockTenantStats: TenantStats[] = [
-        {
-          _id: '1',
-          name: 'Acme Immigration Services',
-          domain: 'acme.immigrationapp.com',
+      // Use real tenant data for tenant stats (show first 5 tenants)
+      const realTenantStats: TenantStats[] = tenantsResponse.data?.tenants?.slice(0, 5).map((tenant: any) => ({
+        _id: tenant._id,
+        name: tenant.name,
+        domain: tenant.domain,
+        status: tenant.status,
+        userCount: Math.floor(Math.random() * 100) + 50, // Mock user count for now
+        subscription: tenant.subscription || {
+          planName: 'Standard',
           status: 'active',
-          userCount: 245,
-          subscription: {
-            planName: 'Enterprise',
-            status: 'active',
-            expiresAt: '2024-12-31'
-          },
-          lastActivity: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          revenue: 2450
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
         },
-        {
-          _id: '2',
-          name: 'Global Migration Partners',
-          domain: 'global.immigrationapp.com',
-          status: 'active',
-          userCount: 189,
-          subscription: {
-            planName: 'Professional',
-            status: 'active',
-            expiresAt: '2024-11-15'
-          },
-          lastActivity: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          revenue: 1890
-        },
-        {
-          _id: '3',
-          name: 'City Immigration Center',
-          domain: 'city.immigrationapp.com',
-          status: 'active',
-          userCount: 156,
-          subscription: {
-            planName: 'Standard',
-            status: 'active',
-            expiresAt: '2024-10-30'
-          },
-          lastActivity: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-          revenue: 980
-        }
-      ];
+        lastActivity: tenant.lastLogin || new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString(),
+        revenue: Math.floor(Math.random() * 2000) + 500 // Mock revenue for now
+      })) || [];
 
       const mockRecentActivity: RecentActivity[] = [
         {
@@ -290,30 +288,51 @@ export const SuperAdminDashboard: React.FC = () => {
         }
       ];
 
-      setSystemStats(mockSystemStats);
-      setTenantStats(mockTenantStats);
+      console.log('📊 SuperAdminDashboard: Setting system stats:', realSystemStats);
+      setSystemStats(realSystemStats);
+      setTenantStats(realTenantStats);
       setRecentActivity(mockRecentActivity);
       setSystemAlerts(mockSystemAlerts);
+      
+      console.log('📊 SuperAdminDashboard: State set, isLoading will be set to false');
 
     } catch (err: any) {
       log.error('Failed to load super admin dashboard data', { error: err.message });
       setError('Failed to load dashboard data');
     } finally {
+      console.log('📊 SuperAdminDashboard: Setting isLoading to false');
       setIsLoading(false);
     }
   };
 
-  // Load data on component mount
+  // Load data on component mount and when page becomes visible
   useEffect(() => {
+    console.log('🔄 SuperAdminDashboard: useEffect triggered, isSuperAdmin:', isSuperAdmin);
     if (isSuperAdmin) {
+      console.log('🚀 SuperAdminDashboard: Calling loadDashboardData...');
       loadDashboardData();
+    } else {
+      console.log('❌ SuperAdminDashboard: Not super admin, skipping data load');
     }
   }, [isSuperAdmin]);
 
-  // Auto-refresh data every 30 seconds
+  // Refresh data when page becomes visible (e.g., returning from tenant creation)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isSuperAdmin) {
+        console.log('🔄 SuperAdminDashboard: Page became visible, refreshing data...');
+        loadDashboardData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isSuperAdmin]);
+
+  // Auto-refresh data every 5 minutes (optimized from 30 seconds)
   useEffect(() => {
     if (isSuperAdmin) {
-      const interval = setInterval(loadDashboardData, 30000);
+      const interval = setInterval(loadDashboardData, 300000); // 5 minutes
       return () => clearInterval(interval);
     }
   }, [isSuperAdmin]);
@@ -321,22 +340,22 @@ export const SuperAdminDashboard: React.FC = () => {
   // Get severity color
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-red-600 bg-red-100';
-      case 'high': return 'text-orange-600 bg-orange-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'critical': return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
+      case 'high': return 'text-orange-600 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/30';
+      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30';
+      case 'low': return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30';
+      default: return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-700';
     }
   };
 
   // Get status color
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'text-green-600 bg-green-100';
-      case 'inactive': return 'text-gray-600 bg-gray-100';
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      case 'suspended': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'active': return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30';
+      case 'inactive': return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-700';
+      case 'pending': return 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30';
+      case 'suspended': return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
+      default: return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-700';
     }
   };
 
@@ -376,16 +395,16 @@ export const SuperAdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+    <div className="min-h-full bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Dashboard Header - Clean and Simple */}
-      <div className="bg-white shadow-sm border-b border-gray-200 mb-6">
+      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 mb-6">
         <div className="max-w-7xl mx-auto py-6 px-6">
           <div className="flex items-center justify-between">
             <div>
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-3xl font-bold text-gray-900"
+                className="text-3xl font-bold text-gray-900 dark:text-white"
               >
                 Super Admin Dashboard
               </motion.h1>
@@ -393,40 +412,33 @@ export const SuperAdminDashboard: React.FC = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
-                className="mt-1 text-lg text-gray-600"
+                className="mt-1 text-lg text-gray-600 dark:text-gray-400"
               >
                 Welcome back, {user?.firstName} {user?.lastName}
               </motion.p>
             </div>
-            
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center space-x-4"
+              transition={{ delay: 0.1 }}
             >
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+              <Button
                 onClick={loadDashboardData}
-                  disabled={isLoading}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                >
-                  <ArrowTrendingUpIcon className="w-4 h-4 mr-2" />
-                  {isLoading ? 'Loading...' : 'Refresh'}
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={logout}
-                  className="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
-                >
-                  <XCircleIcon className="w-4 h-4 mr-2" />
-                  Logout
-                </motion.button>
-            </div>
+                disabled={isLoading}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Refreshing...
+                  </>
+                ) : (
+                  <>
+                    <ArrowPathIcon className="h-4 w-4" />
+                    Refresh Data
+                  </>
+                )}
+              </Button>
             </motion.div>
           </div>
         </div>
@@ -435,10 +447,10 @@ export const SuperAdminDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 pb-6">
         {/* Error Display */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
             <div className="flex">
-              <ExclamationTriangleIcon className="h-5 w-5 text-red-400 mr-2" />
-              <div className="text-sm text-red-700">{error}</div>
+              <ExclamationTriangleIcon className="h-5 w-5 text-red-400 dark:text-red-500 mr-2" />
+              <div className="text-sm text-red-700 dark:text-red-400">{error}</div>
             </div>
           </div>
         )}
@@ -509,23 +521,23 @@ export const SuperAdminDashboard: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" style={{ gridTemplateRows: 'minmax(160px, 1fr)' }}>
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex">
-                  <Card className="p-6 animate-pulse border-0 shadow-md w-full" style={{ height: '160px' }}>
+                  <Card className="p-6 animate-pulse border-0 shadow-md w-full bg-white dark:bg-gray-800" style={{ height: '160px' }}>
                     <div className="flex flex-col justify-between h-full">
                       {/* Top Section */}
                       <div className="flex items-center justify-between mb-3">
-                        <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                        <div className="w-9 h-9 bg-gray-200 rounded-full"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                        <div className="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
             </div>
 
                       {/* Middle Section */}
                       <div className="flex-1 flex flex-col justify-center">
-                        <div className="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
             </div>
 
                       {/* Bottom Section */}
                       <div className="space-y-1">
-                        <div className="h-5 bg-gray-200 rounded w-1/2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
                   </div>
                 </div>
                   </Card>
@@ -543,33 +555,33 @@ export const SuperAdminDashboard: React.FC = () => {
             transition={{ delay: 0.3 }}
             className="mb-8"
           >
-            <Card className="p-4 border-0 shadow-md bg-gradient-to-r from-blue-50 to-indigo-50">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
-                <div className="flex items-center space-x-3">
+            <Card className="p-4 border-0 shadow-md bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Quick Actions</h3>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 sm:space-x-0">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     onClick={() => window.location.href = '/super-admin/tenants'}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200 min-w-0 flex-shrink-0"
                   >
-                    <BuildingOfficeIcon className="w-4 h-4 mr-2" />
-                    Add Tenant
+                    <BuildingOfficeIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Manage Tenants</span>
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     onClick={() => window.location.href = '/super-admin/users'}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors duration-200 min-w-0 flex-shrink-0"
                   >
-                    <UserGroupIcon className="w-4 h-4 mr-2" />
-                    Manage Users
+                    <UserGroupIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Manage Users</span>
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     onClick={() => window.location.href = '/super-admin/reports'}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 transition-colors duration-200 min-w-0 flex-shrink-0"
                   >
-                    <DocumentChartBarIcon className="w-4 h-4 mr-2" />
-                    View Reports
+                    <DocumentChartBarIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">View Reports</span>
                   </motion.button>
                   </div>
                 </div>
@@ -584,23 +596,23 @@ export const SuperAdminDashboard: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="h-full shadow-lg border-0">
+            <Card className="h-full shadow-lg border-0 bg-white dark:bg-gray-800">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Recent Activity</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-gray-500">Live</span>
+                    <div className="w-2 h-2 bg-green-400 dark:bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Live</span>
                   </div>
                 </div>
                 {isLoading ? (
                   <div className="space-y-4">
                     {[1, 2, 3, 4].map((i) => (
                       <div key={i} className="animate-pulse flex space-x-3">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                         <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
               </div>
             </div>
                     ))}
@@ -619,19 +631,19 @@ export const SuperAdminDashboard: React.FC = () => {
                           >
                         <div className="relative pb-8">
                           {activityIdx !== recentActivity.length - 1 ? (
-                            <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" />
+                            <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" />
                           ) : null}
                               <div className="relative flex space-x-4">
                             <div>
-                                  <span className={`h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white shadow-sm ${getSeverityColor(activity.severity)}`}>
+                                  <span className={`h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white dark:ring-gray-800 shadow-sm ${getSeverityColor(activity.severity)}`}>
                                 <ActivityIcon className="h-5 w-5" />
                               </span>
                             </div>
                                 <div className="min-w-0 flex-1 pt-1.5">
                                   <div className="flex justify-between space-x-4">
                                     <div className="flex-1">
-                                      <p className="text-sm font-medium text-gray-900">{activity.description}</p>
-                                      <p className="text-xs text-gray-500 mt-1">
+                                      <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.description}</p>
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   {new Date(activity.timestamp).toLocaleString()}
                                 </p>
                               </div>
@@ -658,11 +670,11 @@ export const SuperAdminDashboard: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="h-full shadow-lg border-0">
+            <Card className="h-full shadow-lg border-0 bg-white dark:bg-gray-800">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900">System Alerts</h3>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">System Alerts</h3>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
                     {systemAlerts?.filter(alert => !alert.resolved).length || 0} Active
                   </span>
                 </div>
@@ -670,10 +682,10 @@ export const SuperAdminDashboard: React.FC = () => {
                   <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="animate-pulse flex space-x-3">
-                        <div className="w-5 h-5 bg-gray-200 rounded"></div>
+                        <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
                         <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
             </div>
           </div>
                     ))}
@@ -688,16 +700,16 @@ export const SuperAdminDashboard: React.FC = () => {
                         transition={{ delay: 0.1 * index }}
                         className={`p-4 rounded-lg border-l-4 ${
                           alert.resolved 
-                            ? 'bg-green-50 border-green-400' 
+                            ? 'bg-green-50 border-green-400 dark:bg-green-900/20 dark:border-green-500' 
                             : alert.severity === 'high' 
-                              ? 'bg-red-50 border-red-400'
+                              ? 'bg-red-50 border-red-400 dark:bg-red-900/20 dark:border-red-500'
                               : alert.severity === 'medium'
-                                ? 'bg-yellow-50 border-yellow-400'
-                                : 'bg-blue-50 border-blue-400'
+                                ? 'bg-yellow-50 border-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-500'
+                                : 'bg-blue-50 border-blue-400 dark:bg-blue-900/20 dark:border-blue-500'
                         }`}
                       >
                         <div className="flex items-start space-x-3">
-                          <div className={`flex-shrink-0 ${alert.resolved ? 'text-green-500' : 'text-red-500'}`}>
+                          <div className={`flex-shrink-0 ${alert.resolved ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
                       {alert.resolved ? (
                         <CheckCircleIcon className="h-5 w-5" />
                       ) : (
@@ -705,12 +717,12 @@ export const SuperAdminDashboard: React.FC = () => {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-gray-900">{alert.message}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{alert.message}</p>
                             <div className="mt-2 flex items-center space-x-3">
                               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(alert.severity)}`}>
                                 {alert.type} • {alert.severity}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {new Date(alert.timestamp).toLocaleString()}
                         </span>
                       </div>
@@ -731,21 +743,21 @@ export const SuperAdminDashboard: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="shadow-lg border-0">
+          <Card className="shadow-lg border-0 bg-white dark:bg-gray-800">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">Tenant Overview</h3>
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm text-gray-500">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Tenant Overview</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
                     {tenantStats.length} active tenants
                   </span>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-0 flex-shrink-0"
                   >
-                    <EyeIcon className="w-4 h-4 mr-1" />
-                    View All
+                    <EyeIcon className="w-4 h-4 mr-1 flex-shrink-0" />
+                    <span className="truncate">View All</span>
                   </motion.button>
           </div>
         </div>
@@ -754,50 +766,50 @@ export const SuperAdminDashboard: React.FC = () => {
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="animate-pulse flex items-center space-x-4 p-4">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                      <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                       <div className="flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/6"></div>
                       </div>
-                      <div className="w-16 h-6 bg-gray-200 rounded"></div>
-                      <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                      <div className="w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Tenant
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Users
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Plan
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Revenue
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Last Activity
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         {tenantStats.map((tenant, index) => (
                           <motion.tr 
                             key={tenant._id} 
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.1 * index }}
-                            className="hover:bg-gray-50 transition-colors duration-150"
+                            className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
                           >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -807,8 +819,8 @@ export const SuperAdminDashboard: React.FC = () => {
                             </div>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{tenant.name}</div>
-                            <div className="text-sm text-gray-500">{tenant.domain}</div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">{tenant.name}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{tenant.domain}</div>
                           </div>
                         </div>
                       </td>
@@ -818,21 +830,21 @@ export const SuperAdminDashboard: React.FC = () => {
                         </span>
                       </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900 font-medium">{tenant.userCount}</div>
-                              <div className="text-xs text-gray-500">users</div>
+                              <div className="text-sm text-gray-900 dark:text-white font-medium">{tenant.userCount}</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">users</div>
                       </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                         {tenant?.subscription?.planName || 'No Plan'}
                               </span>
                       </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900 dark:text-white">
                         ${tenant.revenue.toLocaleString()}
                               </div>
-                              <div className="text-xs text-gray-500">monthly</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">monthly</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {new Date(tenant.lastActivity).toLocaleDateString()}
                       </td>
                           </motion.tr>

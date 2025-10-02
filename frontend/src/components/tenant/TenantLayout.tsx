@@ -6,7 +6,8 @@ import { useAuthStore } from '@/store/authStore';
 import { domainResolutionService } from '@/services/domainResolutionService';
 import { TenantNavigation } from './TenantNavigation';
 import { TenantContextIndicator } from './TenantContextIndicator';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { DarkModeToggle } from '@/components/common/DarkModeToggle';
+import { UserProfileDropdown } from '../common/UserProfileDropdown';
 import { 
   AlertCircle, 
   Loader2, 
@@ -14,7 +15,9 @@ import {
   WifiOff,
   Shield,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Menu,
+  X
 } from 'lucide-react';
 import { 
   HomeIcon, 
@@ -34,6 +37,7 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
   const { user } = useAuthStore();
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline'>('online');
   const [domainResolutionStatus, setDomainResolutionStatus] = useState<'resolving' | 'resolved' | 'error'>('resolved');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Use ref to prevent multiple domain resolutions
   const domainResolved = useRef(false);
@@ -168,20 +172,20 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
   // Special layout for Super Admin - No overlapping headers
   if (isSuperAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex h-screen">
-          {/* Proper Vertical Sidebar */}
-          <div className="w-64 flex-shrink-0 bg-white shadow-lg border-r border-gray-200">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <div className="flex flex-col lg:flex-row h-screen">
+          {/* Proper Vertical Sidebar - Hidden on mobile, visible on desktop */}
+          <div className="hidden lg:flex w-64 flex-shrink-0 bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 transition-colors duration-300">
             <div className="flex flex-col h-full">
               {/* Sidebar Header */}
-              <div className="p-6 border-b border-gray-200">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
                     <Shield className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Super Admin</h2>
-                    <p className="text-xs text-gray-500">System Control</p>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Super Admin</h2>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">System Control</p>
                   </div>
                 </div>
               </div>
@@ -192,8 +196,8 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
                   href="/super-admin"
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     location.pathname === '/super-admin'
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <HomeIcon className="w-5 h-5 mr-3" />
@@ -203,8 +207,8 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
                   href="/super-admin/tenants"
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     location.pathname === '/super-admin/tenants'
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <UserGroupIcon className="w-5 h-5 mr-3" />
@@ -214,8 +218,8 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
                   href="/super-admin/users"
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     location.pathname === '/super-admin/users'
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <UsersIcon className="w-5 h-5 mr-3" />
@@ -225,8 +229,8 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
                   href="/super-admin/reports"
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     location.pathname === '/super-admin/reports'
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <ChartBarIcon className="w-5 h-5 mr-3" />
@@ -236,8 +240,8 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
                   href="/super-admin/analytics"
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     location.pathname === '/super-admin/analytics'
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <ChartPieIcon className="w-5 h-5 mr-3" />
@@ -246,28 +250,132 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
               </nav>
 
               {/* Sidebar Footer */}
-              <div className="p-4 border-t border-gray-200">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-semibold">
-                      {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {user?.firstName} {user?.lastName}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                  </div>
+              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                  Super Admin Panel v1.0
                 </div>
               </div>
             </div>
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden w-full">
+            {/* Header with User Profile */}
+            <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-4 transition-colors duration-300">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  {/* Mobile Menu Button */}
+                  <button
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    className="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                  </button>
+                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white truncate">
+                    {location.pathname === '/super-admin' && 'Dashboard'}
+                    {location.pathname === '/super-admin/tenants' && 'Tenant Management'}
+                    {location.pathname === '/super-admin/users' && 'User Management'}
+                    {location.pathname === '/super-admin/reports' && 'Reports'}
+                    {location.pathname === '/super-admin/analytics' && 'Analytics'}
+                  </h1>
+                </div>
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  {/* Connection Status Indicator */}
+                  <div className="flex items-center gap-2">
+                    {connectionStatus === 'online' ? (
+                      <div className="flex items-center text-green-600 dark:text-green-400">
+                        <Wifi className="w-4 h-4 mr-1" />
+                        <span className="text-sm">Online</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-red-600 dark:text-red-400">
+                        <WifiOff className="w-4 h-4 mr-1" />
+                        <span className="text-sm">Offline</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Dark Mode Toggle */}
+                  <div className="flex items-center justify-center">
+                    <DarkModeToggle size="sm" />
+                  </div>
+                  
+                  {/* User Profile Dropdown */}
+                  <UserProfileDropdown />
+                </div>
+              </div>
+            </header>
+
+            {/* Mobile Navigation Menu */}
+            {mobileMenuOpen && (
+              <div className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
+                <nav className="space-y-1">
+                  <a
+                    href="/super-admin"
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      location.pathname === '/super-admin'
+                        ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <HomeIcon className="w-5 h-5 mr-3" />
+                    Dashboard
+                  </a>
+                  <a
+                    href="/super-admin/tenants"
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      location.pathname === '/super-admin/tenants'
+                        ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <UserGroupIcon className="w-5 h-5 mr-3" />
+                    Tenants
+                  </a>
+                  <a
+                    href="/super-admin/users"
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      location.pathname === '/super-admin/users'
+                        ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <UsersIcon className="w-5 h-5 mr-3" />
+                    Users
+                  </a>
+                  <a
+                    href="/super-admin/reports"
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      location.pathname === '/super-admin/reports'
+                        ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <ChartBarIcon className="w-5 h-5 mr-3" />
+                    Reports
+                  </a>
+                  <a
+                    href="/super-admin/analytics"
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      location.pathname === '/super-admin/analytics'
+                        ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <ChartPieIcon className="w-5 h-5 mr-3" />
+                    Analytics
+                  </a>
+                </nav>
+              </div>
+            )}
+
             {/* Page Content */}
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
               {children}
             </main>
           </div>
@@ -279,9 +387,9 @@ export const TenantLayout: React.FC<TenantLayoutProps> = ({ children }) => {
   // Regular tenant layout
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex h-screen">
-        {/* Sidebar */}
-        <div className="w-64 flex-shrink-0">
+      <div className="flex flex-col lg:flex-row h-screen">
+        {/* Sidebar - Hidden on mobile, visible on desktop */}
+        <div className="hidden lg:flex w-64 flex-shrink-0">
           <TenantNavigation variant="sidebar" />
         </div>
 

@@ -17,6 +17,8 @@ export const Login: React.FC = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{email?: string; password?: string; tenantDomain?: string}>({});
   
   const { login, user } = useAuthStore();
   
@@ -38,8 +40,14 @@ export const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setError(null);
+    setFieldErrors({});
+    
     console.log('🔍 Form submitted with:', { email, password, tenantDomain });
     setIsLoggingIn(true);
+    
     try {
       console.log('🔍 Calling login function...');
       await login(email, password, tenantDomain || '');
@@ -57,8 +65,56 @@ export const Login: React.FC = () => {
         console.log('🔍 Redirecting to:', redirectPath);
         window.location.href = redirectPath;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Login failed:', error);
+      
+      // Handle different types of errors
+      if (error?.response?.data) {
+        const { message, error: errorCode, details } = error.response.data;
+        
+        // Set the main error message
+        setError(message || 'Login failed. Please try again.');
+        
+        // Handle field-specific errors based on error code
+        switch (errorCode) {
+          case 'INVALID_EMAIL_FORMAT':
+            setFieldErrors({ email: 'Please enter a valid email address.' });
+            break;
+          case 'MISSING_CREDENTIALS':
+            if (!email) setFieldErrors(prev => ({ ...prev, email: 'Email is required.' }));
+            if (!password) setFieldErrors(prev => ({ ...prev, password: 'Password is required.' }));
+            break;
+          case 'INVALID_DOMAIN_FORMAT':
+            setFieldErrors({ tenantDomain: 'Please enter a valid organization domain.' });
+            break;
+          case 'INPUT_TOO_LONG':
+            if (email.length > 254) setFieldErrors(prev => ({ ...prev, email: 'Email is too long.' }));
+            if (password.length > 128) setFieldErrors(prev => ({ ...prev, password: 'Password is too long.' }));
+            break;
+          case 'INVALID_CREDENTIALS':
+            // Don't specify which field is wrong for security
+            setError('The email or password you entered is incorrect. Please check your credentials and try again.');
+            break;
+          case 'ACCOUNT_SUSPENDED':
+            setError('Your account has been temporarily suspended. Please contact support for assistance.');
+            break;
+          case 'SUBSCRIPTION_EXPIRED':
+            setError('Your account subscription has expired. Please contact your administrator to renew access.');
+            break;
+          case 'ACCOUNT_NOT_CONFIGURED':
+            setError('Your account is not properly configured. Please contact support for assistance.');
+            break;
+          case 'INVALID_TENANT_ACCESS':
+            setError('You do not have access to this organization. Please verify you are logging into the correct portal.');
+            break;
+          default:
+            setError(message || 'Unable to sign in at this time. Please try again or contact support if the problem persists.');
+        }
+      } else if (error?.message) {
+        setError(error.message);
+      } else {
+        setError('Unable to sign in at this time. Please try again or contact support if the problem persists.');
+      }
     } finally {
       setIsLoggingIn(false);
     }
@@ -383,17 +439,17 @@ export const Login: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="flex min-h-[calc(100vh-64px)]">
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-64px)]">
         {/* Left Side - Content */}
-        <div className="flex-1 p-8 lg:p-12 flex items-center">
-          <div className="max-w-4xl">
+        <div className="flex-1 p-4 sm:p-8 lg:p-12 flex items-center">
+          <div className="max-w-4xl w-full">
             {renderContent()}
           </div>
         </div>
         
         {/* Right Side - Login Form */}
-        <div className="w-full lg:w-96 xl:w-[450px] bg-white/80 backdrop-blur-sm border-l border-gray-200 p-8 lg:p-12 flex items-center">
-          <div className="w-full">
+        <div className="w-full lg:w-96 xl:w-[450px] bg-white/80 backdrop-blur-sm border-t lg:border-t-0 lg:border-l border-gray-200 p-4 sm:p-8 lg:p-12 flex items-center">
+          <div className="w-full max-w-sm mx-auto lg:max-w-none lg:mx-0">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -418,11 +474,14 @@ export const Login: React.FC = () => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
+                      className={`pl-10 ${fieldErrors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                       placeholder="Enter your email"
                       required
                     />
                   </div>
+                  {fieldErrors.email && (
+                    <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+                  )}
                 </div>
 
                 <div>
@@ -438,7 +497,7 @@ export const Login: React.FC = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10"
+                      className={`pl-10 pr-10 ${fieldErrors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                       placeholder="Enter your password"
                       required
                     />
@@ -454,6 +513,9 @@ export const Login: React.FC = () => {
                       )}
                     </button>
                   </div>
+                  {fieldErrors.password && (
+                    <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+                  )}
                 </div>
 
                 {/* Advanced Options Toggle */}
@@ -491,11 +553,14 @@ export const Login: React.FC = () => {
                           type="text"
                           value={tenantDomain}
                           onChange={(e) => setTenantDomain(e.target.value)}
-                          className="pl-10"
+                          className={`pl-10 ${fieldErrors.tenantDomain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                           placeholder="e.g., companyname"
                           disabled={isLoggingIn}
                         />
                       </div>
+                      {fieldErrors.tenantDomain && (
+                        <p className="mt-1 text-sm text-red-600">{fieldErrors.tenantDomain}</p>
+                      )}
                       <p className="mt-1 text-xs text-gray-500">
                         Specify a tenant domain if you belong to multiple organizations
                       </p>
@@ -524,6 +589,22 @@ export const Login: React.FC = () => {
                     </Link>
                   </div>
                 </div>
+
+                {/* Error Display */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm text-red-800">{error}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <Button
                   type="submit"

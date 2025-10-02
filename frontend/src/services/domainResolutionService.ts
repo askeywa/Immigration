@@ -33,6 +33,12 @@ class DomainResolutionService {
    */
   async resolveTenantFromDomain(): Promise<DomainValidationResult> {
     try {
+      // Skip domain resolution for super admin pages
+      if (window.location.pathname.startsWith('/super-admin')) {
+        log.info('Skipping domain resolution for super admin page');
+        return { isValid: true, tenantInfo: null };
+      }
+      
       const currentDomain = window.location.hostname;
       const currentUrl = window.location.href;
 
@@ -343,8 +349,13 @@ class DomainResolutionService {
    * Get main domain from environment or current location
    */
   private getMainDomain(): string {
-    return import.meta.env.VITE_MAIN_DOMAIN || 
-           window.location.hostname.split('.').slice(-2).join('.');
+    const isDevelopment = import.meta.env.DEV;
+    
+    if (isDevelopment) {
+      return import.meta.env.VITE_MAIN_DOMAIN || 'localhost';
+    }
+    
+    return import.meta.env.VITE_MAIN_DOMAIN || 'ibuyscrap.ca';
   }
 
   /**
