@@ -73,57 +73,59 @@ jobs:
           NEW_RELIC_ENABLED: ${{ secrets.NEW_RELIC_ENABLED }}
           APP_NAME: ${{ secrets.APP_NAME }}
           ALLOW_START_WITHOUT_DB: ${{ secrets.ALLOW_START_WITHOUT_DB }}
+          ALLOWED_SUPER_ADMIN_DOMAINS: ${{ secrets.ALLOWED_SUPER_ADMIN_DOMAINS }}
         run: |
-          cat > env.production << EOF
+          cat > env.production << 'EOF'
           NODE_ENV=production
           PORT=5000
-          FRONTEND_URL=${FRONTEND_URL}
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
           
           # Super Admin Configuration
-          SUPER_ADMIN_DOMAIN=${SUPER_ADMIN_DOMAIN}
+          SUPER_ADMIN_DOMAIN=${{ secrets.SUPER_ADMIN_DOMAIN }}
+          ALLOWED_SUPER_ADMIN_DOMAINS=${{ secrets.ALLOWED_SUPER_ADMIN_DOMAINS }}
           
           # Database
-          MONGODB_URI=${MONGODB_URI}
+          MONGODB_URI=${{ secrets.MONGODB_URI }}
           
           # JWT
-          JWT_SECRET=${JWT_SECRET}
-          JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
           
           # Domain Configuration
-          MAIN_DOMAIN=${MAIN_DOMAIN}
-          TENANT_DOMAIN_PREFIX=${TENANT_DOMAIN_PREFIX}
+          MAIN_DOMAIN=${{ secrets.MAIN_DOMAIN }}
+          TENANT_DOMAIN_PREFIX=${{ secrets.TENANT_DOMAIN_PREFIX }}
           
           # Rate Limiting
-          RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
-          RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+          RATE_LIMIT_WINDOW_MS=${{ secrets.RATE_LIMIT_WINDOW_MS }}
+          RATE_LIMIT_MAX_REQUESTS=${{ secrets.RATE_LIMIT_MAX_REQUESTS }}
           
           # Redis
-          REDIS_ENABLED=${REDIS_ENABLED}
-          REDIS_URL=${REDIS_URL}
-          REDIS_PASSWORD=${REDIS_PASSWORD}
+          REDIS_ENABLED=${{ secrets.REDIS_ENABLED }}
+          REDIS_URL=${{ secrets.REDIS_URL }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           
           # Sentry
-          SENTRY_DSN=${SENTRY_DSN}
-          SENTRY_RELEASE=${SENTRY_RELEASE}
-          SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
-          SENTRY_PROFILES_SAMPLE_RATE=${SENTRY_PROFILES_SAMPLE_RATE}
+          SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE=${{ secrets.SENTRY_RELEASE }}
+          SENTRY_TRACES_SAMPLE_RATE=${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}
+          SENTRY_PROFILES_SAMPLE_RATE=${{ secrets.SENTRY_PROFILES_SAMPLE_RATE }}
           
           # New Relic
-          NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
-          NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME}
-          NEW_RELIC_ENABLED=${NEW_RELIC_ENABLED}
+          NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
+          NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}
+          NEW_RELIC_ENABLED=${{ secrets.NEW_RELIC_ENABLED }}
           
           # EC2 Configuration
-          EC2_PUBLIC_IP=${EC2_PUBLIC_IP}
-          EC2_PRIVATE_IP=${EC2_PRIVATE_IP}
-          EC2_PUBLIC_DNS=${EC2_PUBLIC_DNS}
+          EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
+          EC2_PRIVATE_IP=${{ secrets.EC2_PRIVATE_IP }}
+          EC2_PUBLIC_DNS=${{ secrets.EC2_PUBLIC_DNS }}
           
           # API Configuration
-          API_BASE_URL=${API_BASE_URL}
+          API_BASE_URL=${{ secrets.API_BASE_URL }}
           
           # App Configuration
-          APP_NAME=${APP_NAME}
-          ALLOW_START_WITHOUT_DB=${ALLOW_START_WITHOUT_DB}
+          APP_NAME=${{ secrets.APP_NAME }}
+          ALLOW_START_WITHOUT_DB=${{ secrets.ALLOW_START_WITHOUT_DB }}
           EOF
       
       - name: Deploy to EC2
@@ -135,172 +137,151 @@ jobs:
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-          # Create directory structure and deploy application
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} '
-            # Create directory structure if it doesn'\''t exist
+          # Copy environment file FIRST (before deployment)
+          echo "Copying environment file..."
+          scp -i private_key.pem -o StrictHostKeyChecking=no env.production ${USER}@${HOST}:/tmp/env.production
+          
+          # Deploy application
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'ENDSSH'
+            set -e  # Exit on any error
+            
+            echo "Creating directory structure..."
             sudo mkdir -p /var/www/immigration-portal/backend
             sudo mkdir -p /var/www/immigration-portal/frontend
-            
-            # Set proper ownership
             sudo chown -R ubuntu:ubuntu /var/www/immigration-portal
             
-            # Clone or update repository
+            # Move env file to correct location
+            mv /tmp/env.production /var/www/immigration-portal/backend/.env
+            chmod 600 /var/www/immigration-portal/backend/.env
+            
+            echo "Updating repository..."
             if [ ! -d "/var/www/immigration-portal/.git" ]; then
               cd /var/www/immigration-portal
               git clone https://github.com/askeywa/Immigration.git .
             else
               cd /var/www/immigration-portal
-              git pull origin main
+              # Force clean any local changes
+              git fetch origin main
+              git reset --hard origin/main
+              git clean -fd
             fi
             
-            # Install dependencies
             echo "Installing backend dependencies..."
-            cd /var/www/immigration-portal/backend && npm install
-            if [ $? -ne 0 ]; then
-              echo "❌ Backend dependency installation failed!"
-              exit 1
-            fi
+            cd /var/www/immigration-portal/backend
+            npm install
             
             echo "Installing frontend dependencies..."
-            cd /var/www/immigration-portal/frontend && npm install
-            if [ $? -ne 0 ]; then
-              echo "❌ Frontend dependency installation failed!"
-              exit 1
-            fi
+            cd /var/www/immigration-portal/frontend
+            npm install
             
-            # Build applications
             echo "Building backend..."
-            cd /var/www/immigration-portal/backend && npm run build
-            if [ $? -ne 0 ]; then
-              echo "❌ Backend build failed!"
-              exit 1
-            fi
+            cd /var/www/immigration-portal/backend
+            npm run build
             
             echo "Building frontend..."
-            cd /var/www/immigration-portal/frontend && npm run build
-            if [ $? -ne 0 ]; then
-              echo "❌ Frontend build failed!"
-              exit 1
-            fi
+            cd /var/www/immigration-portal/frontend
+            npm run build
             
-            echo "✅ All builds completed successfully!"
-            
-            # Install PM2 globally if not installed
+            echo "Installing PM2 if needed..."
             if ! command -v pm2 &> /dev/null; then
-              npm install -g pm2
+              sudo npm install -g pm2
             fi
             
-            # Install and configure Redis
+            echo "Setting up Redis..."
             if ! command -v redis-server &> /dev/null; then
               sudo apt update
               sudo apt install redis-server redis-tools -y
             fi
             
-            # Configure Redis with password
-            sudo tee /etc/redis/redis.conf > /dev/null << REDIS_EOF
-            # Redis configuration for Immigration Portal
-            bind 127.0.0.1
-            port 6379
-            timeout 0
-            tcp-keepalive 300
-            requirepass Qwsaqwsa!@34
-            maxmemory 512mb
-            maxmemory-policy allkeys-lru
-            save 900 1
-            save 300 10
-            save 60 10000
-            stop-writes-on-bgsave-error yes
-            rdbcompression yes
-            rdbchecksum yes
-            dbfilename dump.rdb
-            dir /var/lib/redis
-            loglevel notice
-            logfile /var/log/redis/redis-server.log
-            maxclients 10000
-            slowlog-log-slower-than 10000
-            slowlog-max-len 128
-            REDIS_EOF
+            # Configure Redis with sed (avoids heredoc issues)
+            sudo sed -i 's/^bind .*/bind 127.0.0.1/' /etc/redis/redis.conf
+            sudo sed -i 's/^# requirepass .*/requirepass Qwsaqwsa!@34/' /etc/redis/redis.conf
+            sudo sed -i 's/^# maxmemory .*/maxmemory 512mb/' /etc/redis/redis.conf
+            sudo sed -i 's/^# maxmemory-policy .*/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf
             
-            # Start and enable Redis
+            # Ensure requirepass is uncommented
+            if ! grep -q "^requirepass" /etc/redis/redis.conf; then
+              echo "requirepass Qwsaqwsa!@34" | sudo tee -a /etc/redis/redis.conf
+            fi
+            
             sudo systemctl restart redis-server
             sudo systemctl enable redis-server
             
-            # Create logs directory
+            if sudo systemctl is-active --quiet redis-server; then
+              echo "Redis started successfully"
+            else
+              echo "Warning: Redis failed to start"
+            fi
+            
+            echo "Creating logs directory..."
             mkdir -p /var/www/immigration-portal/backend/logs
             
-            # Start/Restart application with PM2
-            cd /var/www/immigration-portal/backend
-            
-            # Kill any existing PM2 processes
+            echo "Stopping existing PM2 processes..."
             pm2 delete all 2>/dev/null || true
             pm2 kill 2>/dev/null || true
             
-            echo "Current directory contents:"
-            ls -la
+            echo "Verifying build artifacts..."
+            cd /var/www/immigration-portal/backend
             
-            echo "Checking if dist/server.js exists:"
-            if [ -f "dist/server.js" ]; then
-              echo "✅ dist/server.js exists"
-            else
-              echo "❌ dist/server.js not found!"
-              echo "Contents of dist directory:"
+            if [ ! -f "dist/server.js" ]; then
+              echo "ERROR: dist/server.js not found!"
               ls -la dist/ || echo "dist directory not found"
               exit 1
             fi
             
-            echo "Checking if ecosystem.config.js exists:"
+            if [ ! -f ".env" ]; then
+              echo "ERROR: .env file not found!"
+              exit 1
+            fi
+            
+            echo "Starting application with PM2..."
             if [ -f "ecosystem.config.js" ]; then
-              echo "✅ ecosystem.config.js exists"
-              echo "Starting with ecosystem.config.js..."
               pm2 start ecosystem.config.js --env production
             else
-              echo "❌ ecosystem.config.js not found"
-              echo "Starting directly with dist/server.js..."
               pm2 start dist/server.js --name "immigration-portal" --env production
             fi
             
-            # Wait a bit for startup
-            sleep 10
+            # Wait for application to start
+            echo "Waiting for application to start..."
+            sleep 15
             
-            echo "PM2 status after startup:"
+            echo "PM2 Status:"
             pm2 status
             
-            # Check if PM2 started successfully
+            # Verify PM2 started successfully
             if pm2 list | grep -q "immigration-portal.*online"; then
-              echo "✅ Application started successfully!"
+              echo "Application started successfully!"
             else
-              echo "❌ Application failed to start. Checking logs..."
-              pm2 logs --lines 20
-              echo "PM2 process list:"
-              pm2 list
+              echo "ERROR: Application failed to start"
+              echo "PM2 Logs:"
+              pm2 logs --lines 50 --nostream
               exit 1
             fi
             
             pm2 save
-            pm2 startup
-          '
-          
-          # Copy environment file after directory structure is created
-          scp -i private_key.pem -o StrictHostKeyChecking=no env.production ${USER}@${HOST}:/var/www/immigration-portal/backend/.env
+            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
+            
+            echo "Deployment completed successfully!"
+          ENDSSH
           
           # Final verification
-          echo "🔍 Final verification..."
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} '
-            echo "Checking PM2 status..."
-            pm2 status
-            
-            echo "Checking if application is responding..."
+          echo "Final health check..."
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'ENDVERIFY'
             sleep 10
+            
+            # Check if health endpoint responds
             if curl -f http://localhost:5000/api/health > /dev/null 2>&1; then
-              echo "✅ Application is responding to health check!"
+              echo "Application health check passed!"
+              curl -s http://localhost:5000/api/health | jq '.' || echo "Health check response received"
             else
-              echo "❌ Application is not responding to health check"
-              echo "PM2 logs:"
-              pm2 logs immigration-portal --lines 10
+              echo "Application health check failed"
+              echo "Recent PM2 logs:"
+              pm2 logs immigration-portal --lines 20 --nostream
               exit 1
             fi
             
-            echo "🎉 Deployment completed successfully!"
-          '
+            echo "Deployment verification complete!"
+          ENDVERIFY
           
           rm -f private_key.pem
+          echo "Deployment finished successfully!"
