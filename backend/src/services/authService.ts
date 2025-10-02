@@ -58,8 +58,12 @@ export class AuthService {
         // Find user by email with optimized query and shorter timeout
         user = await User.findOne({ email, isActive: true })
           .select('+password') // Include password field for comparison
-          .populate('tenantId')
           .maxTimeMS(5000); // Reduce timeout to 5 seconds
+        
+        // Populate tenantId only if it exists (not for super admins)
+        if (user && user.tenantId) {
+          await user.populate('tenantId');
+        }
       } catch (dbError: any) {
         console.log('❌ Database query error:', dbError.message);
         if (dbError.name === 'MongoTimeoutError' || dbError.code === 50) {
