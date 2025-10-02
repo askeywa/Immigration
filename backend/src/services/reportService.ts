@@ -87,28 +87,51 @@ export class ReportService {
       if (filters.endDate) (query as any).createdAt.$lte = filters.endDate;
     }
     
-    if (filters.status) (query as any).status = filters.status;
+    if (filters.status) {
+      (query as any).status = filters.status;
+    } else {
+      // Exclude cancelled/deleted tenants from reports by default
+      (query as any).status = { $ne: 'cancelled' };
+    }
 
     const tenants = await Tenant.find(query)
       .populate('subscription')
       .lean();
 
-    const tenantStats = await Promise.all(
-      (tenants as any).map(async (tenant: any) => {
-        const userCount = await User.countDocuments({ tenantId: tenant._id });
-        const activeUserCount = await User.countDocuments({ 
-          tenantId: tenant._id, 
-          isActive: true 
-        });
-        
-        return {
-          id: tenant._id,
-          name: tenant.name,
-          domain: tenant.domain,
-          status: tenant.status,
-          userCount,
-          activeUserCount,
-          subscription: tenant.subscription ? {
+    // OPTIMIZATION: Get all user counts in a single aggregation query instead of N+1 queries
+    const tenantIds = (tenants as any).map((t: any) => t._id);
+    
+    // Single aggregation query to get user counts for all tenants
+    const userCounts = await User.aggregate([
+      { $match: { tenantId: { $in: tenantIds } } },
+      {
+        $group: {
+          _id: '$tenantId',
+          totalUsers: { $sum: 1 },
+          activeUsers: {
+            $sum: { $cond: [{ $eq: ['$isActive', true] }, 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    // Create a map for quick lookup
+    const userCountMap = new Map();
+    (userCounts as any).forEach((count: any) => {
+      userCountMap.set(count._id.toString(), count);
+    });
+
+    const tenantStats = (tenants as any).map((tenant: any) => {
+      const counts = userCountMap.get(tenant._id.toString()) || { totalUsers: 0, activeUsers: 0 };
+      
+      return {
+        id: tenant._id,
+        name: tenant.name,
+        domain: tenant.domain,
+        status: tenant.status,
+        userCount: counts.totalUsers,
+        activeUserCount: counts.activeUsers,
+        subscription: tenant.subscription ? {
             plan: (tenant.subscription as any).plan,
             status: (tenant.subscription as any).status,
             startDate: (tenant.subscription as any).startDate,
@@ -116,8 +139,7 @@ export class ReportService {
           } : null,
           createdAt: tenant.createdAt
         };
-      })
-    );
+      });
 
     return {
       totalTenants: (tenants as any).length,
@@ -495,17 +517,29 @@ export class ReportService {
   }
 
   static async generateSystemReports(filters: ReportFilters = {}): Promise<any> {
-    // Generate system-wide reports for super admin
-    const summary = await this.generateSystemSummary(filters);
-    const userReport = await this.generateUserReport(filters);
-    const tenantReport = await this.generateTenantReport(filters);
+    // Generate system-wide reports for super admin - OPTIMIZED VERSION
+    console.log('🚀 [ReportService] Starting optimized system reports generation...');
+    const startTime = Date.now();
+    
+    // Run all queries in parallel instead of sequentially
+    const [summary, userReport, tenantReport] = await Promise.all([
+      this.generateSystemSummary(filters),
+      this.generateUserReport(filters),
+      this.generateTenantReport(filters)
+    ]);
+    
+    const endTime = Date.now();
+    console.log(`✅ [ReportService] System reports generated in ${endTime - startTime}ms`);
     
     return {
       summary,
       userReport,
       tenantReport,
       generatedAt: new Date(),
-      filters
+      filters,
+      performance: {
+        generationTime: endTime - startTime
+      }
     };
   }
 

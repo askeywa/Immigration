@@ -385,8 +385,8 @@ export const tenantSecurityValidation = () => {
 export const contentTypeValidation = () => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Skip for GET requests and OPTIONS
-      if (['GET', 'HEAD', 'OPTIONS'].includes((req as any).method)) {
+      // Skip for GET requests, DELETE requests, and OPTIONS
+      if (['GET', 'HEAD', 'DELETE', 'OPTIONS'].includes((req as any).method)) {
         return next();
       }
 

@@ -43,7 +43,10 @@ class ScalabilityManager {
   constructor() {
     // Initialize Redis client only if REDIS_URL is provided
     if (process.env.REDIS_URL) {
-      this.redisClient = redis.createClient({ url: process.env.REDIS_URL });
+      this.redisClient = redis.createClient({ 
+        url: process.env.REDIS_URL,
+        password: process.env.REDIS_PASSWORD
+      });
       
       // Connect to Redis (v4 requirement)
       this.redisClient.connect().catch((error: any) => {

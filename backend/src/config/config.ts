@@ -1,4 +1,13 @@
 // backend/src/config/config.ts
+// Load environment variables if not already loaded
+if (!process.env.JWT_SECRET && !process.env.MONGODB_URI) {
+  try {
+    require('dotenv').config({ path: './.env' });
+  } catch (error) {
+    // dotenv already loaded or not available
+  }
+}
+
 export const config = {
     NODE_ENV: process.env.NODE_ENV || 'development',
     port: parseInt(process.env.PORT || '5000', 10),
@@ -14,30 +23,52 @@ export const config = {
       return process.env.JWT_SECRET;
     })(),
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    
+    // Dynamic domain based on environment
+    mainDomain: process.env.MAIN_DOMAIN || (
+      process.env.NODE_ENV === 'production' 
+        ? 'sehwagimmigration.com' 
+        : 'localhost'
+    ),
+    
+    // Super admin domains - environment aware
+    allowedSuperAdminDomains: (() => {
+      const envDomains = process.env.ALLOWED_SUPER_ADMIN_DOMAINS;
+      if (envDomains) {
+        return envDomains.split(',').map(d => d.trim()).filter(d => d.length > 0);
+      }
+      
+      // Default based on environment
+      return process.env.NODE_ENV === 'production'
+        ? ['ibuyscrap.ca', 'www.ibuyscrap.ca']
+        : ['localhost', 'localhost:5174', 'localhost:5000'];
+    })(),
+    
     // Dynamic Frontend URL Configuration
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5174',
     superAdminFrontendUrl: process.env.SUPER_ADMIN_FRONTEND_URL || 'http://localhost:5174',
     tenantFrontendUrlTemplate: process.env.TENANT_FRONTEND_URL_TEMPLATE || 'https://{domain}',
     
-    // Dynamic URL Helper Functions
+    // Enhanced Frontend URL Helper Functions
     getFrontendUrl: (domain?: string) => {
-      const isDevelopment = process.env.NODE_ENV === 'development';
-      const isSuperAdmin = domain === 'ibuyscrap.ca' || domain === 'www.ibuyscrap.ca' || domain === 'localhost';
+      const isDevelopment = process.env.NODE_ENV !== 'production';
       
       if (isDevelopment) {
         return process.env.FRONTEND_URL || 'http://localhost:5174';
       }
+      
+      // Production logic
+      const isSuperAdmin = domain && ['ibuyscrap.ca', 'www.ibuyscrap.ca'].includes(domain);
       
       if (isSuperAdmin) {
         return process.env.SUPER_ADMIN_FRONTEND_URL || 'https://ibuyscrap.ca';
       }
       
       if (domain) {
-        const template = process.env.TENANT_FRONTEND_URL_TEMPLATE || 'https://{domain}';
-        return template.replace('{domain}', domain);
+        return `https://${domain}`;
       }
       
-      return process.env.FRONTEND_URL || 'http://localhost:5174';
+      return process.env.FRONTEND_URL || 'https://ibuyscrap.ca';
     },
     rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10), // 15 minutes
     rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '500', 10), // 500 requests per 15 minutes (reasonable for development)
@@ -48,9 +79,9 @@ export const config = {
     apiDomain: process.env.API_BASE_URL || 'localhost:5000',
     
     // EC2 Instance Configuration
-    ec2PublicIp: process.env.EC2_PUBLIC_IP || '52.15.148.97',
+    ec2PublicIp: process.env.EC2_PUBLIC_IP || '18.220.224.109',
     ec2PrivateIp: process.env.EC2_PRIVATE_IP || '172.31.40.28',
-    ec2PublicDns: process.env.EC2_PUBLIC_DNS || 'ec2-52-15-148-97.us-east-2.compute.amazonaws.com',
+    ec2PublicDns: process.env.EC2_PUBLIC_DNS || 'ec2-18-220-224-109.us-east-2.compute.amazonaws.com',
     
     // Tenant API Configuration - Using /immigration-portal/ path
     tenantApiBaseUrl: process.env.TENANT_API_BASE_URL || 'https://{domain}/immigration-portal',
@@ -70,7 +101,7 @@ export const config = {
       }
       
       // Fallback to EC2 IP
-      const ec2Ip = process.env.EC2_PUBLIC_IP || '52.15.148.97';
+      const ec2Ip = process.env.EC2_PUBLIC_IP || '18.220.224.109';
       return `http://${ec2Ip}:5000/api/v1`;
     },
     
@@ -88,15 +119,10 @@ export const config = {
       }
       
       // Fallback to EC2 IP
-      const ec2Ip = process.env.EC2_PUBLIC_IP || '52.15.148.97';
+      const ec2Ip = process.env.EC2_PUBLIC_IP || '18.220.224.109';
       return `http://${ec2Ip}:5000/api/v1`;
     },
     
-    // Allowed domains for super admin access (comma-separated)
-    allowedSuperAdminDomains: (process.env.ALLOWED_SUPER_ADMIN_DOMAINS || 'ibuyscrap.ca,www.ibuyscrap.ca,localhost')
-      .split(',')
-      .map(domain => domain.trim())
-      .filter(domain => domain.length > 0),
     
     // App Configuration
     appName: process.env.APP_NAME || 'Immigration Portal',
@@ -110,6 +136,6 @@ export const config = {
     
     // Redis Configuration
     redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
-    redisEnabled: process.env.REDIS_ENABLED !== 'false' && process.env.NODE_ENV === 'production',
+    redisEnabled: process.env.REDIS_ENABLED === 'true',
   };
 

@@ -73,7 +73,10 @@ class EnhancedMonitoring {
   constructor() {
     // Initialize Redis client only if REDIS_URL is provided
     if (process.env.REDIS_URL) {
-      this.redisClient = redis.createClient({ url: process.env.REDIS_URL });
+      this.redisClient = redis.createClient({ 
+        url: process.env.REDIS_URL,
+        password: process.env.REDIS_PASSWORD
+      });
       this.redisClient.connect().catch(console.error);
     } else {
       // Create a mock Redis client for development when REDIS_URL is not available

@@ -1,12 +1,12 @@
 // backend/src/server.ts
-// Load New Relic FIRST before any other modules
-import 'newrelic';
-
 import dotenv from 'dotenv';
 
-// Load environment variables first, before any other imports
+// Load environment variables FIRST before any other imports
 // Look for .env file in the current directory (backend/)
 dotenv.config({ path: './.env' });
+
+// Load New Relic AFTER environment variables are loaded
+import 'newrelic';
 
 // Validate environment variables
 import { validateEnvironmentVariables, getEnvironmentInfo } from './config/envValidation';
@@ -27,6 +27,9 @@ if (process.env.NODE_ENV === 'development') {
   console.log('MONGODB_URI:', process.env.MONGODB_URI ? '***LOADED***' : 'NOT LOADED');
   console.log('NODE_ENV:', process.env.NODE_ENV);
   console.log('PORT:', process.env.PORT);
+  console.log('REDIS_ENABLED:', process.env.REDIS_ENABLED);
+  console.log('REDIS_URL:', process.env.REDIS_URL ? '***LOADED***' : 'NOT LOADED');
+  console.log('REDIS_PASSWORD:', process.env.REDIS_PASSWORD ? '***LOADED***' : 'NOT LOADED');
 }
 
 import express, { Request, Response, NextFunction } from 'express';
@@ -45,6 +48,7 @@ import {
 } from './middleware/apmMiddleware';
 import { comprehensiveLogging } from './middleware/loggingMiddleware';
 import { PerformanceMonitoringService } from './services/performanceMonitoringService';
+import SentryService from './config/sentry';
 import mongoose from 'mongoose';
 import { log } from './utils/logger';
 import { NotificationService } from './services/notificationService';
@@ -323,6 +327,13 @@ app.use(errorHandler);
 const initializeServices = async () => {
   const services = [
     {
+      name: 'Sentry Service',
+      init: async () => {
+        await SentryService.getInstance().initialize();
+      },
+      critical: false
+    },
+    {
       name: 'Rate Limiting Service',
       init: () => RateLimitService.initialize(),
       critical: false
@@ -472,6 +483,11 @@ const startServer = async () => {
         database: {
           connected: isDatabaseConnected(),
           info: getDatabaseInfo()
+        },
+        redis: {
+          enabled: process.env.REDIS_ENABLED === 'true',
+          url: process.env.REDIS_URL ? 'configured' : 'not configured',
+          password: process.env.REDIS_PASSWORD ? 'configured' : 'not configured'
         }
       });
       

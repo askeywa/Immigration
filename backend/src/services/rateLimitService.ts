@@ -79,7 +79,7 @@ export class RateLimitService {
   static async initialize(redisConfig?: any): Promise<void> {
     try {
       // Check if Redis is enabled
-      const redisEnabled = process.env.REDIS_ENABLED !== 'false' && process.env.NODE_ENV === 'production';
+      const redisEnabled = process.env.REDIS_ENABLED === 'true';
       
       if (redisEnabled) {
         // Use cluster manager for production
@@ -88,7 +88,7 @@ export class RateLimitService {
         this.redis = clusterManager.getRedis() as Redis;
         log.info('Rate limiting service initialized with Redis cluster');
       } else {
-        console.log('⚠️  Redis disabled for development - using in-memory rate limiting');
+        console.log('⚠️  Redis disabled - using in-memory rate limiting');
         this.redis = null;
       }
 

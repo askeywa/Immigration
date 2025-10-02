@@ -75,15 +75,18 @@ export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) 
   
   res.json({
     success: true,
-    data: result,
+    data: {
+      users: result.users
+    },
+    pagination: result.pagination
   });
 });
 
 export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response) => {
   // Super admin method to delete any user
-  const { userId } = req.params;
+  const { id } = req.params;
   
-  await UserService.deleteUser(userId);
+  await UserService.deleteUser(id);
   
   res.json({
     success: true,

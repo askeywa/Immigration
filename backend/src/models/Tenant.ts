@@ -28,6 +28,7 @@ export interface ITenant extends Document {
   };
   subscription?: {
     planId?: mongoose.Types.ObjectId;
+    planName?: string;
     status: 'trial' | 'active' | 'suspended' | 'cancelled' | 'expired';
     startDate?: Date;
     endDate?: Date;
@@ -57,10 +58,20 @@ const tenantSchema = new Schema<ITenant>({
     index: true,
     validate: {
       validator: function(v: string) {
-        // Allow domains with dots (e.g., example.com, subdomain.example.com)
-        return /^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$/.test(v) && v.includes('.');
+        // Allow localhost for development
+        if (v === 'localhost' || v.startsWith('localhost:')) {
+          return process.env.NODE_ENV !== 'production';
+        }
+        
+        // For production: require proper domain format with dots
+        if (process.env.NODE_ENV === 'production') {
+          return /^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$/.test(v) && v.includes('.');
+        }
+        
+        // For development: allow any valid format
+        return /^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]?$/.test(v);
       },
-      message: 'Invalid domain format - must be a valid domain with dots (e.g., example.com)'
+      message: 'Invalid domain format - must be a valid domain with dots in production (e.g., example.com)'
     }
   },
   status: {
@@ -135,6 +146,11 @@ const tenantSchema = new Schema<ITenant>({
     planId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'SubscriptionPlan',
+    },
+    planName: {
+      type: String,
+      trim: true,
+      maxlength: 100,
     },
     status: {
       type: String,

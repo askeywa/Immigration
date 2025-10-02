@@ -8,19 +8,21 @@ import { SubscriptionPlan } from '../models/SubscriptionPlan';
 import bcrypt from 'bcryptjs';
 import CloudflareService from './cloudflareService';
 import { log } from '../utils/logger';
+import { TenantValidationService, TenantCreationData } from '../utils/tenantValidation';
 
 export class TenantService {
   static async getAllTenants(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     
-    const tenants = await Tenant.find()
+    // Exclude cancelled/deleted tenants from the list
+    const tenants = await Tenant.find({ status: { $ne: 'cancelled' } })
       .populate('subscription.planId', 'name displayName') // Only populate name and displayName
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
-    const total = await Tenant.countDocuments();
+    const total = await Tenant.countDocuments({ status: { $ne: 'cancelled' } });
     
     return {
       tenants,
@@ -61,9 +63,30 @@ export class TenantService {
   }
 
   static async updateTenant(tenantId: string, updateData: Partial<ITenant>): Promise<ITenant | null> {
+    // Filter out invalid fields to prevent validation errors
+    const filteredUpdateData = { ...updateData };
+    
+    // Remove empty or invalid domain from update if present
+    if (filteredUpdateData.domain !== undefined) {
+      if (!filteredUpdateData.domain || filteredUpdateData.domain.trim() === '') {
+        delete filteredUpdateData.domain; // Don't update domain if it's empty
+      }
+    }
+    
+    // Remove empty or invalid email from update if present
+    if (filteredUpdateData.contactInfo?.email !== undefined) {
+      if (!filteredUpdateData.contactInfo.email || filteredUpdateData.contactInfo.email.trim() === '') {
+        if (filteredUpdateData.contactInfo) {
+          // Use object destructuring to exclude email, but keep other properties
+          const { email, ...contactInfoWithoutEmail } = filteredUpdateData.contactInfo;
+          filteredUpdateData.contactInfo = contactInfoWithoutEmail as any;
+        }
+      }
+    }
+    
     return Tenant.findByIdAndUpdate(
       tenantId,
-      { ...updateData, updatedAt: new Date() },
+      { ...filteredUpdateData, updatedAt: new Date() },
       { new: true, runValidators: true }
     );
   }
@@ -94,16 +117,18 @@ export class TenantService {
   }
 
   static async getTenantAnalytics() {
-    const totalTenants = await Tenant.countDocuments();
+    // Exclude cancelled/deleted tenants from analytics
+    const totalTenants = await Tenant.countDocuments({ status: { $ne: 'cancelled' } });
     const activeTenants = await Tenant.countDocuments({ status: 'active' });
     const trialTenants = await Tenant.countDocuments({ status: 'trial' });
     const suspendedTenants = await Tenant.countDocuments({ status: 'suspended' });
     const cancelledTenants = await Tenant.countDocuments({ status: 'cancelled' });
 
-    // Get recent tenant registrations (last 30 days)
+    // Get recent tenant registrations (last 30 days) - exclude cancelled
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const recentRegistrations = await Tenant.countDocuments({
-      createdAt: { $gte: thirtyDaysAgo }
+      createdAt: { $gte: thirtyDaysAgo },
+      status: { $ne: 'cancelled' }
     });
 
     return {
@@ -140,18 +165,24 @@ export class TenantService {
     };
   }
 
-  static async createTenant(tenantData: {
-    name: string;
-    domain: string;
-    description?: string;
-    adminUser: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      password: string;
-    };
-    subscriptionPlan?: string;
-  }) {
+  static async createTenant(tenantData: TenantCreationData) {
+    // 1. Comprehensive validation before any database operations
+    console.log('🔍 Starting tenant creation validation...');
+    const validation = await TenantValidationService.validateTenantCreation(tenantData);
+    
+    if (!validation.isValid) {
+      const errorMessage = validation.errors.join('; ');
+      console.log('❌ Tenant creation validation failed:', validation);
+      
+      // Create a detailed error response
+      const validationError = new Error(`Validation failed: ${errorMessage}`);
+      (validationError as any).validation = validation;
+      (validationError as any).statusCode = 400;
+      throw validationError;
+    }
+    
+    console.log('✅ Tenant creation validation passed');
+    
     const session = await Tenant.startSession();
     
     try {
@@ -286,7 +317,7 @@ export class TenantService {
             
             if (isConnected) {
               // For tenant domains, we'll create a CNAME record pointing to our EC2
-              const ec2PublicIp = process.env.EC2_PUBLIC_IP || '52.15.148.97';
+              const ec2PublicIp = process.env.EC2_PUBLIC_IP || '18.220.224.109';
               
               // Create CNAME record for tenant domain
               const dnsRecord = await cloudflareService.createDNSRecord({

@@ -280,9 +280,22 @@ export class TenantResolutionService {
       };
     }
 
-    // Remove port if present
     const [domain, port] = host.split(':');
     const domainParts = domain.toLowerCase().split('.');
+    
+    // Handle localhost specially
+    if (domain === 'localhost' || domain.startsWith('localhost')) {
+      return {
+        host,
+        protocol,
+        port: port ? parseInt(port) : undefined,
+        domain: 'localhost',
+        tld: '',
+        isCustomDomain: false,
+        isSubdomain: false,
+        tenantName: undefined
+      };
+    }
     
     let subdomain: string | undefined;
     let tenantName: string | undefined;
@@ -291,7 +304,7 @@ export class TenantResolutionService {
 
     if (domainParts.length >= 3) {
       // Check if it's a subdomain of our main domain
-      const mainDomain = config.superAdminDomain || 'sehwagimmigration.com';
+      const mainDomain = config.mainDomain || config.superAdminDomain || 'sehwagimmigration.com';
       const mainDomainParts = mainDomain.split('.');
       
       if (domainParts.length >= mainDomainParts.length + 1) {
@@ -313,7 +326,7 @@ export class TenantResolutionService {
 
     // Check if it's a custom domain
     if (!isSubdomain && domainParts.length >= 2) {
-      const mainDomain = config.superAdminDomain || 'sehwagimmigration.com';
+      const mainDomain = config.mainDomain || config.superAdminDomain || 'sehwagimmigration.com';
       if (!domain.endsWith(mainDomain)) {
         isCustomDomain = true;
         tenantName = domainParts[0];

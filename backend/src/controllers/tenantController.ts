@@ -254,14 +254,25 @@ export class TenantController {
    */
   static async getAllTenants(req: TenantRequest, res: Response): Promise<void> {
     try {
+      console.log('🔍 [TenantController.getAllTenants] Method called');
+      console.log('🔍 [TenantController.getAllTenants] Query params:', req.query);
+      
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const search = req.query.search as string;
 
+      console.log('🔍 [TenantController.getAllTenants] Calling TenantService.getAllTenants with page:', page, 'limit:', limit);
+      
       // Call getAllTenants with only the parameters it accepts
       const result = await TenantService.getAllTenants(page, limit);
 
-      res.json({
+      console.log('🔍 [TenantController.getAllTenants] Service result:', {
+        isArray: Array.isArray(result),
+        hasTenantsProperty: !!result?.tenants,
+        tenantCount: Array.isArray(result) ? result.length : result?.tenants?.length || 0
+      });
+
+      const response = {
         success: true,
         data: {
           tenants: Array.isArray(result) ? result : result?.tenants || []
@@ -273,9 +284,14 @@ export class TenantController {
           hasNext: false,
           hasPrev: false
         }
-      });
+      };
+
+      console.log('🔍 [TenantController.getAllTenants] Sending response with', response.data.tenants.length, 'tenants');
+
+      res.json(response);
 
     } catch (error) {
+      console.error('❌ [TenantController.getAllTenants] Error:', error);
       log.error('Failed to get all tenants', { 
         error: error instanceof Error ? error.message : String(error) 
       });
@@ -368,7 +384,52 @@ export class TenantController {
         message: 'Tenant created successfully'
       });
 
-    } catch (error) {
+    } catch (error: any) {
+      // Handle validation errors specifically
+      if (error.validation && error.statusCode === 400) {
+        log.warn('Tenant creation validation failed', { 
+          validation: error.validation,
+          createdBy: req.user?._id 
+        });
+        
+        res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+          errors: error.validation.errors,
+          fieldErrors: error.validation.fieldErrors,
+          error: 'VALIDATION_ERROR'
+        });
+        return;
+      }
+      
+      // Handle duplicate key errors (MongoDB)
+      if (error.code === 11000) {
+        let duplicateField = 'unknown field';
+        if (error.keyValue?.email) {
+          duplicateField = 'email';
+        } else if (error.keyValue?.domain) {
+          duplicateField = 'domain';
+        } else if (error.keyValue?.name) {
+          duplicateField = 'name';
+        }
+        
+        log.warn('Duplicate key error during tenant creation', { 
+          duplicateField,
+          keyValue: error.keyValue,
+          createdBy: req.user?._id 
+        });
+        
+        res.status(409).json({
+          success: false,
+          message: `A tenant with this ${duplicateField} already exists`,
+          error: 'DUPLICATE_ERROR',
+          field: duplicateField,
+          value: error.keyValue?.[duplicateField]
+        });
+        return;
+      }
+      
+      // Handle other errors
       log.error('Failed to create tenant', { 
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,

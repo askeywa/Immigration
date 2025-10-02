@@ -149,36 +149,59 @@ export const login = asyncHandler(async (req: TenantRequest, res: Response) => {
     // Return specific error messages based on error type
     let statusCode = 401;
     let message = 'Login failed';
+    let errorCode = 'LOGIN_FAILED';
     
     if (errorMessage.includes('Invalid email or password')) {
-      message = 'Invalid email or password';
+      message = 'The email or password you entered is incorrect. Please check your credentials and try again.';
+      errorCode = 'INVALID_CREDENTIALS';
     } else if (errorMessage.includes('Account access is temporarily suspended')) {
-      message = 'Account access is temporarily suspended';
+      message = 'Your account has been temporarily suspended. Please contact support for assistance.';
+      errorCode = 'ACCOUNT_SUSPENDED';
       statusCode = 403;
     } else if (errorMessage.includes('Account subscription has expired')) {
-      message = 'Account subscription has expired. Please contact your administrator.';
+      message = 'Your account subscription has expired. Please contact your administrator to renew access.';
+      errorCode = 'SUBSCRIPTION_EXPIRED';
       statusCode = 403;
     } else if (errorMessage.includes('User account is not properly configured')) {
-      message = 'User account is not properly configured';
+      message = 'Your account is not properly configured. Please contact support for assistance.';
+      errorCode = 'ACCOUNT_NOT_CONFIGURED';
       statusCode = 400;
     } else if (errorMessage.includes('Invalid tenant access')) {
-      message = 'Invalid tenant access';
+      message = 'You do not have access to this organization. Please verify you are logging into the correct portal.';
+      errorCode = 'INVALID_TENANT_ACCESS';
       statusCode = 403;
     } else if (errorMessage.includes('Email and password are required')) {
-      message = 'Email and password are required';
+      message = 'Please enter both your email address and password.';
+      errorCode = 'MISSING_CREDENTIALS';
       statusCode = 400;
     } else if (errorMessage.includes('Invalid input format')) {
-      message = 'Invalid input format';
+      message = 'Please check your email format and try again.';
+      errorCode = 'INVALID_FORMAT';
+      statusCode = 400;
+    } else if (errorMessage.includes('Input too long')) {
+      message = 'The information you entered is too long. Please check your input and try again.';
+      errorCode = 'INPUT_TOO_LONG';
+      statusCode = 400;
+    } else if (errorMessage.includes('Invalid email format')) {
+      message = 'Please enter a valid email address.';
+      errorCode = 'INVALID_EMAIL_FORMAT';
+      statusCode = 400;
+    } else if (errorMessage.includes('Invalid tenant domain format')) {
+      message = 'The organization domain format is invalid. Please check and try again.';
+      errorCode = 'INVALID_DOMAIN_FORMAT';
       statusCode = 400;
     } else {
-      // For unknown errors, provide more context
-      message = `Login failed: ${errorMessage}`;
+      // For unknown errors, provide generic but helpful message
+      message = 'Unable to sign in at this time. Please try again or contact support if the problem persists.';
+      errorCode = 'UNKNOWN_ERROR';
+      statusCode = 500;
     }
     
     res.status(statusCode).json({ 
       success: false, 
       message,
-      error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      error: errorCode,
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     });
   }
  });
