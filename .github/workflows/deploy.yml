@@ -392,6 +392,20 @@ jobs:
             echo "Waiting for application to start..."
             sleep 10
             
+            # Fix authentication issues
+            echo "🔧 Fixing authentication issues..."
+            if [ -f "fix-production-auth-universal.js" ]; then
+              echo "Running authentication fix script..."
+              node fix-production-auth-universal.js
+              if [ $? -eq 0 ]; then
+                echo "✅ Authentication fix completed successfully!"
+              else
+                echo "⚠️ Authentication fix failed, but continuing..."
+              fi
+            else
+              echo "⚠️ Authentication fix script not found, skipping..."
+            fi
+            
             # Health check with retry logic
             echo "Performing health check..."
             HEALTH_CHECK_ATTEMPTS=0

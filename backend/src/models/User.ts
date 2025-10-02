@@ -96,6 +96,10 @@ const userSchema = new Schema<IUser>({
 userSchema.index({ tenantId: 1, role: 1 });
 userSchema.index({ tenantId: 1, isActive: 1 });
 userSchema.index({ email: 1, tenantId: 1 });
+// CRITICAL: Add email-only index for fast login queries
+userSchema.index({ email: 1, isActive: 1 });
+// Add unique email index for data integrity
+userSchema.index({ email: 1 }, { unique: true });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {

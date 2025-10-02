@@ -52,8 +52,21 @@ export class AuthService {
       }
 
       console.log('🔍 Searching for user with email:', email);
-      // Find user by email with timeout
-      const user = await User.findOne({ email, isActive: true }).populate('tenantId').maxTimeMS(10000);
+      
+      let user;
+      try {
+        // Find user by email with optimized query and shorter timeout
+        user = await User.findOne({ email, isActive: true })
+          .select('+password') // Include password field for comparison
+          .populate('tenantId')
+          .maxTimeMS(5000); // Reduce timeout to 5 seconds
+      } catch (dbError: any) {
+        console.log('❌ Database query error:', dbError.message);
+        if (dbError.name === 'MongoTimeoutError' || dbError.code === 50) {
+          throw new AuthenticationError('Authentication service is temporarily unavailable. Please try again.');
+        }
+        throw new AuthenticationError('Invalid email or password');
+      }
       
       if (!user) {
         console.log('❌ User not found for email:', email);
