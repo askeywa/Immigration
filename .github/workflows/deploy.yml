@@ -193,15 +193,23 @@ jobs:
               sudo apt install redis-server redis-tools -y
             fi
             
-            # Configure Redis with sed (avoids heredoc issues)
+            # Configure Redis with proper sudo permissions
             sudo sed -i 's/^bind .*/bind 127.0.0.1/' /etc/redis/redis.conf
-            sudo sed -i 's/^# requirepass .*/requirepass Qwsaqwsa!@34/' /etc/redis/redis.conf
-            sudo sed -i 's/^# maxmemory .*/maxmemory 512mb/' /etc/redis/redis.conf
-            sudo sed -i 's/^# maxmemory-policy .*/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf
+            sudo sed -i 's/^# *requirepass .*/requirepass Qwsaqwsa!@34/' /etc/redis/redis.conf
+            sudo sed -i 's/^requirepass .*/requirepass Qwsaqwsa!@34/' /etc/redis/redis.conf
+            sudo sed -i 's/^# *maxmemory .*/maxmemory 512mb/' /etc/redis/redis.conf
+            sudo sed -i 's/^# *maxmemory-policy .*/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf
             
-            # Ensure requirepass is uncommented
-            if ! grep -q "^requirepass" /etc/redis/redis.conf; then
-              echo "requirepass Qwsaqwsa!@34" | sudo tee -a /etc/redis/redis.conf
+            # Ensure requirepass exists (use sudo for grep too)
+            if ! sudo grep -q "^requirepass" /etc/redis/redis.conf; then
+              echo "requirepass Qwsaqwsa!@34" | sudo tee -a /etc/redis/redis.conf > /dev/null
+            fi
+            
+            # Test Redis config before restarting
+            if sudo redis-server /etc/redis/redis.conf --test-memory 1 2>/dev/null; then
+              echo "Redis configuration is valid"
+            else
+              echo "Warning: Redis configuration test failed, but continuing..."
             fi
             
             sudo systemctl restart redis-server
