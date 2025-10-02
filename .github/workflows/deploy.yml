@@ -50,6 +50,7 @@ jobs:
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           SUPER_ADMIN_DOMAIN: ${{ secrets.SUPER_ADMIN_DOMAIN }}
@@ -229,27 +230,15 @@ jobs:
             # Reload Nginx
             sudo systemctl reload nginx
             
-            # Configure firewall for web traffic
-            sudo ufw --force enable
-            sudo ufw allow 'Nginx Full'
+            # Configure firewall for web traffic (safer approach)
             sudo ufw allow 22
             sudo ufw allow 80
             sudo ufw allow 443
+            sudo ufw --force enable
             
-            echo "Setting up SSL certificates with Let's Encrypt..."
-            # Install Certbot for Let's Encrypt
-            sudo apt install certbot python3-certbot-nginx -y
-            
-            # Generate SSL certificate for your domain
-            sudo certbot --nginx -d ibuyscrap.ca -d www.ibuyscrap.ca --non-interactive --agree-tos --email askeywa@gmail.com --redirect
-            
-            # Set up automatic certificate renewal
-            echo "0 12 * * * /usr/bin/certbot renew --quiet" | sudo crontab -
-            
-            # Verify SSL certificate
-            sudo certbot certificates
-            
-            echo "SSL setup completed successfully!"
+            echo "SSL certificates should be set up manually to avoid rate limits."
+            echo "Run this command manually on the server to set up SSL:"
+            echo "sudo certbot --nginx -d ibuyscrap.ca -d www.ibuyscrap.ca"
             
             echo "Installing PM2 if needed..."
             if ! command -v pm2 &> /dev/null; then
