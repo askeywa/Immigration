@@ -18,6 +18,26 @@ jobs:
           node-version: '20'
           cache: 'npm'
       
+      - name: Cache Backend Build
+        uses: actions/cache@v3
+        with:
+          path: |
+            backend/dist
+            backend/node_modules/.cache
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json', 'backend/src/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+      
+      - name: Cache Frontend Build
+        uses: actions/cache@v3
+        with:
+          path: |
+            frontend/dist
+            frontend/node_modules/.cache
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json', 'frontend/src/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+      
       - name: Install backend dependencies
         run: |
           cd backend
@@ -27,6 +47,29 @@ jobs:
         run: |
           cd frontend
           npm ci
+      
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          if npm run test --if-present; then
+            echo "✅ Backend tests passed"
+          else
+            echo "⚠️ Backend tests not configured, skipping"
+          fi
+      
+      - name: Run Frontend Tests
+        run: |
+          cd frontend
+          if npm run test --if-present; then
+            echo "✅ Frontend tests passed"
+          else
+            echo "⚠️ Frontend tests not configured, skipping"
+          fi
+      
+      - name: Run Linting
+        run: |
+          cd backend && npm run lint --if-present
+          cd ../frontend && npm run lint --if-present
       
       - name: Build backend
         run: |

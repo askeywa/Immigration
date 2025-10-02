@@ -1,0 +1,149 @@
+name: Deployment Monitoring
+
+on:
+  workflow_run:
+    workflows: ["Deploy to Production"]
+    types: [completed]
+
+jobs:
+  monitor-deployment:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Wait for Deployment
+        run: sleep 30
+      
+      - name: Health Check
+        run: |
+          echo "🏥 Performing post-deployment health check..."
+          
+          # Check application health
+          if curl -f -s https://ibuyscrap.ca/api/health > /dev/null; then
+            echo "✅ Application health check passed"
+            HEALTH_STATUS="healthy"
+          else
+            echo "❌ Application health check failed"
+            HEALTH_STATUS="unhealthy"
+          fi
+      
+      - name: Performance Check
+        run: |
+          echo "⚡ Checking application performance..."
+          
+          # Measure response time
+          RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' https://ibuyscrap.ca/api/health)
+          echo "Response time: ${RESPONSE_TIME}s"
+          
+          if (( $(echo "$RESPONSE_TIME < 2.0" | bc -l) )); then
+            echo "✅ Performance check passed"
+            PERFORMANCE_STATUS="good"
+          else
+            echo "⚠️ Performance check failed - slow response time"
+            PERFORMANCE_STATUS="slow"
+          fi
+      
+      - name: Database Connection Check
+        run: |
+          echo "🗄️ Checking database connectivity..."
+          
+          # Test database endpoint
+          if curl -f -s https://ibuyscrap.ca/api/health/database > /dev/null; then
+            echo "✅ Database connection check passed"
+            DB_STATUS="connected"
+          else
+            echo "❌ Database connection check failed"
+            DB_STATUS="disconnected"
+          fi
+      
+      - name: SSL Certificate Check
+        run: |
+          echo "🔒 Checking SSL certificate..."
+          
+          SSL_EXPIRY=$(echo | openssl s_client -servername ibuyscrap.ca -connect ibuyscrap.ca:443 2>/dev/null | openssl x509 -noout -dates | grep "notAfter" | cut -d= -f2)
+          SSL_DAYS=$(($(date -d "$SSL_EXPIRY" +%s) - $(date +%s)))
+          SSL_DAYS=$((SSL_DAYS / 86400))
+          
+          echo "SSL certificate expires in $SSL_DAYS days"
+          
+          if [ $SSL_DAYS -gt 30 ]; then
+            echo "✅ SSL certificate is valid"
+            SSL_STATUS="valid"
+          else
+            echo "⚠️ SSL certificate expires soon"
+            SSL_STATUS="expiring"
+          fi
+      
+      - name: Send Deployment Notification
+        if: always()
+        run: |
+          echo "📧 Sending deployment notification..."
+          
+          # Create notification message
+          if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
+            STATUS_EMOJI="✅"
+            STATUS_TEXT="SUCCESS"
+          else
+            STATUS_EMOJI="❌"
+            STATUS_TEXT="FAILED"
+          fi
+          
+          MESSAGE="🚀 Deployment $STATUS_TEXT $STATUS_EMOJI
+          
+          📊 Deployment Details:
+          • Repository: ${{ github.repository }}
+          • Branch: ${{ github.ref_name }}
+          • Commit: ${{ github.sha }}
+          • Workflow: ${{ github.event.workflow_run.name }}
+          • Triggered by: ${{ github.event.workflow_run.head_commit.author.name }}
+          
+          🔍 Post-Deployment Checks:
+          • Health Status: $HEALTH_STATUS
+          • Performance: $PERFORMANCE_STATUS
+          • Database: $DB_STATUS
+          • SSL Certificate: $SSL_STATUS
+          
+          🌐 Application URL: https://ibuyscrap.ca
+          📈 Monitoring: Check Sentry and New Relic dashboards"
+          
+          echo "$MESSAGE"
+      
+      - name: Create Deployment Summary
+        if: always()
+        run: |
+          echo "📋 Creating deployment summary..."
+          
+          cat > deployment-summary.md << EOF
+          # Deployment Summary
+          
+          **Date:** $(date)
+          **Status:** ${{ github.event.workflow_run.conclusion }}
+          **Repository:** ${{ github.repository }}
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          
+          ## Health Checks
+          - Application Health: $HEALTH_STATUS
+          - Performance: $PERFORMANCE_STATUS
+          - Database: $DB_STATUS
+          - SSL Certificate: $SSL_STATUS
+          
+          ## Next Steps
+          EOF
+          
+          if [ "$HEALTH_STATUS" != "healthy" ]; then
+            echo "- 🔴 **CRITICAL:** Application health check failed - investigate immediately" >> deployment-summary.md
+          fi
+          
+          if [ "$PERFORMANCE_STATUS" == "slow" ]; then
+            echo "- 🟡 **WARNING:** Performance degradation detected - monitor closely" >> deployment-summary.md
+          fi
+          
+          if [ "$SSL_STATUS" == "expiring" ]; then
+            echo "- 🟡 **WARNING:** SSL certificate expires soon - renew before expiry" >> deployment-summary.md
+          fi
+          
+          echo "- 📊 Monitor application metrics in Sentry and New Relic" >> deployment-summary.md
+          echo "- 🔍 Check application logs for any errors" >> deployment-summary.md
+          echo "- 🧪 Run smoke tests to verify functionality" >> deployment-summary.md
+          
+          echo "📄 Deployment summary created"

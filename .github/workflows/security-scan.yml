@@ -1,0 +1,69 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly security scan on Mondays at 2 AM
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          cd backend && npm ci
+          cd ../frontend && npm ci
+      
+      - name: Run Security Audit
+        run: |
+          echo "🔍 Running security audit..."
+          cd backend
+          npm audit --audit-level=moderate
+          cd ../frontend
+          npm audit --audit-level=moderate
+      
+      - name: Check for Known Vulnerabilities
+        run: |
+          echo "🛡️ Checking for known vulnerabilities..."
+          cd backend
+          npx audit-ci --config audit-ci.json --moderate
+          cd ../frontend
+          npx audit-ci --config audit-ci.json --moderate
+      
+      - name: Dependency Check
+        run: |
+          echo "📦 Checking dependencies..."
+          cd backend
+          npx depcheck
+          cd ../frontend
+          npx depcheck
+      
+      - name: License Check
+        run: |
+          echo "📄 Checking licenses..."
+          cd backend
+          npx license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC'
+          cd ../frontend
+          npx license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC'
+      
+      - name: Code Security Scan
+        uses: github/super-linter@v4
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_TYPESCRIPT_ES: true
+          VALIDATE_NODEJS: true
+          VALIDATE_DOCKERFILE_HADOLINT: false
