@@ -63,6 +63,14 @@ jobs:
           RATE_LIMIT_MAX_REQUESTS: ${{ secrets.RATE_LIMIT_MAX_REQUESTS }}
           REDIS_ENABLED: ${{ secrets.REDIS_ENABLED }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ secrets.SENTRY_RELEASE }}
+          SENTRY_TRACES_SAMPLE_RATE: ${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}
+          SENTRY_PROFILES_SAMPLE_RATE: ${{ secrets.SENTRY_PROFILES_SAMPLE_RATE }}
+          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
+          NEW_RELIC_APP_NAME: ${{ secrets.NEW_RELIC_APP_NAME }}
+          NEW_RELIC_ENABLED: ${{ secrets.NEW_RELIC_ENABLED }}
           APP_NAME: ${{ secrets.APP_NAME }}
           ALLOW_START_WITHOUT_DB: ${{ secrets.ALLOW_START_WITHOUT_DB }}
         run: |
@@ -92,6 +100,18 @@ jobs:
           # Redis
           REDIS_ENABLED=${REDIS_ENABLED}
           REDIS_URL=${REDIS_URL}
+          REDIS_PASSWORD=${REDIS_PASSWORD}
+          
+          # Sentry
+          SENTRY_DSN=${SENTRY_DSN}
+          SENTRY_RELEASE=${SENTRY_RELEASE}
+          SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+          SENTRY_PROFILES_SAMPLE_RATE=${SENTRY_PROFILES_SAMPLE_RATE}
+          
+          # New Relic
+          NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+          NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME}
+          NEW_RELIC_ENABLED=${NEW_RELIC_ENABLED}
           
           # EC2 Configuration
           EC2_PUBLIC_IP=${EC2_PUBLIC_IP}
@@ -115,16 +135,78 @@ jobs:
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-          # Copy environment file
-          scp -i private_key.pem -o StrictHostKeyChecking=no env.production ${USER}@${HOST}:/home/ubuntu/app/backend/.env
-          
-          # Deploy application
+          # Create directory structure and deploy application
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} '
-            cd /home/ubuntu/app &&
-            git pull origin main &&
-            npm install &&
-            npm run build &&
-            pm2 reload ecosystem.config.js --env production
+            # Create directory structure if it doesn'\''t exist
+            mkdir -p /home/ubuntu/app/backend
+            mkdir -p /home/ubuntu/app/frontend
+            
+            # Clone or update repository
+            if [ ! -d "/home/ubuntu/app/.git" ]; then
+              cd /home/ubuntu/app
+              git clone https://github.com/askeywa/Immigration.git .
+            else
+              cd /home/ubuntu/app
+              git pull origin main
+            fi
+            
+            # Install dependencies
+            cd /home/ubuntu/app/backend && npm install
+            cd /home/ubuntu/app/frontend && npm install
+            
+            # Build applications
+            cd /home/ubuntu/app/backend && npm run build
+            cd /home/ubuntu/app/frontend && npm run build
+            
+            # Install PM2 globally if not installed
+            if ! command -v pm2 &> /dev/null; then
+              npm install -g pm2
+            fi
+            
+            # Install and configure Redis
+            if ! command -v redis-server &> /dev/null; then
+              sudo apt update
+              sudo apt install redis-server redis-tools -y
+            fi
+            
+            # Configure Redis with password
+            sudo tee /etc/redis/redis.conf > /dev/null << '\''EOF'\''
+            # Redis configuration for Immigration Portal
+            bind 127.0.0.1
+            port 6379
+            timeout 0
+            tcp-keepalive 300
+            requirepass Qwsaqwsa!@34
+            maxmemory 512mb
+            maxmemory-policy allkeys-lru
+            save 900 1
+            save 300 10
+            save 60 10000
+            stop-writes-on-bgsave-error yes
+            rdbcompression yes
+            rdbchecksum yes
+            dbfilename dump.rdb
+            dir /var/lib/redis
+            loglevel notice
+            logfile /var/log/redis/redis-server.log
+            maxclients 10000
+            slowlog-log-slower-than 10000
+            slowlog-max-len 128
+            EOF
+            
+            # Start and enable Redis
+            sudo systemctl restart redis-server
+            sudo systemctl enable redis-server
+            
+            # Start/Restart application with PM2
+            cd /home/ubuntu/app/backend
+            pm2 delete immigration-portal 2>/dev/null || true
+            pm2 start ecosystem.config.js --env production
+            pm2 save
+            pm2 startup
           '
+          
+          # Copy environment file after directory structure is created
+          scp -i private_key.pem -o StrictHostKeyChecking=no env.production ${USER}@${HOST}:/home/ubuntu/app/backend/.env
           
           rm -f private_key.pem
