@@ -138,25 +138,28 @@ jobs:
           # Create directory structure and deploy application
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} '
             # Create directory structure if it doesn'\''t exist
-            mkdir -p /home/ubuntu/app/backend
-            mkdir -p /home/ubuntu/app/frontend
+            sudo mkdir -p /var/www/immigration-portal/backend
+            sudo mkdir -p /var/www/immigration-portal/frontend
+            
+            # Set proper ownership
+            sudo chown -R ubuntu:ubuntu /var/www/immigration-portal
             
             # Clone or update repository
-            if [ ! -d "/home/ubuntu/app/.git" ]; then
-              cd /home/ubuntu/app
+            if [ ! -d "/var/www/immigration-portal/.git" ]; then
+              cd /var/www/immigration-portal
               git clone https://github.com/askeywa/Immigration.git .
             else
-              cd /home/ubuntu/app
+              cd /var/www/immigration-portal
               git pull origin main
             fi
             
             # Install dependencies
-            cd /home/ubuntu/app/backend && npm install
-            cd /home/ubuntu/app/frontend && npm install
+            cd /var/www/immigration-portal/backend && npm install
+            cd /var/www/immigration-portal/frontend && npm install
             
             # Build applications
-            cd /home/ubuntu/app/backend && npm run build
-            cd /home/ubuntu/app/frontend && npm run build
+            cd /var/www/immigration-portal/backend && npm run build
+            cd /var/www/immigration-portal/frontend && npm run build
             
             # Install PM2 globally if not installed
             if ! command -v pm2 &> /dev/null; then
@@ -199,7 +202,7 @@ jobs:
             sudo systemctl enable redis-server
             
             # Start/Restart application with PM2
-            cd /home/ubuntu/app/backend
+            cd /var/www/immigration-portal/backend
             pm2 delete immigration-portal 2>/dev/null || true
             pm2 start ecosystem.config.js --env production
             pm2 save
@@ -207,6 +210,6 @@ jobs:
           '
           
           # Copy environment file after directory structure is created
-          scp -i private_key.pem -o StrictHostKeyChecking=no env.production ${USER}@${HOST}:/home/ubuntu/app/backend/.env
+          scp -i private_key.pem -o StrictHostKeyChecking=no env.production ${USER}@${HOST}:/var/www/immigration-portal/backend/.env
           
           rm -f private_key.pem
