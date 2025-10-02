@@ -230,24 +230,49 @@ jobs:
             
             # Start/Restart application with PM2
             cd /var/www/immigration-portal/backend
-            pm2 delete immigration-portal 2>/dev/null || true
             
-            # Try to start with ecosystem config first
+            # Kill any existing PM2 processes
+            pm2 delete all 2>/dev/null || true
+            pm2 kill 2>/dev/null || true
+            
+            echo "Current directory contents:"
+            ls -la
+            
+            echo "Checking if dist/server.js exists:"
+            if [ -f "dist/server.js" ]; then
+              echo "✅ dist/server.js exists"
+            else
+              echo "❌ dist/server.js not found!"
+              echo "Contents of dist directory:"
+              ls -la dist/ || echo "dist directory not found"
+              exit 1
+            fi
+            
+            echo "Checking if ecosystem.config.js exists:"
             if [ -f "ecosystem.config.js" ]; then
+              echo "✅ ecosystem.config.js exists"
               echo "Starting with ecosystem.config.js..."
               pm2 start ecosystem.config.js --env production
             else
-              echo "ecosystem.config.js not found, starting directly..."
+              echo "❌ ecosystem.config.js not found"
+              echo "Starting directly with dist/server.js..."
               pm2 start dist/server.js --name "immigration-portal" --env production
             fi
             
+            # Wait a bit for startup
+            sleep 10
+            
+            echo "PM2 status after startup:"
+            pm2 status
+            
             # Check if PM2 started successfully
-            sleep 5
             if pm2 list | grep -q "immigration-portal.*online"; then
               echo "✅ Application started successfully!"
             else
               echo "❌ Application failed to start. Checking logs..."
-              pm2 logs immigration-portal --lines 20
+              pm2 logs --lines 20
+              echo "PM2 process list:"
+              pm2 list
               exit 1
             fi
             

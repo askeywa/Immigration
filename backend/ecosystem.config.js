@@ -2,8 +2,8 @@ module.exports = {
   apps: [{
     name: 'immigration-portal',
     script: './dist/server.js',
-    instances: 2,
-    exec_mode: 'cluster',
+    instances: 1, // Changed from 2 to 1 for easier debugging
+    exec_mode: 'fork', // Changed from cluster to fork for easier debugging
     autorestart: true,
     watch: false,
     max_memory_restart: '1G',
@@ -19,6 +19,9 @@ module.exports = {
     error_file: './logs/err.log',
     out_file: './logs/out.log',
     log_file: './logs/combined.log',
-    time: true
+    time: true,
+    // Add some debugging options
+    merge_logs: true,
+    log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
   }]
 };
