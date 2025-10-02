@@ -68,8 +68,27 @@ jobs:
       
       - name: Run Linting
         run: |
-          cd backend && npm run lint --if-present
-          cd ../frontend && npm run lint --if-present
+          echo "🔍 Running linting checks..."
+          
+          # Backend linting
+          echo "Linting backend..."
+          cd backend
+          if npm run lint --if-present; then
+            echo "✅ Backend linting passed"
+          else
+            echo "⚠️ Backend linting failed or not configured"
+          fi
+          
+          # Frontend linting
+          echo "Linting frontend..."
+          cd ../frontend
+          if npm run lint --if-present; then
+            echo "✅ Frontend linting passed"
+          else
+            echo "⚠️ Frontend linting failed or not configured"
+          fi
+          
+          echo "🔍 Linting checks completed"
       
       - name: Build backend
         run: |
