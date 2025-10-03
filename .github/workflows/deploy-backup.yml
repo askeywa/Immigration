@@ -61,7 +61,11 @@ jobs:
           # Deploy application
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} '
             cd /home/ubuntu/app &&
-            git pull origin main &&
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              echo "Not a git repository, skipping git pull"
+            fi &&
             npm install &&
             npm run build &&
             pm2 reload ecosystem.config.js --env production
