@@ -755,10 +755,25 @@ const SuperAdminTenants: React.FC = () => {
       console.log('🔍 SuperAdminTenants: Create tenant response:', response);
       
       // Check if the API response indicates success
+      console.log('🔍 SuperAdminTenants: Response structure check:', {
+        responseSuccess: response.success,
+        hasResponseData: !!response.data,
+        responseDataType: typeof response.data,
+        responseDataKeys: response.data ? Object.keys(response.data) : []
+      });
+      
       if (response.success && response.data) {
         // Check if the backend response also indicates success
         const backendResponse = response.data;
-        if (backendResponse.success !== false) {
+        console.log('🔍 SuperAdminTenants: Backend response check:', {
+          backendSuccess: backendResponse.success,
+          backendSuccessType: typeof backendResponse.success,
+          backendMessage: backendResponse.message,
+          hasTenant: !!backendResponse.tenant
+        });
+        
+        // Check for success - handle both explicit true/false and undefined (which means success)
+        if (backendResponse.success === true || backendResponse.success === undefined || backendResponse.tenant) {
           setShowCreateModal(false);
           setCreateError(null);
           setCreateFieldErrors({});
@@ -769,9 +784,11 @@ const SuperAdminTenants: React.FC = () => {
           console.log('✅ SuperAdminTenants: Tenant created successfully');
         } else {
           setCreateError(backendResponse.message || 'Failed to create tenant');
+          console.log('❌ SuperAdminTenants: Backend indicated failure:', backendResponse);
         }
       } else {
         setCreateError(response.message || 'Failed to create tenant');
+        console.log('❌ SuperAdminTenants: API response indicated failure:', response);
       }
     } catch (error: any) {
       console.error('❌ SuperAdminTenants: Error creating tenant:', error);
