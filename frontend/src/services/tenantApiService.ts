@@ -303,10 +303,20 @@ class TenantApiService {
         tenantId: this.currentConfig.tenantId 
       });
 
+      // Return the actual error response structure for proper handling
+      if (error.response?.data) {
+        return {
+          success: false,
+          error: error.response.data.error || 'REQUEST_FAILED',
+          message: error.response.data.message || 'Request failed',
+          data: error.response.data // Include the full backend response
+        };
+      }
+
       return {
         success: false,
-        error: error.response?.data?.message || error.message || 'Request failed',
-        message: error.response?.data?.message || error.message || 'Request failed'
+        error: error.message || 'Request failed',
+        message: error.message || 'Request failed'
       };
     }
   }

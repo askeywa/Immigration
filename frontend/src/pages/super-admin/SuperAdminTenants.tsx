@@ -787,7 +787,18 @@ const SuperAdminTenants: React.FC = () => {
           console.log('❌ SuperAdminTenants: Backend indicated failure:', backendResponse);
         }
       } else {
-        setCreateError(response.message || 'Failed to create tenant');
+        // Handle API service error responses
+        if (response.data && response.data.error === 'VALIDATION_ERROR') {
+          // Handle validation errors from backend
+          if (response.data.fieldErrors) {
+            setCreateFieldErrors(response.data.fieldErrors);
+            setCreateError('Please fix the validation errors below');
+          } else {
+            setCreateError(response.data.message || 'Validation failed');
+          }
+        } else {
+          setCreateError(response.message || 'Failed to create tenant');
+        }
         console.log('❌ SuperAdminTenants: API response indicated failure:', response);
       }
     } catch (error: any) {
