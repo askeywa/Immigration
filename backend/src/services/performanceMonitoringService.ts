@@ -112,10 +112,12 @@ export class PerformanceMonitoringService {
     // Start cleanup tasks
     this.startCleanupTasks();
     
-    // Start periodic memory cleanup every 5 minutes
+    // Start periodic memory cleanup every 10 minutes (reduced frequency to prevent blocking)
     setInterval(() => {
-      this.performMemoryCleanup();
-    }, 5 * 60 * 1000);
+      setImmediate(() => {
+        this.performMemoryCleanup();
+      });
+    }, 10 * 60 * 1000);
     
     this.isInitialized = true;
     log.info('Performance monitoring service initialized with memory optimization');

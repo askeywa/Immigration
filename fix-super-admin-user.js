@@ -1,123 +1,157 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const https = require('https');
 
-console.log('🔧 Super Admin User Fix Script');
-console.log('==============================\n');
+console.log('🔧 SUPER ADMIN USER FIX');
+console.log('=======================\n');
 
-async function fixSuperAdminUser() {
-  try {
-    console.log('🔗 Connecting to MongoDB...');
-    
-    // Load environment variables
-    require('dotenv').config();
-    
-    if (!process.env.MONGODB_URI) {
-      console.log('❌ MONGODB_URI not found in environment variables');
-      console.log('Please run this script from the backend directory with .env file');
-      process.exit(1);
+async function createSuperAdminUser() {
+  const superAdminData = JSON.stringify({
+    firstName: 'Super',
+    lastName: 'Admin',
+    email: 'superadmin@immigrationapp.com',
+    password: 'SuperAdmin123!',
+    role: 'super_admin',
+    isSuperAdmin: true
+  });
+
+  const options = {
+    hostname: 'ibuyscrap.ca',
+    port: 443,
+    path: '/api/users/create-super-admin',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(superAdminData),
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
-    
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB');
-    
-    // Import User model
-    const User = require('./dist/models/User').default;
-    
-    console.log('🔍 Checking if superadmin user exists...');
-    
-    // Check if superadmin user exists
-    const existingUser = await User.findOne({ 
-      email: 'superadmin@immigrationapp.com' 
-    });
-    
-    if (existingUser) {
-      console.log('✅ Superadmin user already exists');
-      console.log('📧 Email:', existingUser.email);
-      console.log('👤 Role:', existingUser.role);
-      console.log('🟢 Active:', existingUser.isActive);
-      console.log('📅 Created:', existingUser.createdAt);
-    } else {
-      console.log('❌ Superadmin user not found');
-      console.log('🔧 Creating superadmin user...');
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      console.log(`📡 Status: ${res.statusCode}`);
       
-      // Hash password
-      const hashedPassword = await bcrypt.hash('SuperAdmin123!', 12);
-      
-      // Create superadmin user
-      const superAdminUser = new User({
-        email: 'superadmin@immigrationapp.com',
-        password: hashedPassword,
-        firstName: 'Super',
-        lastName: 'Admin',
-        role: 'super_admin',
-        isActive: true,
-        emailVerified: true,
-        lastLogin: null,
-        loginAttempts: 0,
-        lockUntil: null
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
       });
       
-      await superAdminUser.save();
-      console.log('✅ Superadmin user created successfully');
-      console.log('📧 Email: superadmin@immigrationapp.com');
-      console.log('🔒 Password: SuperAdmin123!');
-      console.log('👤 Role: super_admin');
+      res.on('end', () => {
+        console.log(`📡 Response:`, data);
+        
+        if (res.statusCode === 200 || res.statusCode === 201) {
+          console.log('✅ Super admin user: CREATED/RESET');
+          resolve({ success: true, data: data });
+        } else {
+          console.log(`❌ Super admin user creation: FAILED (${res.statusCode})`);
+          resolve({ success: false, status: res.statusCode, data: data });
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      console.log(`❌ Request Error:`, error.message);
+      reject(error);
+    });
+
+    req.write(superAdminData);
+    req.end();
+  });
+}
+
+async function testLoginAfterCreation() {
+  console.log('\n🔐 Testing login after super admin creation...');
+  
+  const loginData = JSON.stringify({
+    email: 'superadmin@immigrationapp.com',
+    password: 'SuperAdmin123!'
+  });
+
+  const options = {
+    hostname: 'ibuyscrap.ca',
+    port: 443,
+    path: '/api/auth/login',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(loginData),
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
-    
-    // Check database indexes
-    console.log('\n🔍 Checking database indexes...');
-    const indexes = await User.collection.getIndexes();
-    console.log('📊 Current indexes:', Object.keys(indexes));
-    
-    // Ensure email index exists
-    try {
-      await User.collection.createIndex({ email: 1 }, { unique: true });
-      console.log('✅ Email index created/verified');
-    } catch (error) {
-      if (error.code === 85) { // Index already exists
-        console.log('✅ Email index already exists');
-      } else {
-        console.log('⚠️ Email index creation failed:', error.message);
-      }
-    }
-    
-    // Test user lookup
-    console.log('\n🧪 Testing user lookup...');
-    const testUser = await User.findOne({ 
-      email: 'superadmin@immigrationapp.com' 
-    }).select('+password');
-    
-    if (testUser) {
-      console.log('✅ User lookup successful');
-      console.log('📧 Found user:', testUser.email);
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      console.log(`📡 Login Status: ${res.statusCode}`);
       
-      // Test password verification
-      const passwordMatch = await bcrypt.compare('SuperAdmin123!', testUser.password);
-      console.log('🔐 Password verification:', passwordMatch ? '✅ Success' : '❌ Failed');
-    } else {
-      console.log('❌ User lookup failed');
-    }
-    
-    console.log('\n🎯 Fix completed successfully!');
-    console.log('You can now try logging in with:');
-    console.log('📧 Email: superadmin@immigrationapp.com');
-    console.log('🔒 Password: SuperAdmin123!');
-    
-  } catch (error) {
-    console.error('❌ Fix failed:', error.message);
-    console.error('Stack trace:', error.stack);
-    process.exit(1);
-  } finally {
-    await mongoose.disconnect();
-    console.log('🔌 Disconnected from MongoDB');
-  }
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        console.log(`📡 Login Response:`, data);
+        
+        if (res.statusCode === 200 || res.statusCode === 201) {
+          console.log('✅ Login: SUCCESS');
+          resolve({ success: true, data: data });
+        } else {
+          console.log(`❌ Login: FAILED (${res.statusCode})`);
+          resolve({ success: false, status: res.statusCode, data: data });
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      console.log(`❌ Login Request Error:`, error.message);
+      reject(error);
+    });
+
+    req.write(loginData);
+    req.end();
+  });
 }
 
 // Run the fix
-fixSuperAdminUser().then(() => {
-  console.log('\n🎉 Super admin user fix completed!');
+async function runFix() {
+  try {
+    console.log('🚀 Attempting to create/reset super admin user...');
+    const createResult = await createSuperAdminUser();
+    
+    if (createResult.success) {
+      console.log('✅ Super admin user creation successful!');
+      
+      // Wait a moment for the user to be saved
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Test login
+      const loginResult = await testLoginAfterCreation();
+      
+      if (loginResult.success) {
+        console.log('\n🎉 SUCCESS! Super admin user is now working!');
+      } else {
+        console.log('\n⚠️ Super admin user created but login still failing. May need backend restart.');
+      }
+    } else {
+      console.log('\n❌ Super admin user creation failed. Trying alternative approach...');
+      console.log('\n🔧 MANUAL STEPS TO FIX:');
+      console.log('1. SSH into your EC2 instance');
+      console.log('2. Check if MongoDB is running: sudo systemctl status mongod');
+      console.log('3. Check backend logs: pm2 logs or docker logs');
+      console.log('4. Restart backend: pm2 restart all or docker-compose restart');
+      console.log('5. Check environment variables are loaded');
+      console.log('6. Verify database connection');
+    }
+  } catch (error) {
+    console.error('💥 Fix failed:', error.message);
+    console.log('\n🚨 EMERGENCY CONTACT INFO:');
+    console.log('- Check AWS EC2 console for instance status');
+    console.log('- SSH into instance and check system logs');
+    console.log('- Restart all services if needed');
+  }
+}
+
+runFix().then(() => {
+  console.log('\n🎯 Super admin fix completed!');
   process.exit(0);
 }).catch(error => {
-  console.error('\n💥 Fix failed:', error);
+  console.error('\n💥 Fix process failed:', error);
   process.exit(1);
 });

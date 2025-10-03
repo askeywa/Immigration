@@ -55,7 +55,6 @@ const tenantSchema = new Schema<ITenant>({
     unique: true,
     lowercase: true,
     trim: true,
-    index: true,
     validate: {
       validator: function(v: string) {
         // Allow localhost for development

@@ -328,49 +328,57 @@ export class NotificationService {
     return newUsers.length;
   }
 
-  // Start automated notification checks
+  // Start automated notification checks with non-blocking execution
   static startAutomatedChecks() {
-    // Check trial expirations daily at 9 AM
-    cron.schedule('0 9 * * *', async () => {
-      try {
-        await this.checkTrialExpirations();
-        console.log('Trial expiration check completed');
-      } catch (error) {
-        console.error('Error checking trial expirations:', error);
-      }
-    });
+    // Check trial expirations daily at 9 AM - NON-BLOCKING
+    cron.schedule('0 9 * * *', () => {
+      setImmediate(async () => {
+        try {
+          await this.checkTrialExpirations();
+          console.log('Trial expiration check completed');
+        } catch (error) {
+          console.error('Error checking trial expirations:', error);
+        }
+      });
+    }, { timezone: 'UTC' });
 
-    // Check payment failures every 4 hours
-    cron.schedule('0 */4 * * *', async () => {
-      try {
-        await this.checkPaymentFailures();
-        console.log('Payment failure check completed');
-      } catch (error) {
-        console.error('Error checking payment failures:', error);
-      }
-    });
+    // Check payment failures every 6 hours (reduced frequency) - NON-BLOCKING
+    cron.schedule('0 */6 * * *', () => {
+      setImmediate(async () => {
+        try {
+          await this.checkPaymentFailures();
+          console.log('Payment failure check completed');
+        } catch (error) {
+          console.error('Error checking payment failures:', error);
+        }
+      });
+    }, { timezone: 'UTC' });
 
-    // Check system health every hour
-    cron.schedule('0 * * * *', async () => {
-      try {
-        await this.checkSystemHealth();
-        console.log('System health check completed');
-      } catch (error) {
-        console.error('Error checking system health:', error);
-      }
-    });
+    // Check system health every 2 hours (reduced frequency) - NON-BLOCKING
+    cron.schedule('0 */2 * * *', () => {
+      setImmediate(async () => {
+        try {
+          await this.checkSystemHealth();
+          console.log('System health check completed');
+        } catch (error) {
+          console.error('Error checking system health:', error);
+        }
+      });
+    }, { timezone: 'UTC' });
 
-    // Check new user registrations daily at 8 AM
-    cron.schedule('0 8 * * *', async () => {
-      try {
-        await this.checkNewUserRegistrations();
-        console.log('New user registration check completed');
-      } catch (error) {
-        console.error('Error checking new user registrations:', error);
-      }
-    });
+    // Check new user registrations daily at 8 AM - NON-BLOCKING
+    cron.schedule('0 8 * * *', () => {
+      setImmediate(async () => {
+        try {
+          await this.checkNewUserRegistrations();
+          console.log('New user registration check completed');
+        } catch (error) {
+          console.error('Error checking new user registrations:', error);
+        }
+      });
+    }, { timezone: 'UTC' });
 
-    console.log('Automated notification checks started');
+    console.log('Automated notification checks started with non-blocking execution');
   }
 
   // Manual notification creation helpers
