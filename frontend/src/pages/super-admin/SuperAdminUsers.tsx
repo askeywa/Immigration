@@ -172,14 +172,29 @@ const SuperAdminUsers: React.FC = () => {
       user.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
       (user.tenant?.name && user.tenant.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
     
+    // Debug logging
+    if (debouncedSearchTerm !== '') {
+      console.log(`🔍 Users search debug - User: "${user.firstName} ${user.lastName}", Email: "${user.email}", Tenant: "${user.tenant?.name}"`);
+      console.log(`🔍 Search term: "${debouncedSearchTerm}", Matches: ${matchesSearch}`);
+    }
+    
     return matchesSearch;
   });
+  
+  // Debug: Log filtering results
+  console.log(`🔍 Users filtering results: ${users.length} total users, ${filteredUsers.length} after filtering`);
 
   // Client-side pagination for filtered results
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
   const totalFilteredPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  
+  // Debug: Log pagination results
+  console.log(`🔍 Users pagination debug - Page: ${currentPage}, Items per page: ${itemsPerPage}, Start: ${startIndex}, End: ${endIndex}`);
+  console.log(`🔍 Paginated users: ${paginatedUsers.length} users to display`);
+  console.log(`🔍 Current search term: "${searchTerm}", Debounced: "${debouncedSearchTerm}"`);
+  console.log(`🔍 Component re-rendering with ${paginatedUsers.length} users to display`);
 
   // Debounce search term
   useEffect(() => {
@@ -202,6 +217,11 @@ const SuperAdminUsers: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearchTerm]);
+
+  // Force re-render when search term changes
+  useEffect(() => {
+    console.log(`🔍 Users search term changed to: "${searchTerm}" (debounced: "${debouncedSearchTerm}")`);
+  }, [searchTerm, debouncedSearchTerm]);
 
   // Persist view mode changes to localStorage
   useEffect(() => {
@@ -356,7 +376,7 @@ const SuperAdminUsers: React.FC = () => {
 
         {/* Users Display */}
         {viewMode === 'card' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8" key={`users-grid-${debouncedSearchTerm}`}>
             {paginatedUsers.map((user) => (
               <motion.div
                 key={user._id}
@@ -458,7 +478,7 @@ const SuperAdminUsers: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-600" key={`users-table-${debouncedSearchTerm}`}>
                   {paginatedUsers.map((user) => (
                     <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-6 py-4 whitespace-nowrap">
