@@ -743,6 +743,11 @@ const SuperAdminTenants: React.FC = () => {
     try {
       console.log('🔍 SuperAdminTenants: Creating tenant with data:', tenantData);
       
+      // Remove description field as it's not expected by backend and causes 500 errors
+      const { description, ...cleanTenantData } = tenantData;
+      
+      console.log('🔍 SuperAdminTenants: Sending clean data (without description):', cleanTenantData);
+      
       // Configure tenantApiService for super admin context
       tenantApiService.setTenantContext({
         isSuperAdmin: true,
@@ -750,7 +755,7 @@ const SuperAdminTenants: React.FC = () => {
       });
       
       // Use tenantApiService to create tenant with proper authentication
-      const response = await tenantApiService.post('/tenants', tenantData);
+      const response = await tenantApiService.post('/tenants', cleanTenantData);
       
       console.log('🔍 SuperAdminTenants: Create tenant response:', response);
       
