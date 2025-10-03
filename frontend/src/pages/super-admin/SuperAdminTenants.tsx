@@ -538,7 +538,23 @@ const SuperAdminTenants: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
+  // Notification state
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error' | 'info';
+  }>({ show: false, message: '', type: 'success' });
+  
   const { tenant: currentTenant } = useTenant();
+
+  // Helper function to show notifications
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setNotification({ show: true, message, type });
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, show: false }));
+    }, 3000);
+  };
 
   useEffect(() => {
     fetchTenants();
@@ -1220,13 +1236,13 @@ const SuperAdminTenants: React.FC = () => {
         await fetchTenants(); // Refresh the list
         await fetchAllTenantsForStats(); // Refresh statistics
         console.log('✅ SuperAdminTenants: Tenant updated successfully!');
-        alert('✅ Tenant updated successfully!');
+        showNotification('✅ Tenant updated successfully!', 'success');
       } else {
-        alert(`Failed to update tenant: ${result.message || 'Unknown error'}`);
+        showNotification(`Failed to update tenant: ${result.message || 'Unknown error'}`, 'error');
       }
     } catch (error) {
       console.error('Error updating tenant:', error);
-      alert(`Error updating tenant: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showNotification(`Error updating tenant: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
     } finally {
       setIsSaving(false);
     }
@@ -2281,6 +2297,50 @@ const SuperAdminTenants: React.FC = () => {
                 </Button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Notification */}
+      <AnimatePresence>
+        {notification.show && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className={`fixed top-4 right-4 z-50 max-w-sm w-full mx-4 ${
+              notification.type === 'success' 
+                ? 'bg-green-500 text-white' 
+                : notification.type === 'error' 
+                ? 'bg-red-500 text-white' 
+                : 'bg-blue-500 text-white'
+            } rounded-lg shadow-lg border border-gray-200 dark:border-gray-700`}
+          >
+            <div className="p-4 flex items-center space-x-3">
+              <div className="flex-shrink-0">
+                {notification.type === 'success' && (
+                  <CheckCircleIcon className="w-5 h-5 text-white" />
+                )}
+                {notification.type === 'error' && (
+                  <XCircleIcon className="w-5 h-5 text-white" />
+                )}
+                {notification.type === 'info' && (
+                  <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">{notification.message}</p>
+              </div>
+              <button
+                onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+                className="flex-shrink-0 ml-2 text-white hover:text-gray-200 transition-colors"
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
