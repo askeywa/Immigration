@@ -11,7 +11,11 @@ if (!process.env.JWT_SECRET && !process.env.MONGODB_URI) {
 export const config = {
     NODE_ENV: process.env.NODE_ENV || 'development',
     port: parseInt(process.env.PORT || '5000', 10),
-    mongoUri: process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb+srv://immigration_db_user:ImmigrationDB2024@rcicdb.npymiqt.mongodb.net/?retryWrites=true&w=majority&appName=RCICDB',
+    mongoUri: process.env.MONGODB_URI || process.env.MONGO_URI || (
+      process.env.NODE_ENV === 'production' 
+        ? 'mongodb+srv://immigration_db_user:ImmigrationDB2024@rcicdb.npymiqt.mongodb.net/productionDB?retryWrites=true&w=majority&appName=RCICDB'
+        : 'mongodb+srv://immigration_db_user:ImmigrationDB2024@rcicdb.npymiqt.mongodb.net/localDB?retryWrites=true&w=majority&appName=RCICDB'
+    ),
     jwtSecret: (() => {
       if (!process.env.JWT_SECRET) {
         if (process.env.NODE_ENV === 'production') {
