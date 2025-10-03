@@ -55,20 +55,44 @@ jobs:
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-          # Copy environment file
-          scp -i private_key.pem -o StrictHostKeyChecking=no env.production.template ${USER}@${HOST}:/home/ubuntu/app/backend/.env
+          # Copy environment file (if exists)
+          if [ -f "env.production.template" ]; then
+            scp -i private_key.pem -o StrictHostKeyChecking=no env.production.template ${USER}@${HOST}:/home/ubuntu/app/backend/.env
+            echo "Environment file copied successfully"
+          else
+            echo "Environment template not found, skipping copy"
+          fi
           
           # Deploy application
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} '
+            echo "Starting backup deployment..."
             cd /home/ubuntu/app &&
+            echo "Current directory: $(pwd)" &&
+            echo "Directory contents: $(ls -la)" &&
+            
+            # Check if git repository exists
             if [ -d ".git" ]; then
-              git pull origin main
+              echo "Git repository found, pulling latest changes..."
+              git pull origin main || echo "Git pull failed, continuing with existing code"
             else
-              echo "Not a git repository, skipping git pull"
+              echo "No git repository found, continuing with existing code"
             fi &&
-            npm install &&
-            npm run build &&
-            pm2 reload ecosystem.config.js --env production
+            
+            # Install dependencies
+            echo "Installing backend dependencies..."
+            cd backend && npm install --production &&
+            echo "Installing frontend dependencies..."
+            cd ../frontend && npm install --production &&
+            
+            # Build application
+            echo "Building backend..."
+            cd ../backend && npm run build &&
+            echo "Building frontend..."
+            cd ../frontend && npm run build &&
+            
+            # Restart application
+            echo "Restarting application with PM2..."
+            cd .. && pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
           '
           
           rm -f private_key.pem
