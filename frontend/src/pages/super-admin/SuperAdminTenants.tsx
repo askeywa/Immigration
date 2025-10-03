@@ -560,6 +560,11 @@ const SuperAdminTenants: React.FC = () => {
     fetchTenants();
   }, [currentPage, statusFilter, sortBy, sortOrder]);
 
+  // Force re-render when search term changes
+  useEffect(() => {
+    console.log(`🔍 Search term changed to: "${searchTerm}"`);
+  }, [searchTerm]);
+
   // Fetch all tenants for statistics (separate from paginated data)
   const fetchAllTenantsForStats = async () => {
     try {
@@ -744,6 +749,8 @@ const SuperAdminTenants: React.FC = () => {
   // Debug: Log pagination results
   console.log(`🔍 Pagination debug - Page: ${currentPage}, Items per page: ${itemsPerPage}, Start: ${startIndex}, End: ${endIndex}`);
   console.log(`🔍 Paginated tenants: ${paginatedTenants.length} tenants to display`);
+  console.log(`🔍 Current search term: "${searchTerm}"`);
+  console.log(`🔍 Component re-rendering with ${paginatedTenants.length} tenants to display`);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -1417,7 +1424,7 @@ const SuperAdminTenants: React.FC = () => {
         </div>
 
         {/* Tenants Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8" key={`tenants-grid-${searchTerm}-${statusFilter}`}>
           {paginatedTenants.map((tenant) => (
             <motion.div
               key={tenant._id}
