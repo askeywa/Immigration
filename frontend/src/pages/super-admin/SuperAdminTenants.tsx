@@ -723,14 +723,27 @@ const SuperAdminTenants: React.FC = () => {
     
     const matchesStatus = statusFilter === 'all' || tenant.status === statusFilter;
     
+    // Debug logging
+    if (searchTerm !== '') {
+      console.log(`🔍 Search debug - Tenant: "${tenant.name}", Domain: "${tenant.domain}", Email: "${tenant.contactInfo?.email}"`);
+      console.log(`🔍 Search term: "${searchTerm}", Matches: ${matchesSearch}`);
+    }
+    
     return matchesSearch && matchesStatus;
   });
+  
+  // Debug: Log filtering results
+  console.log(`🔍 Filtering results: ${tenants.length} total tenants, ${filteredTenants.length} after filtering`);
 
   // Pagination helpers - Use filtered tenants for display
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedTenants = filteredTenants.slice(startIndex, endIndex);
   const totalFilteredPages = Math.ceil(filteredTenants.length / itemsPerPage);
+  
+  // Debug: Log pagination results
+  console.log(`🔍 Pagination debug - Page: ${currentPage}, Items per page: ${itemsPerPage}, Start: ${startIndex}, End: ${endIndex}`);
+  console.log(`🔍 Paginated tenants: ${paginatedTenants.length} tenants to display`);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
