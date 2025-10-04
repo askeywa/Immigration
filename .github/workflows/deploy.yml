@@ -348,8 +348,8 @@ jobs:
             echo "Checking existing PM2 processes..."
             # Check if immigration-portal is already running
             if pm2 list | grep -q "immigration-portal.*online"; then
-              echo "Application is running, will perform zero-downtime reload..."
-              DEPLOYMENT_MODE="reload"
+              echo "Application is running, will perform restart to ensure environment variables are loaded..."
+              DEPLOYMENT_MODE="restart"
             else
               echo "Application not running, will perform fresh start..."
               DEPLOYMENT_MODE="start"
@@ -371,17 +371,17 @@ jobs:
             
             echo "Deploying application with PM2..."
             if [ -f "ecosystem.config.js" ]; then
-              if [ "$DEPLOYMENT_MODE" = "reload" ]; then
-                echo "Performing zero-downtime reload with ecosystem.config.js..."
-                pm2 reload ecosystem.config.js --env production
+              if [ "$DEPLOYMENT_MODE" = "restart" ]; then
+                echo "Performing restart with ecosystem.config.js to ensure environment variables are loaded..."
+                pm2 restart ecosystem.config.js --env production
               else
                 echo "Starting fresh with ecosystem.config.js..."
                 pm2 start ecosystem.config.js --env production
               fi
             else
-              if [ "$DEPLOYMENT_MODE" = "reload" ]; then
-                echo "Performing zero-downtime reload with dist/server.js..."
-                pm2 reload dist/server.js --name "immigration-portal" --env production
+              if [ "$DEPLOYMENT_MODE" = "restart" ]; then
+                echo "Performing restart with dist/server.js to ensure environment variables are loaded..."
+                pm2 restart dist/server.js --name "immigration-portal" --env production
               else
                 echo "Starting fresh with dist/server.js..."
                 pm2 start dist/server.js --name "immigration-portal" --env production
