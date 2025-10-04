@@ -153,73 +153,11 @@ export const createValidationMiddleware = (validations: any[]) => {
   ];
 };
 
-// Common validation schemas - FIXED FOR TENANT LOGIN
-// Remove validateRequest() from the array
+// Common validation schemas - SIMPLIFIED FOR DEBUGGING
 export const validateLogin = [
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please provide a valid email address')
-    .normalizeEmail(),
-  body('password')
-    .trim()
-    .notEmpty().withMessage('Password is required')
-    .isString().withMessage('Password must be a string')
-];
-
-// Create a separate middleware that combines validation + error handling
-export const validateLoginMiddleware = [
-  ...validateLogin,
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        code: 'VALIDATION_ERROR',
-        errors: errors.array().map(err => ({
-          field: (err as any).param,
-          message: err.msg,
-          value: (err as any).value
-        }))
-      });
-    }
-    next();
-  }
-];
-
-// Debug version for troubleshooting
-export const validateLoginDebug = [
-  (req: Request, res: Response, next: NextFunction) => {
-    console.log('🔍 Validation Debug - Request Body:', JSON.stringify(req.body, null, 2));
-    console.log('🔍 Validation Debug - Headers:', {
-      'content-type': req.get('content-type'),
-      'x-tenant-domain': req.get('x-tenant-domain'),
-      'x-original-host': req.get('x-original-host')
-    });
-    next();
-  },
-  body('email')
-    .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Please provide a valid email address'),
-  body('password')
-    .trim()
-    .notEmpty().withMessage('Password is required'),
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    console.log('🔍 Validation Errors:', errors.array());
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation Error',
-        code: 'VALIDATION_ERROR',
-        errors: errors.array(),
-        receivedBody: req.body
-      });
-    }
-    next();
-  }
+  body('email').isEmail().withMessage('Please provide a valid email address'),
+  body('password').notEmpty().withMessage('Password is required'),
+  validateRequest()
 ];
 
 export const validateRegister = [

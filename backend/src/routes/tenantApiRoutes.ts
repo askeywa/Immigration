@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { TenantApiController } from '../controllers/tenantApiController';
 import { resolveTenant } from '../middleware/tenantResolution';
 import { authRateLimit } from '../middleware/rateLimiting';
-import { validateLogin, validateRegister } from '../middleware/validation';
+import { validateLoginMiddleware, validateRegister, validateLoginDebug } from '../middleware/validation';
 
 const router = Router();
 
@@ -16,7 +16,7 @@ const router = Router();
 router.post('/tenant/auth/login', 
   authRateLimit,
   resolveTenant,
-  ...validateLogin,
+  ...validateLoginMiddleware,  // Use the new combined middleware
   TenantApiController.tenantLogin
 );
 
