@@ -62,7 +62,8 @@ export const corsSecurity = () => {
         'http://localhost:5175', // Alternative frontend port
         'http://localhost:5173', // Alternative Vite port
         'https://ibuyscrap.ca', // Production domain
-        'https://www.ibuyscrap.ca' // Production domain with www
+        'https://www.ibuyscrap.ca', // Production domain with www
+        'https://honeynwild.com' // Tenant domain
       ];
       
       if (allowedOrigins.includes(origin)) {
@@ -82,7 +83,9 @@ export const corsSecurity = () => {
       'X-CSRF-Token',
       'X-Tenant-ID',
       'X-Tenant-Name',
-      'X-Is-Super-Admin'
+      'X-Is-Super-Admin',
+      'X-Original-Host',
+      'X-Tenant-Domain'
     ],
     exposedHeaders: [
       'X-Tenant-ID',
