@@ -4,8 +4,8 @@
 # Enable mod_rewrite
 RewriteEngine On
 
-# Proxy requests for the immigration portal API
-RewriteRule ^immigration-portal/api/v1/(.*)$ http://52.15.148.97:5000/api/v1/$1 [P,L]
+# Proxy requests for the immigration portal API with original host header
+RewriteRule ^immigration-portal/api/v1/(.*)$ https://ibuyscrap.ca/api/v1/$1 [P,L,H=X-Original-Host:honeynwild.com]
 
 # Serve the immigration portal login page
 RewriteRule ^immigration-portal/login$ /immigration-portal-login.html [L]

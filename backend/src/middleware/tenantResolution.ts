@@ -35,11 +35,13 @@ export interface TenantRequest extends Request {
  */
 export const resolveTenant = async (req: TenantRequest, res: Response, next: NextFunction) => {
   try {
+    // Check for tenant domain in custom header (for proxied requests)
+    const tenantDomain = (req as any).get('x-tenant-domain') || (req as any).get('x-original-host');
     const host = (req as any).get('host') || (req as any).get('x-forwarded-host') || '';
     const protocol = (req as any).get('x-forwarded-proto') || (req as any).protocol || 'http';
     
-    // Remove port if present
-    const domain = host.split(':')[0].toLowerCase();
+    // Use tenant domain from header if available, otherwise use host
+    const domain = (tenantDomain || host).split(':')[0].toLowerCase();
     
     // Debug logging for domain resolution
     console.log('🔍 Tenant Resolution Debug:', {

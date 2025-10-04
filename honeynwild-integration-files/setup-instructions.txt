@@ -1,0 +1,56 @@
+# Honeynwild Immigration Portal Integration Setup
+
+## Files Included:
+1. immigration-portal-login.html - The login page
+2. .htaccess - For Apache servers (most common)
+3. nginx-config.conf - For Nginx servers
+4. setup-instructions.txt - This file
+
+## Setup Instructions:
+
+### Step 1: Upload Files
+Upload these files to your web root directory (usually public_html/ or www/):
+- immigration-portal-login.html
+- .htaccess (if you use Apache)
+- nginx-config.conf (if you use Nginx)
+
+### Step 2: Configure Your Server
+
+#### For Apache Servers (Most Common):
+1. Upload the .htaccess file to your web root directory
+2. The .htaccess file will automatically handle the routing
+3. No additional server configuration needed
+
+#### For Nginx Servers:
+1. Upload the nginx-config.conf file
+2. Add the contents of nginx-config.conf to your existing nginx server block
+3. Reload nginx: sudo systemctl reload nginx
+
+### Step 3: Test the Integration
+After setup, visit: https://honeynwild.com/immigration-portal/login
+
+You should see the Honey & Wild immigration portal login page.
+
+### Step 4: Contact Support
+If you encounter any issues:
+1. Check if the files are uploaded to the correct directory
+2. Verify your server type (Apache or Nginx)
+3. Contact the immigration portal support team
+
+## What This Does:
+- Adds one new page to your website: /immigration-portal/login
+- Does NOT affect your existing website
+- Your main website (honeynwild.com) continues to work normally
+- Only adds the immigration portal functionality
+
+## Security:
+- All API calls are encrypted (HTTPS)
+- No sensitive data is stored on your server
+- Your website security is not affected
+
+## Support:
+If you need help with the setup, please contact:
+- Email: [Your support email]
+- Phone: [Your support phone]
+
+Thank you for using the Immigration Portal!
