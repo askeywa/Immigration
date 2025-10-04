@@ -1,17 +1,24 @@
-# Honey & Wild Immigration Portal Integration
+# Honey & Wild Immigration Portal Integration - PRODUCTION GRADE
 # This file should be placed in the root directory of honeynwild.com
 
 # Enable mod_rewrite
 RewriteEngine On
 
-# Proxy requests for the immigration portal API with original host header
-RewriteRule ^immigration-portal/api/v1/(.*)$ https://ibuyscrap.ca/api/v1/$1 [P,L,H=X-Original-Host:honeynwild.com]
+# PRODUCTION-GRADE: Serve the new production login page
+RewriteRule ^immigration-portal/login$ /immigration-portal-login-production.html [L]
 
-# Serve the immigration portal login page
-RewriteRule ^immigration-portal/login$ /immigration-portal-login.html [L]
+# PRODUCTION-GRADE: Also serve at the root immigration portal path
+RewriteRule ^immigration-portal/?$ /immigration-portal-login-production.html [L]
 
-# Serve the immigration portal dashboard page
-RewriteRule ^immigration-portal/dashboard$ /immigration-portal-dashboard.html [L]
+# Legacy support: Keep old login page for backward compatibility (optional)
+RewriteRule ^immigration-portal/login-old$ /immigration-portal-login.html [L]
 
-# Optional: Redirect root to immigration portal login
+# Legacy support: Keep old dashboard page for backward compatibility (optional)
+RewriteRule ^immigration-portal/dashboard-old$ /immigration-portal-dashboard.html [L]
+
+# API proxying is NO LONGER NEEDED for production-grade solution
+# The production login page makes direct API calls to ibuyscrap.ca
+# This is more reliable and doesn't require server-side proxying
+
+# Optional: Redirect root to immigration portal login (uncomment if desired)
 # RewriteRule ^$ /immigration-portal/login [R=301,L]

@@ -11,8 +11,15 @@ const AuthCallback: React.FC = () => {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [debugInfo, setDebugInfo] = useState<string>('');
+  const [hasProcessed, setHasProcessed] = useState<boolean>(false);
 
   useEffect(() => {
+    // Prevent multiple executions
+    if (hasProcessed) {
+      console.log('⏭️  AuthCallback already processed, skipping...');
+      return;
+    }
+    
     const processAuthCallback = async () => {
       try {
         console.log('🔄 AuthCallback: Starting auth data processing...');
@@ -21,6 +28,7 @@ const AuthCallback: React.FC = () => {
         console.log('🔍 Search:', window.location.search);
         console.log('🔍 Hash:', window.location.hash);
         setDebugInfo('Starting authentication data processing...');
+        setHasProcessed(true);  // Mark as processed immediately
         
         // Get encoded auth data from URL
         const encodedData = searchParams.get('data');
@@ -103,12 +111,14 @@ const AuthCallback: React.FC = () => {
           
           sessionStorage.setItem('auth-storage', JSON.stringify(authStorageData));
           
-          // Also use the individual setter methods to trigger immediate state update
+          // CRITICAL: Use the individual setter methods to trigger immediate state update
+          // Note: The sessionStorage update above already includes the token
           setUser({ ...authData.user, permissions: [] });
           setTenant(authData.tenant || null);
           setSubscription(authData.subscription || null);
           
           console.log('✅ AuthCallback: Auth data stored successfully in Zustand store');
+          console.log('✅ AuthCallback: Token included in sessionStorage:', authData.token.substring(0, 20) + '...');
           setStatus('success');
           setDebugInfo('Authentication data stored successfully!\nRedirecting to dashboard...');
           
@@ -153,7 +163,7 @@ const AuthCallback: React.FC = () => {
     };
 
     processAuthCallback();
-  }, [searchParams, navigate, setUser, setTenant, setSubscription]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps  // Run only once on mount
 
   const getStatusIcon = () => {
     switch (status) {
