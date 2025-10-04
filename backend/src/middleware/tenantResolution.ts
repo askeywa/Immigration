@@ -202,11 +202,20 @@ function isValidTenantName(tenantName: string): boolean {
  */
 async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
   try {
+    console.log('🔍 Resolving tenant by domain:', domain);
+    
     // Find tenant by exact domain match
     const tenant = await Tenant.findOne({ 
       domain: domain,
       status: { $in: ['active', 'trial'] }
     }).lean();
+    
+    console.log('🔍 Tenant query result:', tenant ? {
+      _id: tenant._id,
+      name: tenant.name,
+      domain: tenant.domain,
+      status: tenant.status
+    } : 'No tenant found');
     
     if (tenant) {
       return tenant as unknown as ITenant;
