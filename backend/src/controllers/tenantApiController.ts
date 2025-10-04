@@ -13,13 +13,19 @@ export class TenantApiController {
   static async tenantLogin(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-      const domain = req.get('host')?.split(':')[0] || '';
+      
+      // Get domain from tenant resolution middleware or fallback to host header
+      const tenantRequest = req as any;
+      const domain = tenantRequest.tenantDomain || tenantRequest.get('x-original-host') || tenantRequest.get('x-tenant-domain') || tenantRequest.get('host')?.split(':')[0] || '';
       
       log.info('Tenant login attempt', {
         email,
         domain,
         ip: req.ip,
-        userAgent: req.get('user-agent')
+        userAgent: req.get('user-agent'),
+        tenantDomain: tenantRequest.tenantDomain,
+        xOriginalHost: tenantRequest.get('x-original-host'),
+        xTenantDomain: tenantRequest.get('x-tenant-domain')
       });
 
       // Validate required fields
@@ -143,12 +149,18 @@ export class TenantApiController {
   static async tenantRegister(req: Request, res: Response): Promise<void> {
     try {
       const { email, password, firstName, lastName } = req.body;
-      const domain = req.get('host')?.split(':')[0] || '';
+      
+      // Get domain from tenant resolution middleware or fallback to host header
+      const tenantRequest = req as any;
+      const domain = tenantRequest.tenantDomain || tenantRequest.get('x-original-host') || tenantRequest.get('x-tenant-domain') || tenantRequest.get('host')?.split(':')[0] || '';
       
       log.info('Tenant registration attempt', {
         email,
         domain,
-        ip: req.ip
+        ip: req.ip,
+        tenantDomain: tenantRequest.tenantDomain,
+        xOriginalHost: tenantRequest.get('x-original-host'),
+        xTenantDomain: tenantRequest.get('x-tenant-domain')
       });
 
       // Validate required fields
