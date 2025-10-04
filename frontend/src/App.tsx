@@ -17,6 +17,7 @@ import SessionSecurity from '@/components/security/SessionSecurity';
 const Login = lazy(() => import('@/pages/auth/Login'));
 const Register = lazy(() => import('@/pages/auth/Register'));
 const TenantSelection = lazy(() => import('@/pages/tenant/TenantSelection'));
+const AuthCallback = lazy(() => import('@/pages/auth/AuthCallback'));
 
 // Custom redirect component that preserves the port
 const TenantSelectionRedirect: React.FC = () => {
@@ -84,6 +85,7 @@ function App() {
                         <>
                           <Route path="/login" element={<Login />} />
                           <Route path="/register" element={<Register />} />
+                          <Route path="/auth-callback" element={<AuthCallback />} />
                           <Route path="*" element={<Navigate to="/login" replace />} />
                         </>
                       ) : !tenant && user?.role !== 'super_admin' ? (
