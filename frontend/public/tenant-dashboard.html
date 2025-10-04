@@ -103,8 +103,13 @@
                     `;
                 }
                 
-                // Get tenant info
-                const response = await fetch(`${apiBaseUrl}/tenant/info`);
+                // Get tenant info with proper headers
+                const response = await fetch(`${apiBaseUrl}/tenant/info`, {
+                    headers: {
+                        'X-Original-Host': 'honeynwild.com',
+                        'X-Tenant-Domain': 'honeynwild.com'
+                    }
+                });
                 const result = await response.json();
                 
                 if (result.success) {
