@@ -139,8 +139,8 @@ jobs:
           ALLOWED_SUPER_ADMIN_DOMAINS: ${{ secrets.ALLOWED_SUPER_ADMIN_DOMAINS }}
         run: |
           cat > env.production << 'EOF'
-          NODE_ENV=production
-          PORT=5000
+            NODE_ENV=production
+            PORT=5000
           FRONTEND_URL=${{ secrets.FRONTEND_URL }}
           
           # Super Admin Configuration
@@ -148,11 +148,11 @@ jobs:
           ALLOWED_SUPER_ADMIN_DOMAINS=${{ secrets.ALLOWED_SUPER_ADMIN_DOMAINS }}
           
           # Database
-          MONGODB_URI=${{ secrets.MONGODB_URI }}
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
           
           # JWT
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
           JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
           
           # Domain Configuration
@@ -175,14 +175,14 @@ jobs:
           SENTRY_PROFILES_SAMPLE_RATE=${{ secrets.SENTRY_PROFILES_SAMPLE_RATE }}
           
           # New Relic
-          NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
-          NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}
+            NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
+            NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}
           NEW_RELIC_ENABLED=${{ secrets.NEW_RELIC_ENABLED }}
           
           # EC2 Configuration
-          EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
-          EC2_PRIVATE_IP=${{ secrets.EC2_PRIVATE_IP }}
-          EC2_PUBLIC_DNS=${{ secrets.EC2_PUBLIC_DNS }}
+            EC2_PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
+            EC2_PRIVATE_IP=${{ secrets.EC2_PRIVATE_IP }}
+            EC2_PUBLIC_DNS=${{ secrets.EC2_PUBLIC_DNS }}
           
           # API Configuration
           API_BASE_URL=${{ secrets.API_BASE_URL }}

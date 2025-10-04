@@ -59,8 +59,8 @@ export const resolveTenantEnhanced = async (req: TenantRequest, res: Response, n
       req.tenantId = undefined;
       req.isSuperAdmin = true;
       req.tenantDomain = null;
-      return next();
-    }
+        return next();
+      }
 
     // Step 2: Check cache first
     const cacheKey = `tenant:${rawDomain}`;
@@ -76,8 +76,8 @@ export const resolveTenantEnhanced = async (req: TenantRequest, res: Response, n
       res.set('X-Tenant-ID', tenantId);
       res.set('X-Tenant-Name', cached.tenant.name);
       res.set('X-Tenant-Domain', rawDomain);
-      return next();
-    }
+        return next();
+      }
 
     // Step 3: Query database for tenant with this domain
     // Check BOTH primary domain AND customDomains array
@@ -91,7 +91,7 @@ export const resolveTenantEnhanced = async (req: TenantRequest, res: Response, n
 
     if (!tenant) {
       log.warn('Tenant Not Found', { domain: rawDomain });
-      return next(new ValidationError(
+        return next(new ValidationError(
         'No tenant found for this domain. Please verify the domain is correctly configured.',
         'domain',
         rawDomain
@@ -105,7 +105,7 @@ export const resolveTenantEnhanced = async (req: TenantRequest, res: Response, n
         tenantId: String(tenant._id), 
         status: tenant.status 
       });
-      return next(new ValidationError(
+        return next(new ValidationError(
         'Tenant account is suspended or inactive',
         'domain',
         rawDomain
@@ -145,8 +145,8 @@ export const resolveTenantEnhanced = async (req: TenantRequest, res: Response, n
     res.set('X-Tenant-Domain', rawDomain);
     res.set('X-Domain-Match-Type', tenant.domain === rawDomain ? 'primary' : 'custom');
 
-    next();
-  } catch (error) {
+      next();
+    } catch (error) {
     log.error('Tenant Resolution Error', {
       error: error instanceof Error ? error.message : String(error),
       domain: req.get('host'),
