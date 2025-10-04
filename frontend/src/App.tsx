@@ -33,32 +33,61 @@ const TenantSelectionRedirect: React.FC = () => {
 
 function App() {
   const { isAuthenticated, user, tenant } = useAuthStore();
+  const [isRehydrated, setIsRehydrated] = React.useState(false);
   
-  // Debug logging to understand redirect issue
-  console.log('🔍 App.tsx Debug:', {
-    isAuthenticated,
-    userRole: user?.role,
-    tenantExists: !!tenant,
-    tenantName: tenant?.name,
-    shouldRedirectToTenantSelection: !tenant && user?.role !== 'super_admin',
-    currentUrl: window.location.href,
-    currentHost: window.location.host,
-    currentPort: window.location.port
-  });
-  
-  // Add a small delay to allow auth store to rehydrate properly
-  const [isRehydrating, setIsRehydrating] = React.useState(true);
-  
+  // CRITICAL: Wait for Zustand to rehydrate from sessionStorage
   React.useEffect(() => {
-    // Give the auth store time to rehydrate from sessionStorage
-    const timer = setTimeout(() => {
-      setIsRehydrating(false);
-    }, 100);
+    // Check if we have auth data in sessionStorage
+    const checkRehydration = () => {
+      try {
+        const authData = sessionStorage.getItem('auth-storage');
+        if (!authData) {
+          // No auth data, consider hydrated (user is not logged in)
+          setIsRehydrated(true);
+          console.log('✅ App.tsx: No auth data in sessionStorage, user not logged in');
+          return;
+        }
+        
+        // Auth data exists in sessionStorage
+        const parsed = JSON.parse(authData);
+        const hasAuthInStorage = parsed?.state?.isAuthenticated === true;
+        
+        // Check if Zustand store matches sessionStorage
+        if (hasAuthInStorage && isAuthenticated) {
+          console.log('✅ App.tsx: Zustand store matches sessionStorage, fully hydrated');
+          setIsRehydrated(true);
+        } else if (hasAuthInStorage && !isAuthenticated) {
+          console.log('⏳ App.tsx: Auth data in sessionStorage but not in Zustand yet, waiting...');
+          // Wait a bit more for Zustand to catch up
+          setTimeout(checkRehydration, 50);
+        } else {
+          // No auth in storage, we're good
+          console.log('✅ App.tsx: No auth required, hydrated');
+          setIsRehydrated(true);
+        }
+      } catch (error) {
+        console.error('❌ App.tsx: Error checking rehydration:', error);
+        setIsRehydrated(true); // Fail open to prevent blocking
+      }
+    };
     
-    return () => clearTimeout(timer);
-  }, []);
+    checkRehydration();
+  }, [isAuthenticated]);
   
-  if (isRehydrating) {
+  // Debug logging
+  React.useEffect(() => {
+    console.log('🔍 App.tsx State:', {
+      isAuthenticated,
+      userRole: user?.role,
+      tenantExists: !!tenant,
+      tenantName: tenant?.name,
+      isRehydrated,
+      currentPath: window.location.pathname
+    });
+  }, [isAuthenticated, user, tenant, isRehydrated]);
+  
+  // Show loading while rehydrating
+  if (!isRehydrated) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>

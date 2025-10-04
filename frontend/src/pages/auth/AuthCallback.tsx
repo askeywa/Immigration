@@ -132,9 +132,10 @@ const AuthCallback: React.FC = () => {
           
           console.log('🔄 AuthCallback: Redirecting to:', redirectPath);
           
-          // Small delay to show success message, then redirect
+          // CRITICAL: Use window.location.replace to ensure a full page reload
+          // This ensures the auth store is fully rehydrated from sessionStorage
           setTimeout(() => {
-            navigate(redirectPath, { replace: true });
+            window.location.replace(redirectPath);
           }, 1500);
           
         } catch (storeError) {

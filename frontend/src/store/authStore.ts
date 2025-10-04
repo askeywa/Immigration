@@ -168,9 +168,38 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => {
+        console.log('🔄 Zustand: Starting rehydration from sessionStorage...');
+        return (state, error) => {
+          if (error) {
+            console.error('❌ Zustand: Rehydration failed:', error);
+          } else {
+            console.log('✅ Zustand: Rehydration complete:', {
+              isAuthenticated: state?.isAuthenticated,
+              hasUser: !!state?.user,
+              hasTenant: !!state?.tenant,
+            });
+          }
+        };
+      },
     }
   )
 );
+
+// Helper to check if store has been rehydrated
+export const hasHydrated = () => {
+  // Check if sessionStorage has auth data
+  try {
+    const authData = sessionStorage.getItem('auth-storage');
+    if (!authData) return true; // No data to rehydrate, consider it "hydrated"
+    
+    const store = useAuthStore.getState();
+    // If sessionStorage has data but store doesn't, not hydrated yet
+    return store.isAuthenticated !== null; // null means not hydrated yet
+  } catch {
+    return true; // On error, assume hydrated to prevent blocking
+  }
+};
 
 // FIXED: Optimized permission loading function to prevent duplicate requests
 const loadPermissionsAsync = async () => {
