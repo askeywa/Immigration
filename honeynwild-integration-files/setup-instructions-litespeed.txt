@@ -1,0 +1,56 @@
+🚨 CRITICAL: LITESPEED SERVER DETECTED
+=====================================
+
+Your honeynwild.com server is running LiteSpeed, not Apache!
+The .htaccess file will NOT work on LiteSpeed servers.
+
+SOLUTION OPTIONS:
+================
+
+OPTION 1: LiteSpeed Configuration (RECOMMENDED)
+-----------------------------------------------
+1. Access your LiteSpeed Web Admin Console (usually port 7080)
+2. Go to Virtual Hosts → honeynwild.com → Rewrite
+3. Add the following rewrite rules:
+
+RewriteRule ^immigration-portal/api/v1/(.*)$ https://ibuyscrap.ca/api/v1/$1 [P,L,E=X-Original-Host:honeynwild.com]
+
+OR
+
+OPTION 2: Use the provided litespeed-config.conf
+-----------------------------------------------
+1. Upload the litespeed-config.conf file to your LiteSpeed configuration
+2. Restart LiteSpeed service
+
+OPTION 3: Contact Your Hosting Provider
+---------------------------------------
+Ask them to configure proxying for:
+- From: /immigration-portal/api/v1/*
+- To: https://ibuyscrap.ca/api/v1/*
+- With header: X-Original-Host: honeynwild.com
+
+OPTION 4: Use a Different Approach (JavaScript Proxy)
+----------------------------------------------------
+Modify the login.html to make direct API calls to ibuyscrap.ca instead of using proxying.
+
+IMMEDIATE TEST:
+===============
+Try accessing: https://honeynwild.com/immigration-portal/api/v1/health
+If it returns 503, the proxying is not configured yet.
+
+EXPECTED RESULT:
+================
+Should return: {"status":"OK","message":"Immigration Portal API is running",...}
+
+CURRENT STATUS:
+===============
+❌ .htaccess file is NOT working (LiteSpeed doesn't support it)
+❌ API calls are failing with 503 Service Unavailable
+✅ Backend server is healthy and running
+✅ Tenant and user data is correct in database
+
+NEXT STEPS:
+===========
+1. Configure LiteSpeed proxying using one of the options above
+2. Test the API endpoint
+3. Try login again

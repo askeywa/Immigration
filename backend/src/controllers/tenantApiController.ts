@@ -93,7 +93,21 @@ export class TenantApiController {
    */
   static async getTenantInfo(req: Request, res: Response): Promise<void> {
     try {
-      const domain = req.get('host')?.split(':')[0] || '';
+      const tenantRequest = req as any;
+      
+      // Get domain from resolved tenant context or fallback to host header
+      const domain = tenantRequest.tenantDomain || 
+                     tenantRequest.get('x-original-host') || 
+                     tenantRequest.get('x-tenant-domain') || 
+                     tenantRequest.get('host')?.split(':')[0] || '';
+      
+      console.log('🔍 getTenantInfo - Domain resolution:', {
+        tenantDomain: tenantRequest.tenantDomain,
+        xOriginalHost: tenantRequest.get('x-original-host'),
+        xTenantDomain: tenantRequest.get('x-tenant-domain'),
+        host: tenantRequest.get('host'),
+        resolvedDomain: domain
+      });
       
       // Find tenant by domain
       const tenant = await TenantService.getTenantByDomain(domain);

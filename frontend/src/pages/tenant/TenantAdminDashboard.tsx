@@ -31,14 +31,10 @@ interface RecentActivity {
 }
 
 const TenantAdminDashboard: React.FC = () => {
-  // const { tenant, isTenantAdmin } = useTenant();
+  const { tenant, isTenantAdmin } = useTenant();
   const { user } = useAuthStore();
   
-  // Mock tenant data to prevent API calls
-  const tenant = { _id: 'mock-tenant-id', name: 'Atlantic Immigration Solutions' };
-  const isTenantAdmin = true;
-  
-  // Use mock data to prevent crashes
+  // Use real tenant data or fallback to mock data
   const safeTenantStats = {
     totalUsers: 16,
     activeUsers: 14,

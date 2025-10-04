@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honey & Wild Immigration Portal Access</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .logo h1 {
+            color: #333;
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #fcc;
+        }
+        
+        .success {
+            background: #efe;
+            color: #363;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #cfc;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .register-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .register-link:hover {
+            text-decoration: underline;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .debug-info h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ffd700, #ff8c00); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                🍯
+            </div>
+            <h1>Honey & Wild</h1>
+        </div>
+        
+        <h2 style="color: #333; margin-bottom: 30px;">Immigration Portal Access</h2>
+        
+        <div id="error-message" class="error" style="display: none;"></div>
+        <div id="success-message" class="success" style="display: none;"></div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" value="admin@honeynwild.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" value="Admin123!" required>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+        </form>
+        
+        <a href="#" class="register-link">Don't have an account? Register here</a>
+        
+        <div class="debug-info">
+            <h4>Debug Mode:</h4>
+            <div id="debug-info">Ready for login...</div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Honey & Wild Night Club. All rights reserved.</p>
+            <p>Powered by Immigration Portal</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://ibuyscrap.ca/api';
+        const TENANT_API_BASE_URL = 'https://ibuyscrap.ca/api/v1';
+        const TENANT_DOMAIN = 'honeynwild.com';
+        
+        function updateDebugInfo(message) {
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
+            console.log('Debug:', message);
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+        }
+        
+        function hideMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        function setLoading(loading) {
+            document.getElementById('loading').style.display = loading ? 'block' : 'none';
+            document.getElementById('loginBtn').disabled = loading;
+        }
+        
+        // Test super admin login first
+        async function testSuperAdminLogin() {
+            updateDebugInfo('Testing super admin login first...');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Original-Host': TENANT_DOMAIN
+                    },
+                    body: JSON.stringify({
+                        email: 'superadmin@immigrationapp.com',
+                        password: 'SuperAdmin123!'
+                    })
+                });
+                
+                updateDebugInfo(`Super admin test: ${response.status}`);
+                
+                if (response.ok) {
+                    updateDebugInfo('Super admin login working - server is healthy');
+                    return true;
+                } else {
+                    updateDebugInfo('Super admin login failed - server has issues');
+                    return false;
+                }
+            } catch (error) {
+                updateDebugInfo('Super admin test error: ' + error.message);
+                return false;
+            }
+        }
+        
+        // Main login function
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            hideMessages();
+            setLoading(true);
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            updateDebugInfo(`Attempting login for: ${email}`);
+            updateDebugInfo(`Making request to: ${TENANT_API_BASE_URL}/tenant/auth/login`);
+            
+            try {
+                // Test super admin first
+                const serverHealthy = await testSuperAdminLogin();
+                
+                if (!serverHealthy) {
+                    showError('Server is not responding properly. Please try again later.');
+                    setLoading(false);
+                    return;
+                }
+                
+                // Now try tenant login
+                const response = await fetch(`${TENANT_API_BASE_URL}/tenant/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Original-Host': TENANT_DOMAIN,
+                        'X-Tenant-Domain': TENANT_DOMAIN
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                updateDebugInfo(`Response status: ${response.status}`);
+                
+                const data = await response.json();
+                updateDebugInfo(`Response: ${JSON.stringify(data)}`);
+                
+                if (response.ok && data.success) {
+                    updateDebugInfo('Login successful! Redirecting...');
+                    showSuccess('Login successful! Redirecting to dashboard...');
+                    
+                    // Store token and redirect
+                    localStorage.setItem('immigration-portal-token', data.data.token);
+                    localStorage.setItem('immigration-portal-user', JSON.stringify(data.data.user));
+                    
+                    setTimeout(() => {
+                        window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant-dashboard.html`;
+                    }, 2000);
+                } else {
+                    const errorMsg = data.message || data.error || 'Login failed';
+                    updateDebugInfo(`Login error: ${errorMsg}`);
+                    showError(`Login error: ${errorMsg}`);
+                }
+            } catch (error) {
+                updateDebugInfo(`Network error: ${error.message}`);
+                showError(`Network error: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDebugInfo('Page loaded. Ready for login.');
+            
+            // Check if already logged in
+            const existingToken = localStorage.getItem('immigration-portal-token');
+            if (existingToken) {
+                updateDebugInfo('Existing session found. Redirecting...');
+                window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant-dashboard.html`;
+                return;
+            }
+            
+            updateDebugInfo('No existing session found. Ready for login.');
+            
+            // Attach form handler
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        });
+    </script>
+</body>
+</html>
