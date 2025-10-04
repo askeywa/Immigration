@@ -1,0 +1,7 @@
+Force new deployment to pick up updated MONGODB_URI secret
+
+Current issue: Server uptime 27 hours, still using 'test' database instead of 'productionDB'
+Database connected: false
+Environment: production
+
+This deployment should restart the server with the updated GitHub Secret.
