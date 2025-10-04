@@ -8,7 +8,7 @@ import {
   CurrencyDollarIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
-// import { useTenant } from '@/contexts/TenantContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
 import { Card } from '@/components/ui/card';
 import { DashboardHeader } from '@/components/common';
