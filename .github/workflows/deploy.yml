@@ -241,11 +241,30 @@ jobs:
             
             echo "Building backend..."
             cd /var/www/immigration-portal/backend
+            # Clear build cache to ensure fresh build with latest code
+            rm -rf dist/
+            rm -rf node_modules/.cache/
             npm run build
             
             echo "Building frontend..."
             cd /var/www/immigration-portal/frontend
+            # Clear build cache to ensure fresh build with latest code
+            rm -rf dist/
+            rm -rf node_modules/.cache/
+            rm -rf .vite/
             npm run build
+            
+            echo "Verifying frontend build..."
+            if [ ! -d "dist" ]; then
+              echo "ERROR: Frontend dist directory not found!"
+              exit 1
+            fi
+            if [ ! -f "dist/index.html" ]; then
+              echo "ERROR: Frontend dist/index.html not found!"
+              exit 1
+            fi
+            echo "Frontend build verification passed!"
+            ls -lh dist/assets/ | head -20
             
             echo "Setting up Nginx..."
             sudo apt update
