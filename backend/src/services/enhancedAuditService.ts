@@ -340,7 +340,7 @@ export class EnhancedAuditService {
           .populate('tenantId', 'name domain')
           .sort({ createdAt: -1 })
           .limit(20)
-          .lean(),
+          .lean() as unknown as IAuditLog[],
 
         // Security events
         AuditLog.find({
@@ -355,7 +355,7 @@ export class EnhancedAuditService {
           .populate('tenantId', 'name domain')
           .sort({ createdAt: -1 })
           .limit(20)
-          .lean(),
+          .lean() as unknown as IAuditLog[],
 
         // Top resources
         AuditLog.aggregate([

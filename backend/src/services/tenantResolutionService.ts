@@ -384,7 +384,7 @@ export class TenantResolutionService {
       tenant = await Tenant.findOne({
         domain: domainInfo.domain,
         status: { $in: ['active', 'trial'] }
-      }).lean();
+      }).lean() as unknown as ITenant | null;
 
       if (tenant) {
         return tenant;
@@ -399,7 +399,7 @@ export class TenantResolutionService {
             { subdomain: domainInfo.tenantName }
           ],
           status: { $in: ['active', 'trial'] }
-        }).lean();
+        }).lean() as unknown as ITenant | null;
       }
 
       // Try custom domain match
@@ -407,7 +407,7 @@ export class TenantResolutionService {
         tenant = await Tenant.findOne({
           customDomains: { $in: [domainInfo.domain] },
           status: { $in: ['active', 'trial'] }
-        }).lean();
+        }).lean() as unknown as ITenant | null;
       }
 
       return tenant;

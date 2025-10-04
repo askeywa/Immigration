@@ -39,7 +39,7 @@ export class TenantService {
   static async getTenantById(tenantId: string): Promise<ITenant | null> {
     return Tenant.findById(tenantId)
       .populate('subscription.planId', 'name displayName') // Only populate name and displayName
-      .lean();
+      .lean() as unknown as ITenant | null;
   }
 
   static async getTenantStats(tenantId: string) {

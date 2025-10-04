@@ -385,7 +385,7 @@ export class ImpersonationService {
       )
         .sort({ startTime: -1 })
         .limit(10)
-        .lean();
+        .lean() as unknown as IImpersonation[];
       
       return {
         ...stats,

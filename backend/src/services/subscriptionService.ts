@@ -33,7 +33,7 @@ export class SubscriptionService {
     return Subscription.findById(subscriptionId)
       .populate('tenantId')
       .populate('planId')
-      .lean();
+      .lean() as unknown as ISubscription | null;
   }
 
   static async getSubscriptionStats() {

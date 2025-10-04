@@ -140,7 +140,7 @@ export class DatabaseMigrationService {
       log.info('Starting comprehensive multi-tenancy migration', { dryRun });
 
       // Get all tenants
-      const tenants = await Tenant.find({}).lean();
+      const tenants = await Tenant.find({}).lean() as unknown as ITenant[];
       if (tenants.length === 0) {
         throw new AppError('No tenants found for migration', 400);
       }

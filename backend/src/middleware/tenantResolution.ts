@@ -207,7 +207,7 @@ async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
     }).lean();
     
     if (tenant) {
-      return tenant as ITenant;
+      return tenant as unknown as ITenant;
     }
     
     // If not found by exact domain, try to find by subdomain pattern
@@ -229,7 +229,7 @@ async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
       }).lean();
       
       if (subdomainTenant) {
-        return subdomainTenant as ITenant;
+        return subdomainTenant as unknown as ITenant;
       }
     }
     

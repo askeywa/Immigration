@@ -74,20 +74,66 @@ const SuperAdminAnalytics: React.FC = () => {
   const fetchAnalyticsData = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Fetching analytics data from backend...');
+      
       // Use tenantApiService to get system analytics
       const response = await tenantApiService.getSystemAnalytics({ range: timeRange });
-      if (response.data) {
+      console.log('📊 Analytics API response:', response);
+      
+      if (response.success && response.data) {
+        console.log('✅ Setting dynamic analytics data:', response.data);
         setAnalyticsData(response.data);
+      } else {
+        console.error('❌ Analytics API returned unsuccessful response:', response);
+        // Set minimal default data to prevent crashes - all zeros
+        setAnalyticsData({
+          systemHealth: {
+            status: 'healthy',
+            uptime: 0,
+            responseTime: 0,
+            errorRate: 0
+          },
+          userActivity: {
+            totalUsers: 0,
+            activeUsers: 0,
+            dailyActiveUsers: 0,
+            weeklyActiveUsers: 0,
+            monthlyActiveUsers: 0,
+            newUsersToday: 0,
+            newUsersThisWeek: 0
+          },
+          performance: {
+            cpuUsage: 0,
+            memoryUsage: 0,
+            diskUsage: 0,
+            networkLatency: 0,
+            averageResponseTime: 0,
+            peakResponseTime: 0,
+            totalRequests: 0,
+            successfulRequests: 0,
+            failedRequests: 0
+          },
+          revenue: {
+            totalRevenue: 0,
+            monthlyRevenue: 0,
+            revenueGrowth: []
+          },
+          trends: {
+            userGrowth: [],
+            applicationGrowth: [],
+            revenueGrowth: []
+          }
+        });
       }
     } catch (error) {
-      console.error('Error fetching analytics data:', error);
-      // Set default data to prevent crashes
+      console.error('❌ Error fetching analytics data:', error);
+      // Set minimal default data to prevent crashes - all zeros
       setAnalyticsData({
         systemHealth: {
           status: 'healthy',
-          uptime: 99.9,
-          responseTime: 150,
-          errorRate: 0.1
+          uptime: 0,
+          responseTime: 0,
+          errorRate: 0
         },
         userActivity: {
           totalUsers: 0,
@@ -99,12 +145,12 @@ const SuperAdminAnalytics: React.FC = () => {
           newUsersThisWeek: 0
         },
         performance: {
-          cpuUsage: 45,
-          memoryUsage: 60,
-          diskUsage: 30,
-          networkLatency: 25,
-          averageResponseTime: 120,
-          peakResponseTime: 450,
+          cpuUsage: 0,
+          memoryUsage: 0,
+          diskUsage: 0,
+          networkLatency: 0,
+          averageResponseTime: 0,
+          peakResponseTime: 0,
           totalRequests: 0,
           successfulRequests: 0,
           failedRequests: 0
