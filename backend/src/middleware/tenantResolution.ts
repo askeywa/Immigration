@@ -79,8 +79,8 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
     
     if (tenant) {
       // This is a registered tenant domain
-      // Check if tenant is active
-      if (!tenant.isActive()) {
+      // Check if tenant is active (lean query returns plain object, not Mongoose document)
+      if (tenant.status !== 'active' && tenant.status !== 'trial') {
         return next(new ValidationError(
           'Tenant account is suspended',
           'domain',
