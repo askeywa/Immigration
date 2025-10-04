@@ -275,9 +275,13 @@ const SuperAdminAnalytics: React.FC = () => {
                   <option value="90d">Last 90 days</option>
                 </select>
               </div>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                <ArrowPathIcon className="w-4 h-4 mr-2" />
-                Refresh
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={fetchAnalyticsData}
+                disabled={loading}
+              >
+                <ArrowPathIcon className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                {loading ? 'Refreshing...' : 'Refresh'}
               </Button>
             </div>
           </div>

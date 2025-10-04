@@ -19,7 +19,8 @@ import {
   ExclamationTriangleIcon,
   CalendarDaysIcon,
   ArrowDownTrayIcon,
-  EyeIcon
+  EyeIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 interface ReportData {
@@ -47,10 +48,30 @@ const SuperAdminReports: React.FC = () => {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30d');
+  
+  // Notification state
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error' | 'info';
+  }>({
+    show: false,
+    message: '',
+    type: 'info'
+  });
 
   useEffect(() => {
     fetchReportData();
   }, [dateRange]);
+
+  // Helper function to show notifications
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setNotification({ show: true, message, type });
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, show: false }));
+    }, 3000);
+  };
 
   const fetchReportData = async () => {
     try {
@@ -157,7 +178,24 @@ const SuperAdminReports: React.FC = () => {
                   <option value="1y">Last year</option>
                 </select>
               </div>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  // Create a detailed report view or modal
+                  const detailedReport = {
+                    dateRange,
+                    timestamp: new Date().toISOString(),
+                    data: reportData,
+                    summary: {
+                      totalRevenue: reportData?.revenue?.yearly || 0,
+                      growthRate: 15.2, // This could be calculated dynamically
+                      topPerformingTenant: reportData?.topTenants?.[0]?.name || 'N/A'
+                    }
+                  };
+                  console.log('Detailed Report:', detailedReport);
+                  showNotification('Detailed report generated! Check console for full data.', 'success');
+                }}
+              >
                 <EyeIcon className="w-4 h-4 mr-2" />
                 View Details
               </Button>
@@ -385,6 +423,47 @@ const SuperAdminReports: React.FC = () => {
           </motion.div>
         </div>
       </div>
+      
+      {/* Notification */}
+      {notification.show && (
+        <div className="fixed top-4 right-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border ${
+              notification.type === 'success' 
+                ? 'bg-green-50 dark:bg-green-900/50 border-green-200 dark:border-green-700 text-green-800 dark:text-green-200'
+                : notification.type === 'error'
+                ? 'bg-red-50 dark:bg-red-900/50 border-red-200 dark:border-red-700 text-red-800 dark:text-red-200'
+                : 'bg-blue-50 dark:bg-blue-900/50 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200'
+            }`}
+          >
+            <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
+              notification.type === 'success' 
+                ? 'bg-green-500 text-white'
+                : notification.type === 'error'
+                ? 'bg-red-500 text-white'
+                : 'bg-blue-500 text-white'
+            }`}>
+              {notification.type === 'success' ? (
+                <CheckCircleIcon className="w-3 h-3" />
+              ) : notification.type === 'error' ? (
+                <XCircleIcon className="w-3 h-3" />
+              ) : (
+                <ExclamationTriangleIcon className="w-3 h-3" />
+              )}
+            </div>
+            <p className="text-sm font-medium">{notification.message}</p>
+            <button
+              onClick={() => setNotification(prev => ({ ...prev, show: false }))}
+              className="flex-shrink-0 ml-2 text-current hover:opacity-70 transition-opacity"
+            >
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

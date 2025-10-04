@@ -33,7 +33,9 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
-  ClockIcon
+  ClockIcon,
+  Squares2X2Icon,
+  ListBulletIcon
 } from '@heroicons/react/24/outline';
 
 // Color utility functions for status and plan badges
@@ -521,6 +523,18 @@ const SuperAdminTenants: React.FC = () => {
   
   // Filter state
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  // View mode state (grid/list toggle)
+  const [viewMode, setViewMode] = useState<'card' | 'list'>(() => {
+    const saved = localStorage.getItem('tenantListViewMode');
+    return (saved === 'card' || saved === 'list') ? saved : 'card';
+  });
+
+  // Function to handle view mode change
+  const handleViewModeChange = (mode: 'card' | 'list') => {
+    setViewMode(mode);
+    localStorage.setItem('tenantListViewMode', mode);
+  };
   
   // Auto-save hook for unsaved changes
   useAutoSave({
@@ -1407,6 +1421,26 @@ const SuperAdminTenants: React.FC = () => {
                   />
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={viewMode === 'card' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => handleViewModeChange('card')}
+                  data-testid="view-mode-card"
+                  className={`px-3 py-2 ${viewMode === 'card' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                >
+                  <Squares2X2Icon className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => handleViewModeChange('list')}
+                  data-testid="view-mode-list"
+                  className={`px-3 py-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                >
+                  <ListBulletIcon className="w-4 h-4" />
+                </Button>
+              </div>
               <div className="flex gap-3">
                 <select
                   value={statusFilter}
@@ -1424,8 +1458,10 @@ const SuperAdminTenants: React.FC = () => {
         </div>
 
         {/* Tenants Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8" key={`tenants-grid-${searchTerm}-${statusFilter}`}>
-          {paginatedTenants.map((tenant) => (
+        {/* Tenants Display */}
+        {viewMode === 'card' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8" key={`tenants-grid-${searchTerm}-${statusFilter}`}>
+            {paginatedTenants.map((tenant) => (
             <motion.div
               key={tenant._id}
               initial={{ opacity: 0, y: 20 }}
@@ -1552,7 +1588,114 @@ const SuperAdminTenants: React.FC = () => {
               </div>
             </motion.div>
           ))}
-        </div>
+          </div>
+        ) : (
+          /* List View */
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-8" key={`tenants-list-${searchTerm}-${statusFilter}`}>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Tenant
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Domain
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Plan
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {paginatedTenants.map((tenant) => (
+                    <motion.tr
+                      key={tenant._id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                              <BuildingOfficeIcon className="h-6 w-6 text-white" />
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {tenant.name}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              {tenant.contactInfo?.email || 'No email'}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 dark:text-white">
+                          {tenant.domain}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Badge className={`${getStatusColor(tenant.status)} text-xs border`}>
+                          {getStatusIcon(tenant.status)}
+                          <span className="ml-1">{tenant.status}</span>
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Badge className={`${getPlanColor(tenant.subscription?.planName || 'Standard')} text-xs border`}>
+                          {tenant.subscription?.planName || 'Standard'}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {new Date(tenant.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewDetails(tenant)}
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
+                          >
+                            <EyeIcon className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleManage(tenant)}
+                            className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-700"
+                          >
+                            <CogIcon className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(tenant)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
 
         {/* Pagination Controls */}
