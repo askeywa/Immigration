@@ -9,7 +9,7 @@ import {
   switchTenant, 
   refreshToken 
 } from '../controllers/authController';
-import { validateLogin, validateRegister } from '../middleware/validation';
+import { validateLogin, validateRegister, validateLoginMiddleware } from '../middleware/validation';
 import { authenticate } from '../middleware/auth';
 import { resolveTenant } from '../middleware/tenantResolution';
 import { rowLevelSecurity } from '../middleware/rowLevelSecurity';
@@ -18,7 +18,7 @@ import { authRateLimit, globalRateLimit } from '../middleware/rateLimiting';
 const router = Router();
 
 // Public routes with tenant resolution and rate limiting
-router.post('/login', authRateLimit, resolveTenant, rowLevelSecurity, ...validateLogin, login);
+router.post('/login', authRateLimit, resolveTenant, rowLevelSecurity, ...validateLoginMiddleware, login);
 router.post('/register', authRateLimit, resolveTenant, rowLevelSecurity, ...validateRegister, register);
 
 // Protected routes with authentication and rate limiting

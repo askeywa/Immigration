@@ -1,5 +1,6 @@
 // backend/src/server.ts
 import dotenv from 'dotenv';
+import path from 'path';
 
 // Load environment variables FIRST before any other imports
 // Look for .env file in the current directory (backend/)
@@ -309,12 +310,54 @@ app.use('/api/super-admin', superAdminRoutes);
 import tenantApiRoutes from './routes/tenantApiRoutes';
 app.use('/api/v1', tenantApiRoutes);
 
-// 404 handler
-app.use('*', (req: any, res: any) => {
-  (res as any).status(404).json({
-    status: 'error',
-    message: `Route ${(req as any).originalUrl} not found`
+// ==================== FRONTEND SERVING ====================
+// CommonJS already has __dirname available
+
+// Path to frontend build
+const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+
+console.log('Frontend dist path:', frontendDistPath);
+
+// Serve static files from React build (CSS, JS, images, etc.)
+app.use(express.static(frontendDistPath, {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+  etag: true,
+  lastModified: true,
+  index: false // Don't auto-serve index.html for directory requests
+}));
+
+// SPA fallback: Serve index.html for all non-API routes
+app.get('*', (req, res, next) => {
+  // Skip if it's an API route
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  
+  console.log(`Serving React app for route: ${req.path}`);
+  
+  // Serve index.html for client-side routing
+  res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+    if (err) {
+      console.error('Error serving index.html:', err);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to load application',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      });
+    }
   });
+});
+// ==================== END FRONTEND SERVING ====================
+
+// 404 handler (for API routes only - now handled above for frontend)
+app.use('*', (req: any, res: any) => {
+  // This should only catch API routes that weren't handled
+  if (req.path.startsWith('/api/')) {
+    (res as any).status(404).json({
+      status: 'error',
+      message: `API route ${(req as any).originalUrl} not found`
+    });
+  }
 });
 
 // Error tracking middleware (before error handler)
