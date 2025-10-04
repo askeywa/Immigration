@@ -16,6 +16,10 @@ const AuthCallback: React.FC = () => {
     const processAuthCallback = async () => {
       try {
         console.log('🔄 AuthCallback: Starting auth data processing...');
+        console.log('🔍 Full URL:', window.location.href);
+        console.log('🔍 Pathname:', window.location.pathname);
+        console.log('🔍 Search:', window.location.search);
+        console.log('🔍 Hash:', window.location.hash);
         setDebugInfo('Starting authentication data processing...');
         
         // Get encoded auth data from URL
