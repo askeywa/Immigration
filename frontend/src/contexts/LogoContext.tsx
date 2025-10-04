@@ -1,6 +1,7 @@
 // frontend/src/contexts/LogoContext.tsx
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useAuthStore } from '@/store/authStore';
 import { 
   LogoFile, 
   LogoContextType, 
@@ -60,14 +61,16 @@ export const LogoProvider: React.FC<LogoProviderProps> = ({
   });
 
   const { tenant } = useTenant();
+  const { isAuthenticated, token } = useAuthStore();
   const currentTenantId = tenant?._id || tenantId;
 
   // Load logos on mount and when tenant changes
+  // CRITICAL: Only load if authenticated and token is available
   useEffect(() => {
-    if (currentTenantId) {
+    if (currentTenantId && isAuthenticated && token) {
       loadLogos();
     }
-  }, [currentTenantId]);
+  }, [currentTenantId, isAuthenticated, token]);
 
   // Update logo service configuration
   useEffect(() => {

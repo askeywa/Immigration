@@ -72,35 +72,37 @@ function App() {
         <ToastProvider>
           <TenantProvider>
             <ThemeProvider>
-              <LogoProvider>
-                <CSSInjectionProvider>
-                  <SessionSecurity>
-                    <Suspense fallback={
-                      <div className="flex justify-center items-center min-h-screen">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-                      </div>
-                    }>
-                      <Routes key={`${isAuthenticated}-${user?.role}-${!!tenant}`}>
-                      {!isAuthenticated ? (
-                        <>
-                          <Route path="/login" element={<Login />} />
-                          <Route path="/register" element={<Register />} />
-                          <Route path="/auth-callback" element={<AuthCallback />} />
-                          <Route path="*" element={<Navigate to="/login" replace />} />
-                        </>
-                      ) : !tenant && user?.role !== 'super_admin' ? (
-                        <>
-                          <Route path="/tenant-selection" element={<TenantSelection />} />
-                          <Route path="*" element={<TenantSelectionRedirect />} />
-                        </>
-                      ) : (
-                        <Route path="*" element={<TenantRouter />} />
-                      )}
-                      </Routes>
-                    </Suspense>
-                  </SessionSecurity>
-                </CSSInjectionProvider>
-              </LogoProvider>
+              <CSSInjectionProvider>
+                <SessionSecurity>
+                  <Suspense fallback={
+                    <div className="flex justify-center items-center min-h-screen">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+                    </div>
+                  }>
+                    <Routes>
+                    {!isAuthenticated ? (
+                      <>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/auth-callback" element={<AuthCallback />} />
+                        <Route path="*" element={<Navigate to="/login" replace />} />
+                      </>
+                    ) : !tenant && user?.role !== 'super_admin' ? (
+                      <>
+                        <Route path="/tenant-selection" element={<TenantSelection />} />
+                        <Route path="*" element={<TenantSelectionRedirect />} />
+                      </>
+                    ) : (
+                      <Route path="*" element={
+                        <LogoProvider>
+                          <TenantRouter />
+                        </LogoProvider>
+                      } />
+                    )}
+                    </Routes>
+                  </Suspense>
+                </SessionSecurity>
+              </CSSInjectionProvider>
             </ThemeProvider>
           </TenantProvider>
         </ToastProvider>
