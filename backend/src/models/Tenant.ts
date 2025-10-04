@@ -3,7 +3,17 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ITenant extends Document {
   name: string;
-  domain: string;
+  domain: string; // Primary subdomain (e.g., "honeynwild.ibuyscrap.ca")
+  customDomains: string[]; // Array of approved custom domains (e.g., ["honeynwild.com"])
+  trustedDomains: string[]; // All trusted domains (computed)
+  domainApprovals: Array<{
+    domain: string;
+    status: 'pending' | 'approved' | 'rejected';
+    requestedAt: Date;
+    approvedAt?: Date;
+    approvedBy?: mongoose.Types.ObjectId;
+    rejectionReason?: string;
+  }>;
   status: 'active' | 'suspended' | 'trial' | 'cancelled' | 'expired';
   settings: {
     maxUsers: number;
@@ -40,6 +50,8 @@ export interface ITenant extends Document {
   // Methods
   isActive(): boolean;
   isTrialExpired(): boolean;
+  getAllTrustedDomains(): string[];
+  hasDomainAccess(domain: string): boolean;
 }
 
 const tenantSchema = new Schema<ITenant>({
@@ -73,6 +85,34 @@ const tenantSchema = new Schema<ITenant>({
       message: 'Invalid domain format - must be a valid domain with dots in production (e.g., example.com)'
     }
   },
+  customDomains: [{
+    type: String,
+    lowercase: true,
+    trim: true,
+  }],
+  domainApprovals: [{
+    domain: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    requestedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    approvedAt: Date,
+    approvedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    rejectionReason: String,
+  }],
   status: {
     type: String,
     enum: ['active', 'suspended', 'trial', 'cancelled', 'expired'],
@@ -168,6 +208,10 @@ const tenantSchema = new Schema<ITenant>({
 tenantSchema.index({ status: 1, createdAt: -1 });
 tenantSchema.index({ 'contactInfo.email': 1 });
 tenantSchema.index({ 'subscription.status': 1 });
+// New indexes for domain lookups
+tenantSchema.index({ customDomains: 1 });
+tenantSchema.index({ 'domainApprovals.domain': 1 });
+tenantSchema.index({ 'domainApprovals.status': 1 });
 
 // Virtual for subscription days remaining
 tenantSchema.virtual('daysRemaining').get(function() {
@@ -189,6 +233,11 @@ tenantSchema.virtual('trialDaysRemaining').get(function() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
   return null;
+});
+
+// Virtual for all trusted domains
+tenantSchema.virtual('trustedDomains').get(function() {
+  return this.getAllTrustedDomains();
 });
 
 // Pre-save middleware to set trial end date
@@ -222,6 +271,23 @@ tenantSchema.methods.isTrialExpired = function(): boolean {
     return false;
   }
   return new Date() > this.subscription.trialEndDate;
+};
+
+// Instance method to get all trusted domains
+tenantSchema.methods.getAllTrustedDomains = function(): string[] {
+  const domains = [this.domain]; // Primary subdomain
+  
+  // Add approved custom domains
+  const approvedCustomDomains = this.customDomains || [];
+  domains.push(...approvedCustomDomains);
+  
+  return [...new Set(domains)]; // Remove duplicates
+};
+
+// Instance method to check domain access
+tenantSchema.methods.hasDomainAccess = function(domain: string): boolean {
+  const trustedDomains = this.getAllTrustedDomains();
+  return trustedDomains.includes(domain.toLowerCase());
 };
 
 export const Tenant = mongoose.model<ITenant>('Tenant', tenantSchema);

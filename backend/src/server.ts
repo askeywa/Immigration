@@ -74,6 +74,7 @@ import {
   tenantSecurityValidation,
   contentTypeValidation
 } from './middleware/securityHardening';
+import { dynamicCorsSecurity } from './middleware/dynamicCorsSecurity';
 import { 
   bulletproofTenantIsolation,
   databaseQueryIsolation,
@@ -145,7 +146,8 @@ app.use(comprehensiveLogging);
 
 // Security middleware (order is important!)
 app.use(securityHeaders());
-app.use(corsSecurity());
+// ENHANCED: Dynamic CORS with multi-domain tenant support
+app.use(dynamicCorsSecurity());
 
 // Trust proxy for rate limiting with X-Forwarded-For headers
 // This is essential for proper rate limiting behind a reverse proxy (Nginx)
