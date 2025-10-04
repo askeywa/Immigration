@@ -9,10 +9,23 @@ import { SessionService } from '../services/sessionService';
 import { log } from '../utils/logger';
 
 export const login = asyncHandler(async (req: TenantRequest, res: Response) => {
+  // CRITICAL DEBUG: Log all incoming request details
+  console.log('🔍 LOGIN DEBUG - Request received:', {
+    body: req.body,
+    headers: {
+      'content-type': req.get('content-type'),
+      'x-original-host': req.get('x-original-host'),
+      'x-tenant-domain': req.get('x-tenant-domain')
+    },
+    bodyType: typeof req.body,
+    bodyKeys: req.body ? Object.keys(req.body) : 'no body'
+  });
+
   const { email, password, tenantDomain } = req.body;
 
   // SECURITY: Comprehensive input validation
   if (!email || !password) {
+    console.log('❌ LOGIN DEBUG - Missing email or password:', { email: !!email, password: !!password });
     return res.status(400).json({ 
       success: false,
       message: 'Email and password are required' 
