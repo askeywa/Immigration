@@ -117,8 +117,9 @@ export class AuthService {
       throw new AuthenticationError('Invalid tenant access');
     }
 
-    // Check if tenant is active
-    if (!tenant.isActive()) {
+    // Check if tenant is active (handle both Mongoose documents and plain objects)
+    const isTenantActive = tenant.status === 'active' || tenant.status === 'trial';
+    if (!isTenantActive) {
       throw new AuthenticationError('Account access is temporarily suspended');
     }
 
@@ -330,7 +331,7 @@ export class AuthService {
   }, createdBy: string): Promise<{ user: IUser; token: string }> {
     // Validate tenant exists and is active
     const tenant = await Tenant.findById(userData.tenantId);
-    if (!tenant || !(tenant as any).isActive()) {
+    if (!tenant || (tenant.status !== 'active' && tenant.status !== 'trial')) {
       throw new ValidationError('Invalid or inactive tenant', 'tenantId', userData.tenantId);
     }
 
@@ -418,7 +419,7 @@ export class AuthService {
       }
 
       // Check if tenant is active
-      if (!tenant.isActive()) {
+      if (tenant.status !== 'active' && tenant.status !== 'trial') {
         throw new AuthenticationError('Tenant account is suspended');
       }
 
