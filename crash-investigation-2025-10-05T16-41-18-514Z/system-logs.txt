@@ -1,0 +1,4 @@
+Error: Command failed: ssh -i "C:\Main_Data\AI\_Keys\node-key.pem" ubuntu@ec2-18-220-224-109.us-east-2.compute.amazonaws.com "sudo journalctl -u node --since "24 hours ago" --no-pager"
+Failed to parse timestamp: 24
+
+Failed to parse timestamp: 24

@@ -2,7 +2,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IAuditLog extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId | string; // Allow 'system' string for automated actions
   userEmail: string;
   action: string;
   resource: string;
@@ -29,10 +29,16 @@ export interface IAuditLog extends Document {
 
 const auditLogSchema = new Schema<IAuditLog>({
   userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
+    type: Schema.Types.Mixed, // Allow both ObjectId and string ('system')
     required: true,
-    index: true
+    index: true,
+    validate: {
+      validator: function(v: any) {
+        // Accept 'system' string or valid ObjectId
+        return v === 'system' || mongoose.Types.ObjectId.isValid(v);
+      },
+      message: 'userId must be a valid ObjectId or "system"'
+    }
   },
   userEmail: {
     type: String,
@@ -47,7 +53,8 @@ const auditLogSchema = new Schema<IAuditLog>({
       'login', 'logout', 'password_change', 'password_reset',
       'suspend', 'activate', 'cancel', 'renew',
       'export', 'import', 'backup', 'restore',
-      'configure', 'deploy', 'maintenance'
+      'configure', 'deploy', 'maintenance',
+      'performance_alert', 'health_check', 'cron_job', 'system_event' // Added for system monitoring
     ],
     index: true
   },
@@ -57,7 +64,8 @@ const auditLogSchema = new Schema<IAuditLog>({
     enum: [
       'user', 'tenant', 'subscription', 'profile',
       'role', 'permission', 'system', 'billing',
-      'audit_log', 'file', 'report'
+      'audit_log', 'file', 'report',
+      'performance', 'monitoring', 'alert', 'notification' // Added for monitoring resources
     ],
     index: true
   },

@@ -21,24 +21,33 @@ export const connectDatabase = async (): Promise<void> => {
         }
       }
 
-      // Use direct connection for both production and development
-      // The cluster manager was causing URI parsing issues
+      // Optimized connection settings to prevent timeouts and connection pool exhaustion
       const mongooseOptions: mongoose.ConnectOptions = {
-        // Connection pool settings
-        maxPoolSize: process.env.NODE_ENV === 'production' ? 10 : 5,
-        minPoolSize: process.env.NODE_ENV === 'production' ? 2 : 1,
+        // Connection pool settings - REDUCED to prevent exhaustion
+        maxPoolSize: process.env.NODE_ENV === 'production' ? 5 : 3, // Reduced from 10/5
+        minPoolSize: process.env.NODE_ENV === 'production' ? 1 : 1, // Reduced from 2/1
         
-        // Timeout settings
-        serverSelectionTimeoutMS: 10000, // Increased for EC2
-        socketTimeoutMS: 45000,
-        connectTimeoutMS: 15000, // Increased for EC2
+        // Timeout settings - INCREASED to handle slow networks
+        serverSelectionTimeoutMS: 30000, // Increased from 10000 (30 seconds)
+        socketTimeoutMS: 60000, // Increased from 45000 (60 seconds)
+        connectTimeoutMS: 30000, // Increased from 15000 (30 seconds)
+        
+        // Heartbeat settings - Monitor connection health
+        heartbeatFrequencyMS: 10000, // Check connection every 10 seconds
         
         // Retry settings
         retryWrites: true,
         retryReads: true,
         
-        // Memory management
-        maxIdleTimeMS: 30000,
+        // Memory management - Release idle connections faster
+        maxIdleTimeMS: 60000, // Increased from 30000 (60 seconds)
+        
+        // Connection acquisition timeout - Prevent hanging queries
+        waitQueueTimeoutMS: 20000, // 20 seconds max wait for connection from pool
+        
+        // Auto-reconnect settings
+        autoCreate: true,
+        autoIndex: false, // Disable auto-indexing in production for performance
       };
 
       // Add production-specific options

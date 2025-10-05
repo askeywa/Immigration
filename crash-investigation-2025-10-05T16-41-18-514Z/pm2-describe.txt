@@ -1,0 +1,60 @@
+ Describing process with id 0 - name immigration-portal 
+┌───────────────────┬─────────────────────────────────────────────────────┐
+│ status            │ online                                              │
+│ name              │ immigration-portal                                  │
+│ namespace         │ default                                             │
+│ version           │ 1.0.0                                               │
+│ restarts          │ 4                                                   │
+│ uptime            │ 9h                                                  │
+│ script path       │ /var/www/immigration-portal/backend/dist/server.js  │
+│ script args       │ N/A                                                 │
+│ error log path    │ /home/ubuntu/.pm2/logs/immigration-portal-error.log │
+│ out log path      │ /home/ubuntu/.pm2/logs/immigration-portal-out.log   │
+│ pid path          │ /home/ubuntu/.pm2/pids/immigration-portal-0.pid     │
+│ interpreter       │ node                                                │
+│ interpreter args  │ N/A                                                 │
+│ script id         │ 0                                                   │
+│ exec cwd          │ /var/www/immigration-portal/backend                 │
+│ exec mode         │ fork_mode                                           │
+│ node.js version   │ 22.20.0                                             │
+│ node env          │ N/A                                                 │
+│ watch & reload    │ ✘                                                   │
+│ unstable restarts │ 0                                                   │
+│ created at        │ 2025-10-05T06:48:39.108Z                            │
+└───────────────────┴─────────────────────────────────────────────────────┘
+ Actions available 
+┌────────────────────────┐
+│ km:heapdump            │
+│ km:cpu:profiling:start │
+│ km:cpu:profiling:stop  │
+│ km:heap:sampling:start │
+│ km:heap:sampling:stop  │
+└────────────────────────┘
+ Trigger via: pm2 trigger immigration-portal <action_name>
+
+ Code metrics value 
+┌────────────────────────┬──────────────────────┐
+│ Used Heap Size         │ 76.57 MiB            │
+│ Heap Usage             │ 91.33 %              │
+│ Heap Size              │ 83.84 MiB            │
+│ Event Loop Latency p95 │ 1.03 ms              │
+│ Event Loop Latency     │ 0.28 ms              │
+│ Active handles         │ 20                   │
+│ Active requests        │ 17                   │
+│ HTTP                   │ 0 req/min            │
+│ HTTP P95 Latency       │ 648.0500000000001 ms │
+│ HTTP Mean Latency      │ 103 ms               │
+└────────────────────────┴──────────────────────┘
+ Divergent env variables from local env 
+┌────────────────┬─────────────────────────────────────┐
+│ PWD            │ /var/www/immigration-portal/backend │
+│ SSH_CONNECTION │ 70.26.15.225 52264 172.31.40.28 22  │
+│ SHLVL          │ 1                                   │
+│ XDG_SESSION_ID │ 271                                 │
+│ SSH_CLIENT     │ 70.26.15.225 52264 22               │
+└────────────────┴─────────────────────────────────────┘
+
+ Add your own code metrics: http://bit.ly/code-metrics
+ Use `pm2 logs immigration-portal [--lines 1000]` to display logs
+ Use `pm2 env 0` to display environment variables
+ Use `pm2 monit` to monitor CPU and Memory usage immigration-portal

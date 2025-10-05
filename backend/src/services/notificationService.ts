@@ -328,57 +328,93 @@ export class NotificationService {
     return newUsers.length;
   }
 
-  // Start automated notification checks with non-blocking execution
+  // Helper function with MongoDB timeout protection
+  private static async executeWithTimeout<T>(
+    operation: () => Promise<T>,
+    timeoutMs: number = 10000,
+    operationName: string = 'operation'
+  ): Promise<T | null> {
+    try {
+      const timeoutPromise = new Promise<null>((_, reject) => {
+        setTimeout(() => reject(new Error(`${operationName} timed out after ${timeoutMs}ms`)), timeoutMs);
+      });
+
+      const result = await Promise.race([
+        operation(),
+        timeoutPromise
+      ]);
+
+      return result as T;
+    } catch (error: any) {
+      // Log timeout errors but don't crash the app
+      if (error.message?.includes('timed out') || error.name === 'MongoNetworkTimeoutError') {
+        console.warn(`⚠️  ${operationName} timed out - skipping this run`);
+      } else {
+        console.error(`❌ ${operationName} failed:`, error.message);
+      }
+      return null;
+    }
+  }
+
+  // Start automated notification checks with non-blocking execution and timeout protection
   static startAutomatedChecks() {
-    // Check trial expirations daily at 9 AM - NON-BLOCKING
+    // Check trial expirations daily at 9 AM - NON-BLOCKING with TIMEOUT
     cron.schedule('0 9 * * *', () => {
       setImmediate(async () => {
-        try {
-          await this.checkTrialExpirations();
-          console.log('Trial expiration check completed');
-        } catch (error) {
-          console.error('Error checking trial expirations:', error);
+        const result = await this.executeWithTimeout(
+          () => this.checkTrialExpirations(),
+          20000, // 20 second timeout
+          'Trial expiration check'
+        );
+        if (result !== null) {
+          console.log('✅ Trial expiration check completed:', result);
         }
       });
     }, { timezone: 'UTC' });
 
-    // Check payment failures every 6 hours (reduced frequency) - NON-BLOCKING
+    // Check payment failures every 6 hours (reduced frequency) - NON-BLOCKING with TIMEOUT
     cron.schedule('0 */6 * * *', () => {
       setImmediate(async () => {
-        try {
-          await this.checkPaymentFailures();
-          console.log('Payment failure check completed');
-        } catch (error) {
-          console.error('Error checking payment failures:', error);
+        const result = await this.executeWithTimeout(
+          () => this.checkPaymentFailures(),
+          20000, // 20 second timeout
+          'Payment failure check'
+        );
+        if (result !== null) {
+          console.log('✅ Payment failure check completed:', result);
         }
       });
     }, { timezone: 'UTC' });
 
-    // Check system health every 2 hours (reduced frequency) - NON-BLOCKING
+    // Check system health every 2 hours (reduced frequency) - NON-BLOCKING with TIMEOUT
     cron.schedule('0 */2 * * *', () => {
       setImmediate(async () => {
-        try {
-          await this.checkSystemHealth();
-          console.log('System health check completed');
-        } catch (error) {
-          console.error('Error checking system health:', error);
+        const result = await this.executeWithTimeout(
+          () => this.checkSystemHealth(),
+          20000, // 20 second timeout
+          'System health check'
+        );
+        if (result !== null) {
+          console.log('✅ System health check completed');
         }
       });
     }, { timezone: 'UTC' });
 
-    // Check new user registrations daily at 8 AM - NON-BLOCKING
+    // Check new user registrations daily at 8 AM - NON-BLOCKING with TIMEOUT
     cron.schedule('0 8 * * *', () => {
       setImmediate(async () => {
-        try {
-          await this.checkNewUserRegistrations();
-          console.log('New user registration check completed');
-        } catch (error) {
-          console.error('Error checking new user registrations:', error);
+        const result = await this.executeWithTimeout(
+          () => this.checkNewUserRegistrations(),
+          20000, // 20 second timeout
+          'New user registration check'
+        );
+        if (result !== null) {
+          console.log('✅ New user registration check completed:', result);
         }
       });
     }, { timezone: 'UTC' });
 
-    console.log('Automated notification checks started with non-blocking execution');
+    console.log('✅ Automated notification checks started with timeout protection and non-blocking execution');
   }
 
   // Manual notification creation helpers

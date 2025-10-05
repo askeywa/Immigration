@@ -1,0 +1,657 @@
+[TAILING] Tailing last 500 lines for [immigration-portal] process (change the value with --lines option)
+/home/ubuntu/.pm2/logs/immigration-portal-error.log last 500 lines:
+0|immigrat | Error checking trial expirations: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15000ms (connectTimeoutMS: 15000)
+0|immigrat |     at TLSSocket.<anonymous> (/var/www/immigration-portal/backend/node_modules/mongodb/src/cmap/connect.ts:399:11)
+0|immigrat |     at Object.onceWrapper (node:events:633:28)
+0|immigrat |     at TLSSocket.emit (node:events:519:28)
+0|immigrat |     at TLSSocket.Socket._onTimeout (node:net:604:8)
+0|immigrat |     at listOnTimeout (node:internal/timers:588:17)
+0|immigrat |     at processTimers (node:internal/timers:523:7) {
+0|immigrat |   errorLabelSet: Set(0) {},
+0|immigrat |   beforeHandshake: false,
+0|immigrat |   connectionGeneration: 0,
+0|immigrat |   [cause]: undefined
+0|immigrat | }
+0|immigrat | Error checking system health: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 14999ms (connectTimeoutMS: 15000)
+0|immigrat |     at TLSSocket.<anonymous> (/var/www/immigration-portal/backend/node_modules/mongodb/src/cmap/connect.ts:399:11)
+0|immigrat |     at Object.onceWrapper (node:events:633:28)
+0|immigrat |     at TLSSocket.emit (node:events:519:28)
+0|immigrat |     at TLSSocket.Socket._onTimeout (node:net:604:8)
+0|immigrat |     at listOnTimeout (node:internal/timers:588:17)
+0|immigrat |     at processTimers (node:internal/timers:523:7) {
+0|immigrat |   errorLabelSet: Set(0) {},
+0|immigrat |   beforeHandshake: false,
+0|immigrat |   connectionGeneration: 0,
+0|immigrat |   [cause]: undefined
+0|immigrat | }
+0|immigrat | Error checking system health: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15000ms (connectTimeoutMS: 15000)
+0|immigrat |     at TLSSocket.<anonymous> (/var/www/immigration-portal/backend/node_modules/mongodb/src/cmap/connect.ts:399:11)
+0|immigrat |     at Object.onceWrapper (node:events:633:28)
+0|immigrat |     at TLSSocket.emit (node:events:519:28)
+0|immigrat |     at TLSSocket.Socket._onTimeout (node:net:604:8)
+0|immigrat |     at listOnTimeout (node:internal/timers:588:17)
+0|immigrat |     at processTimers (node:internal/timers:523:7) {
+0|immigrat |   errorLabelSet: Set(0) {},
+0|immigrat |   beforeHandshake: false,
+0|immigrat |   connectionGeneration: 0,
+0|immigrat |   [cause]: undefined
+0|immigrat | }
+0|immigrat | Error checking payment failures: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 14999ms (connectTimeoutMS: 15000)
+0|immigrat |     at TLSSocket.<anonymous> (/var/www/immigration-portal/backend/node_modules/mongodb/src/cmap/connect.ts:399:11)
+0|immigrat |     at Object.onceWrapper (node:events:633:28)
+0|immigrat |     at TLSSocket.emit (node:events:519:28)
+0|immigrat |     at TLSSocket.Socket._onTimeout (node:net:604:8)
+0|immigrat |     at listOnTimeout (node:internal/timers:588:17)
+0|immigrat |     at processTimers (node:internal/timers:523:7) {
+0|immigrat |   errorLabelSet: Set(0) {},
+0|immigrat |   beforeHandshake: false,
+0|immigrat |   connectionGeneration: 0,
+0|immigrat |   [cause]: undefined
+0|immigrat | }
+0|immigrat | Error checking system health: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 14999ms (connectTimeoutMS: 15000)
+0|immigrat |     at TLSSocket.<anonymous> (/var/www/immigration-portal/backend/node_modules/mongodb/src/cmap/connect.ts:399:11)
+0|immigrat |     at Object.onceWrapper (node:events:633:28)
+0|immigrat |     at TLSSocket.emit (node:events:519:28)
+0|immigrat |     at TLSSocket.Socket._onTimeout (node:net:604:8)
+0|immigrat |     at listOnTimeout (node:internal/timers:588:17)
+0|immigrat |     at processTimers (node:internal/timers:523:7) {
+0|immigrat |   errorLabelSet: Set(0) {},
+0|immigrat |   beforeHandshake: false,
+0|immigrat |   connectionGeneration: 0,
+0|immigrat |   [cause]: undefined
+0|immigrat | }
+0|immigrat | Error: AuditLog validation failed: userId: Cast to ObjectId failed for value "system" (type string) at path "userId" because of "BSONError", action: `performance_alert` is not a valid enum value for path `action`., resource: `Performance alert: Slow respon...` is not a valid enum value for path `resource`.
+0|immigrat |     at ValidationError.inspect (/var/www/immigration-portal/backend/node_modules/mongoose/lib/error/validation.js:52:26)
+0|immigrat |     at formatValue (node:internal/util/inspect:887:19)
+0|immigrat |     at inspect (node:internal/util/inspect:409:10)
+0|immigrat |     at formatWithOptionsInternal (node:internal/util/inspect:2579:40)
+0|immigrat |     at formatWithOptions (node:internal/util/inspect:2441:10)
+0|immigrat |     at console.value (node:internal/console/constructor:345:14)
+0|immigrat |     at console.error (node:internal/console/constructor:412:61)
+0|immigrat |     at console.error (/var/www/immigration-portal/backend/node_modules/@sentry/node-core/node_modules/@sentry/core/src/instrument/console.ts:39:14)
+0|immigrat |     at NotifyFeature.onUnhandledRejection (/usr/lib/node_modules/pm2/node_modules/@pm2/io/build/main/features/notify.js:138:17)
+0|immigrat |     at process.emit (node:events:531:35) {
+0|immigrat |   errors: {
+0|immigrat |     userId: CastError: Cast to ObjectId failed for value "system" (type string) at path "userId" because of "BSONError"
+0|immigrat |         at SchemaObjectId.cast (/var/www/immigration-portal/backend/node_modules/mongoose/lib/schema/objectId.js:251:11)
+0|immigrat |         at SchemaObjectId.SchemaType.applySetters (/var/www/immigration-portal/backend/node_modules/mongoose/lib/schemaType.js:1259:12)
+0|immigrat |         at model.$set (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:1442:22)
+0|immigrat |         at model.$set (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:1136:16)
+0|immigrat |         at model.Document (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:178:12)
+0|immigrat |         at model.Model (/var/www/immigration-portal/backend/node_modules/mongoose/lib/model.js:127:12)
+0|immigrat |         at new model (/var/www/immigration-portal/backend/node_modules/mongoose/lib/model.js:4845:15)
+0|immigrat |         at Function.auditLogSchema.statics.logAction (/var/www/immigration-portal/backend/src/models/AuditLog.ts:131:15)
+0|immigrat |         at Function.logAction (/var/www/immigration-portal/backend/src/services/auditLogService.ts:22:21)
+0|immigrat |         at /var/www/immigration-portal/backend/src/services/performanceMonitoringService.ts:576:25 {
+0|immigrat |       stringValue: '"system"',
+0|immigrat |       messageFormat: undefined,
+0|immigrat |       kind: 'ObjectId',
+0|immigrat |       value: 'system',
+0|immigrat |       path: 'userId',
+0|immigrat |       reason: BSONError: input must be a 24 character hex string, 12 byte Uint8Array, or an integer
+0|immigrat |           at new ObjectId (/var/www/immigration-portal/backend/node_modules/bson/src/objectid.ts:120:15)
+0|immigrat |           at castObjectId (/var/www/immigration-portal/backend/node_modules/mongoose/lib/cast/objectid.js:25:12)
+0|immigrat |           at SchemaObjectId.cast (/var/www/immigration-portal/backend/node_modules/mongoose/lib/schema/objectId.js:249:12)
+0|immigrat |           at SchemaObjectId.SchemaType.applySetters (/var/www/immigration-portal/backend/node_modules/mongoose/lib/schemaType.js:1259:12)
+0|immigrat |           at model.$set (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:1442:22)
+0|immigrat |           at model.$set (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:1136:16)
+0|immigrat |           at model.Document (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:178:12)
+0|immigrat |           at model.Model (/var/www/immigration-portal/backend/node_modules/mongoose/lib/model.js:127:12)
+0|immigrat |           at new model (/var/www/immigration-portal/backend/node_modules/mongoose/lib/model.js:4845:15)
+0|immigrat |           at Function.auditLogSchema.statics.logAction (/var/www/immigration-portal/backend/src/models/AuditLog.ts:131:15),
+0|immigrat |       valueType: 'string'
+0|immigrat |     },
+0|immigrat |     action: ValidatorError: `performance_alert` is not a valid enum value for path `action`.
+0|immigrat |         at validate (/var/www/immigration-portal/backend/node_modules/mongoose/lib/schemaType.js:1414:13)
+0|immigrat |         at SchemaString.SchemaType.doValidate (/var/www/immigration-portal/backend/node_modules/mongoose/lib/schemaType.js:1398:7)
+0|immigrat |         at /var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:3115:18
+0|immigrat |         at processTicksAndRejections (node:internal/process/task_queues:85:11) {
+0|immigrat |       properties: [Object],
+0|immigrat |       kind: 'enum',
+0|immigrat |       path: 'action',
+0|immigrat |       value: 'performance_alert',
+0|immigrat |       reason: undefined,
+0|immigrat |       [Symbol(mongoose#validatorError)]: true
+0|immigrat |     },
+0|immigrat |     resource: ValidatorError: `Performance alert: Slow respon...` is not a valid enum value for path `resource`.
+0|immigrat |         at validate (/var/www/immigration-portal/backend/node_modules/mongoose/lib/schemaType.js:1414:13)
+0|immigrat |         at SchemaString.SchemaType.doValidate (/var/www/immigration-portal/backend/node_modules/mongoose/lib/schemaType.js:1398:7)
+0|immigrat |         at /var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:3115:18
+0|immigrat |         at processTicksAndRejections (node:internal/process/task_queues:85:11) {
+0|immigrat |       properties: [Object],
+0|immigrat |       kind: 'enum',
+0|immigrat |       path: 'resource',
+0|immigrat |       value: 'Performance alert: Slow respon...',
+0|immigrat |       reason: undefined,
+0|immigrat |       [Symbol(mongoose#validatorError)]: true
+0|immigrat |     }
+0|immigrat |   },
+0|immigrat |   _message: 'AuditLog validation failed'
+0|immigrat | }
+0|immigrat | This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). The promise rejected with the reason:
+0|immigrat | ValidationError: AuditLog validation failed: userId: Cast to ObjectId failed for value "system" (type string) at path "userId" because of "BSONError", action: `performance_alert` is not a valid enum value for path `action`., resource: `Performance alert: Slow respon...` is not a valid enum value for path `resource`.
+0|immigrat |     at model.Document.invalidate (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:3362:32)
+0|immigrat |     at model.$set (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:1484:12)
+0|immigrat |     at model.$set (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:1136:16)
+0|immigrat |     at model.Document (/var/www/immigration-portal/backend/node_modules/mongoose/lib/document.js:178:12)
+0|immigrat |     at model.Model (/var/www/immigration-portal/backend/node_modules/mongoose/lib/model.js:127:12)
+0|immigrat |     at new model (/var/www/immigration-portal/backend/node_modules/mongoose/lib/model.js:4845:15)
+0|immigrat |     at Function.auditLogSchema.statics.logAction (/var/www/immigration-portal/backend/src/models/AuditLog.ts:131:15)
+0|immigrat |     at Function.logAction (/var/www/immigration-portal/backend/src/services/auditLogService.ts:22:21)
+0|immigrat |     at /var/www/immigration-portal/backend/src/services/performanceMonitoringService.ts:576:25
+0|immigrat |     at Array.forEach (<anonymous>)
+0|immigrat | Error checking system health: MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 14999ms (connectTimeoutMS: 15000)
+0|immigrat |     at TLSSocket.<anonymous> (/var/www/immigration-portal/backend/node_modules/mongodb/src/cmap/connect.ts:399:11)
+0|immigrat |     at Object.onceWrapper (node:events:633:28)
+0|immigrat |     at TLSSocket.emit (node:events:519:28)
+0|immigrat |     at TLSSocket.Socket._onTimeout (node:net:604:8)
+0|immigrat |     at listOnTimeout (node:internal/timers:588:17)
+0|immigrat |     at processTimers (node:internal/timers:523:7) {
+0|immigrat |   errorLabelSet: Set(0) {},
+0|immigrat |   beforeHandshake: false,
+0|immigrat |   connectionGeneration: 0,
+0|immigrat |   [cause]: undefined
+0|immigrat | }
+
+/home/ubuntu/.pm2/logs/immigration-portal-out.log last 500 lines:
+0|immigrat | }
+0|immigrat | 🔍 AuthService.login called with: {
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   passwordLength: 9,
+0|immigrat |   tenantDomain: 'honeynwild.com',
+0|immigrat |   tenantId: '68e099ac79418e10721252ca'
+0|immigrat | }
+0|immigrat | 🔍 Searching for user with email: admin@honeynwild.com
+0|immigrat | ✅ User found: {
+0|immigrat |   userId: '68e099ac79418e10721252cd',
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   role: 'tenant_admin',
+0|immigrat |   isActive: true,
+0|immigrat |   isSuperAdmin: false
+0|immigrat | }
+0|immigrat | 🔍 Checking password...
+0|immigrat | ✅ Password is valid for user: admin@honeynwild.com
+0|immigrat | 172.69.130.174 - - [05/Oct/2025:07:23:09 +0000] "POST /api/auth/login HTTP/1.1" 200 - "https://honeynwild.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 108.162.241.196 - - [05/Oct/2025:07:23:09 +0000] "GET /api/logos/current HTTP/1.1" 304 - "https://ibuyscrap.ca/auth-callback?data=%7B%22user%22%3A%7B%22profile%22%3A%7B%22timezone%22%3A%22UTC%22%2C%22language%22%3A%22en%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252cd%22%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22firstName%22%3A%22Admin%22%2C%22lastName%22%3A%22User%22%2C%22role%22%3A%22tenant_admin%22%2C%22tenantId%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22isActive%22%3Atrue%2C%22permissions%22%3A%5B%22user.create%22%2C%22user.read%22%2C%22user.update%22%2C%22user.delete%22%2C%22profile.create%22%2C%22profile.read%22%2C%22profile.update%22%2C%22profile.delete%22%2C%22tenant.manage%22%2C%22billing.view%22%2C%22analytics.view%22%2C%22reports.view%22%5D%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.894Z%22%2C%22updatedAt%22%3A%222025-10-05T07%3A23%3A09.238Z%22%2C%22__v%22%3A0%2C%22lastLogin%22%3A%222025-10-05T07%3A23%3A09.238Z%22%7D%2C%22tenant%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGUwOTlhYzc5NDE4ZTEwNzIxMjUyY2QiLCJ0ZW5hbnRJZCI6IjY4ZTA5OWFjNzk0MThlMTA3MjEyNTJjYSIsInJvbGUiOiJ0ZW5hbnRfYWRtaW4iLCJpYXQiOjE3NTk2NDg5ODksImV4cCI6MTc2MDI1Mzc4OX0.IemJe4cLBdDmUvW_FYorePY_YLJQRNO9PvcQTqJ5Lwg%22%2C%22subscription%22%3Anull%7D" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 108.162.241.196 - - [05/Oct/2025:07:23:09 +0000] "GET /api/logos/tenant/68e099ac79418e10721252ca HTTP/1.1" 304 - "https://ibuyscrap.ca/auth-callback?data=%7B%22user%22%3A%7B%22profile%22%3A%7B%22timezone%22%3A%22UTC%22%2C%22language%22%3A%22en%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252cd%22%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22firstName%22%3A%22Admin%22%2C%22lastName%22%3A%22User%22%2C%22role%22%3A%22tenant_admin%22%2C%22tenantId%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22isActive%22%3Atrue%2C%22permissions%22%3A%5B%22user.create%22%2C%22user.read%22%2C%22user.update%22%2C%22user.delete%22%2C%22profile.create%22%2C%22profile.read%22%2C%22profile.update%22%2C%22profile.delete%22%2C%22tenant.manage%22%2C%22billing.view%22%2C%22analytics.view%22%2C%22reports.view%22%5D%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.894Z%22%2C%22updatedAt%22%3A%222025-10-05T07%3A23%3A09.238Z%22%2C%22__v%22%3A0%2C%22lastLogin%22%3A%222025-10-05T07%3A23%3A09.238Z%22%7D%2C%22tenant%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGUwOTlhYzc5NDE4ZTEwNzIxMjUyY2QiLCJ0ZW5hbnRJZCI6IjY4ZTA5OWFjNzk0MThlMTA3MjEyNTJjYSIsInJvbGUiOiJ0ZW5hbnRfYWRtaW4iLCJpYXQiOjE3NTk2NDg5ODksImV4cCI6MTc2MDI1Mzc4OX0.IemJe4cLBdDmUvW_FYorePY_YLJQRNO9PvcQTqJ5Lwg%22%2C%22subscription%22%3Anull%7D" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 108.162.241.196 - - [05/Oct/2025:07:23:10 +0000] "GET /api/logos/current HTTP/1.1" 304 - "https://ibuyscrap.ca/tenant/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 108.162.241.196 - - [05/Oct/2025:07:23:10 +0000] "GET /api/logos/tenant/68e099ac79418e10721252ca HTTP/1.1" 304 - "https://ibuyscrap.ca/tenant/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 📊 Memory usage: 69MB heap, 187MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 187MB RSS
+0|immigrat | 🔍 LOGIN DEBUG - Request received: {
+0|immigrat |   body: {
+0|immigrat |     email: 'admin@honeynwild.com',
+0|immigrat |     password: 'Admin123!',
+0|immigrat |     tenantDomain: 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   headers: {
+0|immigrat |     'content-type': 'application/json',
+0|immigrat |     'x-original-host': 'honeynwild.com',
+0|immigrat |     'x-tenant-domain': 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   bodyType: 'object',
+0|immigrat |   bodyKeys: [ 'email', 'password', 'tenantDomain' ]
+0|immigrat | }
+0|immigrat | 🔍 AuthService.login called with: {
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   passwordLength: 9,
+0|immigrat |   tenantDomain: 'honeynwild.com',
+0|immigrat |   tenantId: '68e099ac79418e10721252ca'
+0|immigrat | }
+0|immigrat | 🔍 Searching for user with email: admin@honeynwild.com
+0|immigrat | ✅ User found: {
+0|immigrat |   userId: '68e099ac79418e10721252cd',
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   role: 'tenant_admin',
+0|immigrat |   isActive: true,
+0|immigrat |   isSuperAdmin: false
+0|immigrat | }
+0|immigrat | 🔍 Checking password...
+0|immigrat | ✅ Password is valid for user: admin@honeynwild.com
+0|immigrat | 172.69.214.84 - - [05/Oct/2025:07:31:06 +0000] "POST /api/auth/login HTTP/1.1" 200 - "https://honeynwild.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 LOGIN DEBUG - Request received: {
+0|immigrat |   body: {
+0|immigrat |     email: 'admin@honeynwild.com',
+0|immigrat |     password: 'Admin123!',
+0|immigrat |     tenantDomain: 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   headers: {
+0|immigrat |     'content-type': 'application/json',
+0|immigrat |     'x-original-host': 'honeynwild.com',
+0|immigrat |     'x-tenant-domain': 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   bodyType: 'object',
+0|immigrat |   bodyKeys: [ 'email', 'password', 'tenantDomain' ]
+0|immigrat | }
+0|immigrat | 🔍 AuthService.login called with: {
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   passwordLength: 9,
+0|immigrat |   tenantDomain: 'honeynwild.com',
+0|immigrat |   tenantId: '68e099ac79418e10721252ca'
+0|immigrat | }
+0|immigrat | 🔍 Searching for user with email: admin@honeynwild.com
+0|immigrat | ✅ User found: {
+0|immigrat |   userId: '68e099ac79418e10721252cd',
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   role: 'tenant_admin',
+0|immigrat |   isActive: true,
+0|immigrat |   isSuperAdmin: false
+0|immigrat | }
+0|immigrat | 🔍 Checking password...
+0|immigrat | ✅ Password is valid for user: admin@honeynwild.com
+0|immigrat | 172.69.214.84 - - [05/Oct/2025:07:31:26 +0000] "POST /api/auth/login HTTP/1.1" 200 - "https://honeynwild.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 LOGIN DEBUG - Request received: {
+0|immigrat |   body: {
+0|immigrat |     email: 'admin@honeynwild.com',
+0|immigrat |     password: 'Admin123!',
+0|immigrat |     tenantDomain: 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   headers: {
+0|immigrat |     'content-type': 'application/json',
+0|immigrat |     'x-original-host': 'honeynwild.com',
+0|immigrat |     'x-tenant-domain': 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   bodyType: 'object',
+0|immigrat |   bodyKeys: [ 'email', 'password', 'tenantDomain' ]
+0|immigrat | }
+0|immigrat | 🔍 AuthService.login called with: {
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   passwordLength: 9,
+0|immigrat |   tenantDomain: 'honeynwild.com',
+0|immigrat |   tenantId: '68e099ac79418e10721252ca'
+0|immigrat | }
+0|immigrat | 🔍 Searching for user with email: admin@honeynwild.com
+0|immigrat | ✅ User found: {
+0|immigrat |   userId: '68e099ac79418e10721252cd',
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   role: 'tenant_admin',
+0|immigrat |   isActive: true,
+0|immigrat |   isSuperAdmin: false
+0|immigrat | }
+0|immigrat | 🔍 Checking password...
+0|immigrat | ✅ Password is valid for user: admin@honeynwild.com
+0|immigrat | 172.70.80.25 - - [05/Oct/2025:07:31:58 +0000] "POST /api/auth/login HTTP/1.1" 200 - "https://honeynwild.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+0|immigrat | 📊 Memory usage: 72MB heap, 187MB RSS
+0|immigrat | 🔍 LOGIN DEBUG - Request received: {
+0|immigrat |   body: {
+0|immigrat |     email: 'admin@honeynwild.com',
+0|immigrat |     password: 'Admin123!',
+0|immigrat |     tenantDomain: 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   headers: {
+0|immigrat |     'content-type': 'application/json',
+0|immigrat |     'x-original-host': 'honeynwild.com',
+0|immigrat |     'x-tenant-domain': 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   bodyType: 'object',
+0|immigrat |   bodyKeys: [ 'email', 'password', 'tenantDomain' ]
+0|immigrat | }
+0|immigrat | 🔍 AuthService.login called with: {
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   passwordLength: 9,
+0|immigrat |   tenantDomain: 'honeynwild.com',
+0|immigrat |   tenantId: '68e099ac79418e10721252ca'
+0|immigrat | }
+0|immigrat | 🔍 Searching for user with email: admin@honeynwild.com
+0|immigrat | ✅ User found: {
+0|immigrat |   userId: '68e099ac79418e10721252cd',
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   role: 'tenant_admin',
+0|immigrat |   isActive: true,
+0|immigrat |   isSuperAdmin: false
+0|immigrat | }
+0|immigrat | 🔍 Checking password...
+0|immigrat | ✅ Password is valid for user: admin@honeynwild.com
+0|immigrat | 108.162.241.196 - - [05/Oct/2025:07:35:01 +0000] "POST /api/auth/login HTTP/1.1" 200 - "https://honeynwild.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+0|immigrat | 🔍 LOGIN DEBUG - Request received: {
+0|immigrat |   body: {
+0|immigrat |     email: 'admin@honeynwild.com',
+0|immigrat |     password: 'Admin123!',
+0|immigrat |     tenantDomain: 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   headers: {
+0|immigrat |     'content-type': 'application/json',
+0|immigrat |     'x-original-host': 'honeynwild.com',
+0|immigrat |     'x-tenant-domain': 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   bodyType: 'object',
+0|immigrat |   bodyKeys: [ 'email', 'password', 'tenantDomain' ]
+0|immigrat | }
+0|immigrat | 🔍 AuthService.login called with: {
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   passwordLength: 9,
+0|immigrat |   tenantDomain: 'honeynwild.com',
+0|immigrat |   tenantId: '68e099ac79418e10721252ca'
+0|immigrat | }
+0|immigrat | 🔍 Searching for user with email: admin@honeynwild.com
+0|immigrat | ✅ User found: {
+0|immigrat |   userId: '68e099ac79418e10721252cd',
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   role: 'tenant_admin',
+0|immigrat |   isActive: true,
+0|immigrat |   isSuperAdmin: false
+0|immigrat | }
+0|immigrat | 🔍 Checking password...
+0|immigrat | ✅ Password is valid for user: admin@honeynwild.com
+0|immigrat | 108.162.241.196 - - [05/Oct/2025:07:36:32 +0000] "POST /api/auth/login HTTP/1.1" 200 - "https://honeynwild.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:07:36:33 +0000] "GET /api/logos/current HTTP/1.1" 304 - "https://ibuyscrap.ca/auth-callback?data=%7B%22user%22%3A%7B%22profile%22%3A%7B%22timezone%22%3A%22UTC%22%2C%22language%22%3A%22en%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252cd%22%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22firstName%22%3A%22Admin%22%2C%22lastName%22%3A%22User%22%2C%22role%22%3A%22tenant_admin%22%2C%22tenantId%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22isActive%22%3Atrue%2C%22permissions%22%3A%5B%22user.create%22%2C%22user.read%22%2C%22user.update%22%2C%22user.delete%22%2C%22profile.create%22%2C%22profile.read%22%2C%22profile.update%22%2C%22profile.delete%22%2C%22tenant.manage%22%2C%22billing.view%22%2C%22analytics.view%22%2C%22reports.view%22%5D%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.894Z%22%2C%22updatedAt%22%3A%222025-10-05T07%3A36%3A32.925Z%22%2C%22__v%22%3A0%2C%22lastLogin%22%3A%222025-10-05T07%3A36%3A32.925Z%22%7D%2C%22tenant%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGUwOTlhYzc5NDE4ZTEwNzIxMjUyY2QiLCJ0ZW5hbnRJZCI6IjY4ZTA5OWFjNzk0MThlMTA3MjEyNTJjYSIsInJvbGUiOiJ0ZW5hbnRfYWRtaW4iLCJpYXQiOjE3NTk2NDk3OTIsImV4cCI6MTc2MDI1NDU5Mn0.PdGcl5woU7zp4m9Zqm0dnI5JEPtFm3yrTMpOlZGflc0%22%2C%22subscription%22%3Anull%7D" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:07:36:33 +0000] "GET /api/logos/tenant/68e099ac79418e10721252ca HTTP/1.1" 304 - "https://ibuyscrap.ca/auth-callback?data=%7B%22user%22%3A%7B%22profile%22%3A%7B%22timezone%22%3A%22UTC%22%2C%22language%22%3A%22en%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252cd%22%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22firstName%22%3A%22Admin%22%2C%22lastName%22%3A%22User%22%2C%22role%22%3A%22tenant_admin%22%2C%22tenantId%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22isActive%22%3Atrue%2C%22permissions%22%3A%5B%22user.create%22%2C%22user.read%22%2C%22user.update%22%2C%22user.delete%22%2C%22profile.create%22%2C%22profile.read%22%2C%22profile.update%22%2C%22profile.delete%22%2C%22tenant.manage%22%2C%22billing.view%22%2C%22analytics.view%22%2C%22reports.view%22%5D%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.894Z%22%2C%22updatedAt%22%3A%222025-10-05T07%3A36%3A32.925Z%22%2C%22__v%22%3A0%2C%22lastLogin%22%3A%222025-10-05T07%3A36%3A32.925Z%22%7D%2C%22tenant%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGUwOTlhYzc5NDE4ZTEwNzIxMjUyY2QiLCJ0ZW5hbnRJZCI6IjY4ZTA5OWFjNzk0MThlMTA3MjEyNTJjYSIsInJvbGUiOiJ0ZW5hbnRfYWRtaW4iLCJpYXQiOjE3NTk2NDk3OTIsImV4cCI6MTc2MDI1NDU5Mn0.PdGcl5woU7zp4m9Zqm0dnI5JEPtFm3yrTMpOlZGflc0%22%2C%22subscription%22%3Anull%7D" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:07:36:34 +0000] "GET /api/logos/current HTTP/1.1" 304 - "https://ibuyscrap.ca/tenant/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:07:36:34 +0000] "GET /api/logos/tenant/68e099ac79418e10721252ca HTTP/1.1" 304 - "https://ibuyscrap.ca/tenant/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 LOGIN DEBUG - Request received: {
+0|immigrat |   body: {
+0|immigrat |     email: 'admin@honeynwild.com',
+0|immigrat |     password: 'Admin123!',
+0|immigrat |     tenantDomain: 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   headers: {
+0|immigrat |     'content-type': 'application/json',
+0|immigrat |     'x-original-host': 'honeynwild.com',
+0|immigrat |     'x-tenant-domain': 'honeynwild.com'
+0|immigrat |   },
+0|immigrat |   bodyType: 'object',
+0|immigrat |   bodyKeys: [ 'email', 'password', 'tenantDomain' ]
+0|immigrat | }
+0|immigrat | 🔍 AuthService.login called with: {
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   passwordLength: 9,
+0|immigrat |   tenantDomain: 'honeynwild.com',
+0|immigrat |   tenantId: '68e099ac79418e10721252ca'
+0|immigrat | }
+0|immigrat | 🔍 Searching for user with email: admin@honeynwild.com
+0|immigrat | ✅ User found: {
+0|immigrat |   userId: '68e099ac79418e10721252cd',
+0|immigrat |   email: 'admin@honeynwild.com',
+0|immigrat |   role: 'tenant_admin',
+0|immigrat |   isActive: true,
+0|immigrat |   isSuperAdmin: false
+0|immigrat | }
+0|immigrat | 🔍 Checking password...
+0|immigrat | ✅ Password is valid for user: admin@honeynwild.com
+0|immigrat | 108.162.241.196 - - [05/Oct/2025:07:36:55 +0000] "POST /api/auth/login HTTP/1.1" 200 - "https://honeynwild.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:07:36:56 +0000] "GET /api/logos/current HTTP/1.1" 304 - "https://ibuyscrap.ca/auth-callback?data=%7B%22user%22%3A%7B%22profile%22%3A%7B%22timezone%22%3A%22UTC%22%2C%22language%22%3A%22en%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252cd%22%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22firstName%22%3A%22Admin%22%2C%22lastName%22%3A%22User%22%2C%22role%22%3A%22tenant_admin%22%2C%22tenantId%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22isActive%22%3Atrue%2C%22permissions%22%3A%5B%22user.create%22%2C%22user.read%22%2C%22user.update%22%2C%22user.delete%22%2C%22profile.create%22%2C%22profile.read%22%2C%22profile.update%22%2C%22profile.delete%22%2C%22tenant.manage%22%2C%22billing.view%22%2C%22analytics.view%22%2C%22reports.view%22%5D%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.894Z%22%2C%22updatedAt%22%3A%222025-10-05T07%3A36%3A55.364Z%22%2C%22__v%22%3A0%2C%22lastLogin%22%3A%222025-10-05T07%3A36%3A55.364Z%22%7D%2C%22tenant%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGUwOTlhYzc5NDE4ZTEwNzIxMjUyY2QiLCJ0ZW5hbnRJZCI6IjY4ZTA5OWFjNzk0MThlMTA3MjEyNTJjYSIsInJvbGUiOiJ0ZW5hbnRfYWRtaW4iLCJpYXQiOjE3NTk2NDk4MTUsImV4cCI6MTc2MDI1NDYxNX0.rM4b8_xhxcNLvmVxW-uzVi_fXCDy2FiGwvoxk5V8vzI%22%2C%22subscription%22%3Anull%7D" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:07:36:56 +0000] "GET /api/logos/tenant/68e099ac79418e10721252ca HTTP/1.1" 304 - "https://ibuyscrap.ca/auth-callback?data=%7B%22user%22%3A%7B%22profile%22%3A%7B%22timezone%22%3A%22UTC%22%2C%22language%22%3A%22en%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252cd%22%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22firstName%22%3A%22Admin%22%2C%22lastName%22%3A%22User%22%2C%22role%22%3A%22tenant_admin%22%2C%22tenantId%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22isActive%22%3Atrue%2C%22permissions%22%3A%5B%22user.create%22%2C%22user.read%22%2C%22user.update%22%2C%22user.delete%22%2C%22profile.create%22%2C%22profile.read%22%2C%22profile.update%22%2C%22profile.delete%22%2C%22tenant.manage%22%2C%22billing.view%22%2C%22analytics.view%22%2C%22reports.view%22%5D%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.894Z%22%2C%22updatedAt%22%3A%222025-10-05T07%3A36%3A55.364Z%22%2C%22__v%22%3A0%2C%22lastLogin%22%3A%222025-10-05T07%3A36%3A55.364Z%22%7D%2C%22tenant%22%3A%7B%22settings%22%3A%7B%22maxUsers%22%3A100%2C%22maxAdmins%22%3A2%2C%22features%22%3A%5B%22basic%22%2C%22advanced%22%5D%7D%2C%22contactInfo%22%3A%7B%22address%22%3A%7B%22street%22%3A%22%22%2C%22city%22%3A%22%22%2C%22state%22%3A%22%22%2C%22zipCode%22%3A%22%22%2C%22country%22%3A%22%22%7D%2C%22email%22%3A%22admin%40honeynwild.com%22%2C%22phone%22%3A%22%2B800%20343%20034%2032%22%7D%2C%22subscription%22%3A%7B%22planName%22%3A%22enterprise%22%2C%22status%22%3A%22active%22%7D%2C%22_id%22%3A%2268e099ac79418e10721252ca%22%2C%22name%22%3A%22Honey%20%26%20Wild%22%2C%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22trial%22%2C%22createdAt%22%3A%222025-10-04T03%3A51%3A08.468Z%22%2C%22updatedAt%22%3A%222025-10-04T21%3A25%3A15.934Z%22%2C%22__v%22%3A1%2C%22customDomains%22%3A%5B%22honeynwild.com%22%5D%2C%22domainApprovals%22%3A%5B%7B%22domain%22%3A%22honeynwild.com%22%2C%22status%22%3A%22approved%22%2C%22requestedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22approvedAt%22%3A%222025-10-04T21%3A25%3A15.929Z%22%2C%22_id%22%3A%2268e190bb48bf0866394fb16a%22%7D%5D%7D%2C%22token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGUwOTlhYzc5NDE4ZTEwNzIxMjUyY2QiLCJ0ZW5hbnRJZCI6IjY4ZTA5OWFjNzk0MThlMTA3MjEyNTJjYSIsInJvbGUiOiJ0ZW5hbnRfYWRtaW4iLCJpYXQiOjE3NTk2NDk4MTUsImV4cCI6MTc2MDI1NDYxNX0.rM4b8_xhxcNLvmVxW-uzVi_fXCDy2FiGwvoxk5V8vzI%22%2C%22subscription%22%3Anull%7D" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:07:36:56 +0000] "GET /api/logos/current HTTP/1.1" 304 - "https://ibuyscrap.ca/tenant/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 🔍 Tenant Resolution Debug: {
+0|immigrat |   host: 'ibuyscrap.ca',
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   allowedSuperAdminDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ],
+0|immigrat |   protocol: 'https'
+0|immigrat | }
+0|immigrat | 🔍 Super Admin Domain Check: {
+0|immigrat |   domain: 'ibuyscrap.ca',
+0|immigrat |   isSuperAdminDomain: true,
+0|immigrat |   allowedDomains: [ 'ibuyscrap.ca', 'www.ibuyscrap.ca' ]
+0|immigrat | }
+0|immigrat | ✅ Super Admin Domain Detected: ibuyscrap.ca
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:07:36:56 +0000] "GET /api/logos/tenant/68e099ac79418e10721252ca HTTP/1.1" 304 - "https://ibuyscrap.ca/tenant/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 📊 Memory usage: 67MB heap, 187MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 187MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 187MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 187MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 188MB RSS
+0|immigrat | New user registration check completed
+0|immigrat | System health check completed
+0|immigrat | 📊 Memory usage: 68MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 190MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 190MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 190MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 190MB RSS
+0|immigrat | 📊 Memory usage: 68MB heap, 190MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 190MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 68MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 172.71.182.243 - - [05/Oct/2025:12:14:46 +0000] "GET /api/.env HTTP/1.1" - - "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
+0|immigrat | 45.156.129.159 - - [05/Oct/2025:12:17:19 +0000] "GET /api/session/properties HTTP/1.1" - - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 69MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 72MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 71MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 74MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 70MB heap, 191MB RSS
+0|immigrat | 📊 Memory usage: 73MB heap, 191MB RSS
+0|immigrat | 🔍 LOGIN DEBUG - Request received: {
+0|immigrat |   body: {
+0|immigrat |     email: 'superadmin@immigrationapp.com',
+0|immigrat |     password: 'SuperAdmin123!',
+0|immigrat |     tenantDomain: ''
+0|immigrat |   },
+0|immigrat |   headers: {
+0|immigrat |     'content-type': 'application/json',
+0|immigrat |     'x-original-host': undefined,
+0|immigrat |     'x-tenant-domain': undefined
+0|immigrat |   },
+0|immigrat |   bodyType: 'object',
+0|immigrat |   bodyKeys: [ 'email', 'password', 'tenantDomain' ]
+0|immigrat | }
+0|immigrat | 🔍 AuthService.login called with: {
+0|immigrat |   email: 'superadmin@immigrationapp.com',
+0|immigrat |   passwordLength: 14,
+0|immigrat |   tenantDomain: '',
+0|immigrat |   tenantId: undefined
+0|immigrat | }
+0|immigrat | 🔍 Searching for user with email: superadmin@immigrationapp.com
+0|immigrat | ❌ Database query error: Socket 'secureConnect' timed out after 14999ms (connectTimeoutMS: 15000)
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:15:27:19 +0000] "POST /api/auth/login HTTP/1.1" 401 152 "https://ibuyscrap.ca/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 📊 Memory usage: 74MB heap, 182MB RSS
+0|immigrat | 172.70.80.24 - - [05/Oct/2025:15:29:00 +0000] "POST /api/auth/login HTTP/1.1" - - "https://honeynwild.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
+0|immigrat | 📊 Memory usage: 78MB heap, 186MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 187MB RSS
+0|immigrat | 📊 Memory usage: 78MB heap, 188MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 79MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 76MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 79MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 79MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 78MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 78MB heap, 189MB RSS
+0|immigrat | 📊 Memory usage: 75MB heap, 189MB RSS
+
