@@ -7,7 +7,7 @@ module.exports = {
     autorestart: true,
     watch: false,
     max_memory_restart: '1G',
-    node_args: '--max-old-space-size=256', // Increase heap limit to 256MB
+    node_args: ['--max-old-space-size=256'], // Increase heap limit to 256MB (array format)
     env_file: './.env',
     env_production: {
       NODE_ENV: 'production',
