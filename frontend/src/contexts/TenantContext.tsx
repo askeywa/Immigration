@@ -108,7 +108,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   }, [user?.role]);
   
   const isTenantAdmin = useMemo(() => {
-    return user?.role === 'admin' || user?.role === 'super_admin' || false;
+    return user?.role === 'admin' || user?.role === 'tenant_admin' || user?.role === 'super_admin' || false;
   }, [user?.role]);
   
   const isTenantUser = useMemo(() => {

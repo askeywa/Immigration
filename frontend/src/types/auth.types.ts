@@ -57,7 +57,7 @@ export interface User {
     firstName: string;
     lastName: string;
     name?: string; // Alternative name field
-    role: 'admin' | 'user' | 'super_admin';
+    role: 'admin' | 'user' | 'super_admin' | 'tenant_admin';
     tenantId?: string;
     isActive: boolean;
     phone?: string;
