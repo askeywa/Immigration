@@ -130,6 +130,7 @@ export interface User {
     setUser: (user: User) => void;
     setTenant: (tenant: Tenant | null) => void;
     setSubscription: (subscription: Subscription | null) => void;
+    setAuthData: (user: User, tenant: Tenant | null, subscription: Subscription | null, token: string) => void;
     switchTenant: (tenantId: string) => Promise<void>;
     hasPermission: (permission: string) => boolean;
     isSuperAdmin: () => boolean;

@@ -110,6 +110,17 @@ export const useAuthStore = create<AuthState>()(
       setSubscription: (subscription: Subscription | null) => {
         set({ subscription });
       },
+      
+      // CRITICAL: New method to set all auth data at once (for cross-origin auth)
+      setAuthData: (user: User, tenant: Tenant | null, subscription: Subscription | null, token: string) => {
+        set({
+          user,
+          tenant,
+          subscription,
+          token,
+          isAuthenticated: true,
+        });
+      },
 
       // FIXED: Simplified tenant switching without setTimeout
       switchTenant: async (tenantId: string) => {

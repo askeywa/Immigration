@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { setUser, setTenant, setSubscription } = useAuthStore();
+  const { setAuthData } = useAuthStore();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [debugInfo, setDebugInfo] = useState<string>('');
@@ -97,25 +97,14 @@ const AuthCallback: React.FC = () => {
         try {
           console.log('🔄 AuthCallback: Storing auth data in Zustand store...');
           
-          // Store auth data directly in sessionStorage in the format expected by Zustand
-          const authStorageData = {
-            state: {
-              user: { ...authData.user, permissions: [] },
-              tenant: authData.tenant || null,
-              subscription: authData.subscription || null,
-              token: authData.token,
-              isAuthenticated: true,
-            },
-            version: 0
-          };
-          
-          sessionStorage.setItem('auth-storage', JSON.stringify(authStorageData));
-          
-          // CRITICAL: Use the individual setter methods to trigger immediate state update
-          // Note: The sessionStorage update above already includes the token
-          setUser({ ...authData.user, permissions: [] });
-          setTenant(authData.tenant || null);
-          setSubscription(authData.subscription || null);
+          // CRITICAL: Use setAuthData to set ALL state including isAuthenticated
+          // Zustand persist middleware will automatically write to sessionStorage
+          setAuthData(
+            { ...authData.user, permissions: [] },
+            authData.tenant || null,
+            authData.subscription || null,
+            authData.token
+          );
           
           console.log('✅ AuthCallback: Auth data stored successfully in Zustand store');
           console.log('✅ AuthCallback: Token included in sessionStorage:', authData.token.substring(0, 20) + '...');
