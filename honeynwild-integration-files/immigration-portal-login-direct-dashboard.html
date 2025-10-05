@@ -3,171 +3,633 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Honey & Wild - Immigration Portal Access</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Immigration Portal - Login</title>
+    
+    <!-- Google Fonts - EXACT MATCH with Super Admin -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            max-width: 400px;
-            width: 100%;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo h1 {
-            color: #1f2937;
-            font-size: 1.875rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        .logo p {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin: 8px 0 0 0;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            color: #374151;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.2s;
             box-sizing: border-box;
         }
-        .form-group input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+
+        body {
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #fdf5f3; /* EXACT MATCH: Cream background from super admin */
+            color: #3d3d3d; /* EXACT MATCH: Dark text color */
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            letter-spacing: -0.025em; /* EXACT MATCH: Letter spacing */
+            font-feature-settings: "rlig" 1, "calt" 1; /* EXACT MATCH: Font features */
+            -webkit-font-smoothing: antialiased; /* EXACT MATCH: Font smoothing */
+            -moz-osx-font-smoothing: grayscale; /* EXACT MATCH: Font smoothing */
         }
-        .btn {
-            width: 100%;
-            background: #3b82f6;
+
+        /* Global Heading Styles - EXACT MATCH with Super Admin */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: Nunito, system-ui, sans-serif;
+            letter-spacing: -0.025em;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: #ffffff;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: #dc2626;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            padding: 12px 16px;
-            border: none;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            color: #dc2626;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            gap: 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Left Section - Info */
+        .info-section {
+            flex: 2;
+            max-width: 600px;
+        }
+
+        .main-heading {
+            font-family: Nunito, system-ui, sans-serif; /* EXACT MATCH: Nunito font */
+            font-size: 48px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 16px;
+            line-height: 1.1;
+            letter-spacing: -0.025em; /* EXACT MATCH: Letter spacing */
+        }
+
+        .main-description {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .feature-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background-color: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
             border-radius: 8px;
-            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .feature-icon.applicants {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .feature-icon.admin {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .feature-title {
+            font-family: Nunito, system-ui, sans-serif; /* EXACT MATCH: Nunito font */
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            letter-spacing: -0.025em; /* EXACT MATCH: Letter spacing */
+        }
+
+        .feature-description {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .checkmark {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .cta-button {
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Right Section - Login Form */
+        .login-section {
+            flex: 1;
+            max-width: 400px;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .login-header {
+            margin-bottom: 32px;
+        }
+
+        .login-title {
+            font-family: Nunito, system-ui, sans-serif; /* EXACT MATCH: Nunito font */
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+            letter-spacing: -0.025em; /* EXACT MATCH: Letter spacing */
+        }
+
+        .login-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #374151;
+            background-color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 16px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            font-size: 14px;
+            color: #dc2626;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
+            margin-bottom: 24px;
         }
-        .btn:hover {
-            background: #2563eb;
+
+        .login-button:hover {
+            background-color: #b91c1c;
         }
-        .btn:disabled {
-            background: #9ca3af;
+
+        .login-button:disabled {
+            background-color: #9ca3af;
             cursor: not-allowed;
         }
-        .error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.875rem;
+
+        .signup-link {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
         }
-        .success {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #16a34a;
+
+        .signup-link a {
+            color: #dc2626;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading and Status Messages */
+        .status-message {
             padding: 12px 16px;
             border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.875rem;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-message.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-message.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .status-message.loading {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+                gap: 40px;
+                padding: 40px 20px;
+            }
+
+            .info-section {
+                max-width: 100%;
+            }
+
+            .feature-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 16px 20px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .main-heading {
+                font-size: 36px;
+            }
+
+            .login-section {
+                padding: 24px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Header -->
+    <header class="header">
         <div class="logo">
-            <h1>🍯 Honey & Wild</h1>
-            <p>Immigration Portal Access</p>
+            <div class="logo-icon">I</div>
+            <span class="logo-text">Immigration Portal</span>
         </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">How It Works</a></li>
+            </ul>
+        </nav>
+    </header>
 
-        <div id="error-message" class="error" style="display: none;"></div>
-        <div id="success-message" class="success" style="display: none;"></div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Left Section - Information -->
+        <section class="info-section">
+            <h1 class="main-heading">Welcome to Immigration Portal</h1>
+            <p class="main-description">
+                Your comprehensive digital solution for managing immigration applications with ease, security, and efficiency.
+            </p>
 
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" value="admin@honeynwild.com" required>
+            <div class="feature-cards">
+                <!-- For Applicants Card -->
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon applicants">👥</div>
+                        <h3 class="feature-title">For Applicants</h3>
+                    </div>
+                    <p class="feature-description">Streamlined application process</p>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span> Easy profile creation and management</li>
+                        <li><span class="checkmark">✓</span> Secure document upload and storage</li>
+                        <li><span class="checkmark">✓</span> Real-time application tracking</li>
+                    </ul>
+                </div>
+
+                <!-- For Administrators Card -->
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon admin">🛡️</div>
+                        <h3 class="feature-title">For Administrators</h3>
+                    </div>
+                    <p class="feature-description">Comprehensive management tools</p>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span> User management and oversight</li>
+                        <li><span class="checkmark">✓</span> Application review and processing</li>
+                        <li><span class="checkmark">✓</span> Advanced analytics and reporting</li>
+                    </ul>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" value="Admin123!" required>
+
+            <a href="#" class="cta-button">
+                Get Started Today
+                <span>→</span>
+            </a>
+        </section>
+
+        <!-- Right Section - Login Form -->
+        <section class="login-section">
+            <div class="login-header">
+                <h2 class="login-title">Welcome Back</h2>
+                <p class="login-subtitle">Sign in to your account</p>
             </div>
-            
-            <button type="submit" class="btn" id="login-btn">
-                <span id="btn-text">Sign In</span>
-                <span id="btn-loading" style="display: none;">Signing In...</span>
-            </button>
-        </form>
-    </div>
+
+            <!-- Status Messages -->
+            <div id="statusMessage" class="status-message"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email address</label>
+                    <div class="input-container">
+                        <span class="input-icon">✉</span>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            class="form-input" 
+                            placeholder="admin@honeynwild.com"
+                            value="admin@honeynwild.com"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="input-container">
+                        <span class="input-icon">🔒</span>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password"
+                            class="form-input" 
+                            placeholder="Enter your password"
+                            required
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword()">👁</button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="remember" class="checkbox">
+                        <label for="remember" class="checkbox-label">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="login-button" id="loginButton">
+                    Sign in
+                </button>
+            </form>
+
+            <div class="signup-link">
+                Don't have an account? <a href="#">Sign up</a>
+            </div>
+        </section>
+    </main>
 
     <script>
+        // Configuration - KEEP ALL TENANT PROGRAMMING LOGIC INTACT
         const API_BASE_URL = 'https://ibuyscrap.ca/api';
+        const TENANT_API_BASE_URL = 'https://ibuyscrap.ca/api/v1';
         const TENANT_DOMAIN = 'honeynwild.com';
-        const DASHBOARD_URL = 'https://ibuyscrap.ca/tenant/dashboard';
-        
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            document.getElementById('success-message').style.display = 'none';
+
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+        const statusMessage = document.getElementById('statusMessage');
+        const loginButton = document.getElementById('loginButton');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        // Utility Functions
+        function showMessage(message, type = 'loading') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.style.display = 'block';
         }
-        
-        function showSuccess(message) {
-            const successDiv = document.getElementById('success-message');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            document.getElementById('error-message').style.display = 'none';
+
+        function hideMessage() {
+            statusMessage.style.display = 'none';
         }
-        
+
+        function setLoading(loading) {
+            loginButton.disabled = loading;
+            loginButton.textContent = loading ? 'Signing in...' : 'Sign in';
+        }
+
+        // Password Toggle
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const toggleButton = document.querySelector('.password-toggle');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleButton.textContent = '🙈';
+            } else {
+                passwordField.type = 'password';
+                toggleButton.textContent = '👁';
+            }
+        }
+
+        // Login Function - KEEP EXACT SAME TENANT LOGIC
         async function handleLogin(event) {
             event.preventDefault();
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('login-btn');
-            const btnText = document.getElementById('btn-text');
-            const btnLoading = document.getElementById('btn-loading');
-            
-            // Show loading state
-            loginBtn.disabled = true;
-            btnText.style.display = 'none';
-            btnLoading.style.display = 'inline';
-            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+
+            setLoading(true);
+            showMessage('Signing in...', 'loading');
+
             try {
-                console.log('🔄 Attempting login for:', email);
-                
-                // Call login API
-                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                const response = await fetch(`${TENANT_API_BASE_URL}/tenant/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -180,75 +642,53 @@
                         tenantDomain: TENANT_DOMAIN
                     })
                 });
-                
-                const result = await response.json();
-                
-                if (response.ok && result.success) {
-                    console.log('✅ Login successful!');
-                    console.log('🔍 User:', result.data.user.email, result.data.user.role);
-                    console.log('🔍 Tenant:', result.data.tenant?.name);
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showMessage('Successfully logged in! Redirecting...', 'success');
                     
-                    showSuccess('Login successful! Redirecting...');
+                    // Store auth data - SAME TENANT LOGIC
+                    localStorage.setItem('authToken', data.data.token);
+                    localStorage.setItem('userData', JSON.stringify(data.data.user));
+                    localStorage.setItem('tenantData', JSON.stringify(data.data.tenant));
                     
-                    // CRITICAL: Store auth data in sessionStorage using exact Zustand format
-                    const authStorageData = {
-                        state: {
-                            user: result.data.user,
-                            tenant: result.data.tenant,
-                            subscription: result.data.subscription || null,
-                            token: result.data.token,
-                            isAuthenticated: true
-                        },
-                        version: 0
-                    };
-                    
-                    try {
-                        // Store in sessionStorage (same as Zustand persist)
-                        sessionStorage.setItem('auth-storage', JSON.stringify(authStorageData));
-                        console.log('✅ Auth data stored in sessionStorage');
-                        
-                        // Verify storage
-                        const verification = sessionStorage.getItem('auth-storage');
-                        if (!verification) {
-                            throw new Error('SessionStorage verification failed');
-                        }
-                        console.log('✅ SessionStorage verified');
-                        
-                        // Small delay to ensure storage completes
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        
-                        // DIRECT redirect to tenant dashboard
-                        console.log('🔄 Redirecting to:', DASHBOARD_URL);
-                        window.location.href = DASHBOARD_URL;
-                        
-                    } catch (storageError) {
-                        console.error('❌ Storage error:', storageError);
-                        showError('Login successful but session storage failed. Please try again.');
-                    }
-                    
+                    // Redirect to dashboard - SAME TENANT REDIRECT
+                    setTimeout(() => {
+                        window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant/dashboard.html`;
+                    }, 2000);
                 } else {
-                    throw new Error(result.message || `Login failed: ${response.status}`);
+                    showMessage(data.message || 'Login failed. Please check your credentials.', 'error');
                 }
-                
             } catch (error) {
-                console.error('❌ Login error:', error);
-                showError(`Login failed: ${error.message}`);
+                console.error('Login error:', error);
+                showMessage('Network error. Please try again.', 'error');
             } finally {
-                // Reset button state
-                loginBtn.disabled = false;
-                btnText.style.display = 'inline';
-                btnLoading.style.display = 'none';
+                setLoading(false);
             }
         }
-        
-        // Initialize login form
+
+        // Event Listeners
+        loginForm.addEventListener('submit', handleLogin);
+
+        // Auto-hide messages after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔄 Direct dashboard redirect mode activated');
-            
-            // Set up form submission
-            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            // Check for existing session - SAME TENANT LOGIC
+            const existingToken = localStorage.getItem('authToken');
+            if (existingToken) {
+                showMessage('Existing session found. Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant/dashboard.html`;
+                }, 1000);
+            }
+
+            // Auto-hide status messages
+            setInterval(() => {
+                if (statusMessage.style.display === 'block' && !statusMessage.classList.contains('loading')) {
+                    hideMessage();
+                }
+            }, 5000);
         });
     </script>
 </body>
 </html>
-

@@ -52,6 +52,8 @@ import { PerformanceMonitoringService } from './services/performanceMonitoringSe
 import SentryService from './config/sentry';
 import mongoose from 'mongoose';
 import { log } from './utils/logger';
+import { PortManager } from './utils/portManager';
+import { ProcessManager } from './utils/processManager';
 import { NotificationService } from './services/notificationService';
 import { RateLimitService } from './services/rateLimitService';
 import { SessionService } from './services/sessionService';
@@ -519,35 +521,53 @@ const startServer = async () => {
       });
     }
 
-    // Start the server
-    const server = app.listen(PORT, () => {
-      log.info(`🚀 Server running on port ${PORT}`, {
-        port: PORT,
-        apiDocs: `http://localhost:${PORT}/api/health`,
-        environment: process.env.NODE_ENV || 'development',
-        database: {
-          connected: isDatabaseConnected(),
-          info: getDatabaseInfo()
-        },
-        redis: {
-          enabled: process.env.REDIS_ENABLED === 'true',
-          url: process.env.REDIS_URL ? 'configured' : 'not configured',
-          password: process.env.REDIS_PASSWORD ? 'configured' : 'not configured'
-        }
-      });
-      
-      // Start automated notification checks only if database is connected
-      if (isDatabaseConnected()) {
-        try {
-          NotificationService.startAutomatedChecks();
-          log.info('✅ Notification service automated checks started');
-        } catch (error) {
-          log.warn('⚠️  Failed to start notification automated checks', { 
-            error: error instanceof Error ? error.message : String(error) 
-          });
-        }
+    // Check for existing instances before starting
+    const isAnotherInstanceRunning = await ProcessManager.isAnotherInstanceRunning();
+    if (isAnotherInstanceRunning) {
+      const instanceInfo = ProcessManager.getInstanceInfo();
+      console.log('⚠️  Another server instance is already running!');
+      console.log('📊 Instance Info:', instanceInfo);
+      console.log('💡 To start a new instance:');
+      console.log('   1. Stop the existing instance first');
+      console.log('   2. Or use: npm run force-start (to force cleanup and start)');
+      process.exit(1);
+    }
+
+    // Create instance lock
+    await ProcessManager.createInstanceLock();
+
+    // Start the server with intelligent port management
+    const { port, server } = await PortManager.startServerWithPortManagement(app, {
+      preferredPort: parseInt(process.env.PORT || '5000', 10),
+      fallbackPorts: [5001, 5002, 5003, 5004, 5005, 3000, 3001, 8000, 8001]
+    });
+
+    log.info(`🚀 Server running on port ${port}`, {
+      port: port,
+      apiDocs: `http://localhost:${port}/api/health`,
+      environment: process.env.NODE_ENV || 'development',
+      database: {
+        connected: isDatabaseConnected(),
+        info: getDatabaseInfo()
+      },
+      redis: {
+        enabled: process.env.REDIS_ENABLED === 'true',
+        url: process.env.REDIS_URL ? 'configured' : 'not configured',
+        password: process.env.REDIS_PASSWORD ? 'configured' : 'not configured'
       }
     });
+      
+    // Start automated notification checks only if database is connected
+    if (isDatabaseConnected()) {
+      try {
+        NotificationService.startAutomatedChecks();
+        log.info('✅ Notification service automated checks started');
+      } catch (error) {
+        log.warn('⚠️  Failed to start notification automated checks', { 
+          error: error instanceof Error ? error.message : String(error) 
+        });
+      }
+    }
 
     // Graceful shutdown handling
     const gracefulShutdown = async (signal: string) => {

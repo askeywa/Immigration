@@ -6,6 +6,10 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon --exec tsx src/server.ts",
+    "dev:safe": "tsx src/utils/processManager.ts && tsx src/server.ts",
+    "force-start": "tsx src/scripts/forceCleanup.ts && tsx src/server.ts",
+    "stop": "tsx src/scripts/stopServer.ts",
+    "status": "tsx src/scripts/checkStatus.ts",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rimraf dist",
