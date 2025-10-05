@@ -1,0 +1,23 @@
+commit 62d3aeb9384f876b7ffca7cd439c5bea0afbdee4
+Author: DEEPAK SEHWAG <askeywa@gmail.com>
+Date:   Sat Oct 4 19:16:28 2025 -0400
+
+    CRITICAL FIX: Resolve /login redirect issue after tenant authentication - Add Zustand rehydration detection with sessionStorage direct check and recursive retry logic
+
+diff --git a/frontend/src/pages/auth/AuthCallback.tsx b/frontend/src/pages/auth/AuthCallback.tsx
+index 9ada212..99336e3 100644
+--- a/frontend/src/pages/auth/AuthCallback.tsx
++++ b/frontend/src/pages/auth/AuthCallback.tsx
+@@ -132,9 +132,10 @@ const AuthCallback: React.FC = () => {
+           
+           console.log('🔄 AuthCallback: Redirecting to:', redirectPath);
+           
+-          // Small delay to show success message, then redirect
++          // CRITICAL: Use window.location.replace to ensure a full page reload
++          // This ensures the auth store is fully rehydrated from sessionStorage
+           setTimeout(() => {
+-            navigate(redirectPath, { replace: true });
++            window.location.replace(redirectPath);
+           }, 1500);
+           
+         } catch (storeError) {

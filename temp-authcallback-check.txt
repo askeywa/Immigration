@@ -119,22 +119,6 @@ const AuthCallback: React.FC = () => {
           
           console.log('✅ AuthCallback: Auth data stored successfully in Zustand store');
           console.log('✅ AuthCallback: Token included in sessionStorage:', authData.token.substring(0, 20) + '...');
-          
-          // CRITICAL: Verify sessionStorage was actually written before redirecting
-          await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for Zustand persist
-          
-          const verifyStorage = sessionStorage.getItem('auth-storage');
-          if (verifyStorage) {
-            const verified = JSON.parse(verifyStorage);
-            console.log('✅ AuthCallback: Verified sessionStorage contains auth data:', {
-              isAuthenticated: verified.state?.isAuthenticated,
-              hasUser: !!verified.state?.user,
-              hasToken: !!verified.state?.token
-            });
-          } else {
-            console.error('❌ AuthCallback: sessionStorage verification failed - no data found!');
-          }
-          
           setStatus('success');
           setDebugInfo('Authentication data stored successfully!\nRedirecting to dashboard...');
           
@@ -148,12 +132,10 @@ const AuthCallback: React.FC = () => {
           
           console.log('🔄 AuthCallback: Redirecting to:', redirectPath);
           
-          // CRITICAL: Use window.location.replace to ensure a full page reload
-          // This ensures the auth store is fully rehydrated from sessionStorage
-          // Increased timeout to ensure sessionStorage persist completes
+          // Small delay to show success message, then redirect
           setTimeout(() => {
-            window.location.replace(redirectPath);
-          }, 2000); // Increased from 1500 to 2000ms
+            navigate(redirectPath, { replace: true });
+          }, 1500);
           
         } catch (storeError) {
           const errorMsg = 'Failed to store authentication data';
