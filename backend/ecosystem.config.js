@@ -1,13 +1,13 @@
 module.exports = {
   apps: [{
     name: 'immigration-portal',
-    script: './dist/server.js',
+    script: './start-server.sh', // Use startup script with explicit memory limit
     instances: 1, // Changed from 2 to 1 for easier debugging
     exec_mode: 'fork', // Changed from cluster to fork for easier debugging
     autorestart: true,
     watch: false,
     max_memory_restart: '1G',
-    node_args: ['--max-old-space-size=256'], // Increase heap limit to 256MB (array format)
+    interpreter: 'bash', // Use bash to run the script
     env_file: './.env',
     env_production: {
       NODE_ENV: 'production',
