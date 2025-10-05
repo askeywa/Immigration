@@ -1,0 +1,4 @@
+Force redeployment: Frontend rebuild with latest AuthCallback.tsx
+Timestamp: 2025-10-05 05:40 UTC
+Reason: PM2 was keeping old code in memory, now fixed - need fresh frontend build
+
