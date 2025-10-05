@@ -116,18 +116,33 @@ function App() {
                         <Route path="/auth-callback" element={<AuthCallback />} />
                         <Route path="*" element={<Navigate to="/login" replace />} />
                       </>
-                    ) : !tenant && user?.role !== 'super_admin' ? (
-                      <>
-                        <Route path="/tenant-selection" element={<TenantSelection />} />
-                        <Route path="*" element={<TenantSelectionRedirect />} />
-                      </>
-                    ) : (
+                  ) : !tenant && user?.role !== 'super_admin' ? (
+                    <>
+                      <Route path="/tenant-selection" element={<TenantSelection />} />
+                      <Route path="*" element={<TenantSelectionRedirect />} />
+                    </>
+                  ) : (
+                    <>
+                      {/* Redirect /login to appropriate dashboard if already authenticated */}
+                      <Route path="/login" element={
+                        <Navigate 
+                          to={
+                            user?.role === 'super_admin' 
+                              ? '/super-admin' 
+                              : (user?.role as string) === 'tenant_admin' || user?.role === 'admin'
+                                ? '/tenant/dashboard'
+                                : '/dashboard'
+                          } 
+                          replace 
+                        />
+                      } />
                       <Route path="*" element={
                         <LogoProvider>
                           <TenantRouter />
                         </LogoProvider>
                       } />
-                    )}
+                    </>
+                  )}
                     </Routes>
                   </Suspense>
                 </SessionSecurity>
