@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honey & Wild - Immigration Portal Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 400px;
+            width: 100%;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            color: #1f2937;
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .logo p {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin: 8px 0 0 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .btn {
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+        }
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🍯 Honey & Wild</h1>
+            <p>Immigration Portal Access</p>
+        </div>
+
+        <div id="error-message" class="error" style="display: none;"></div>
+        <div id="success-message" class="success" style="display: none;"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" value="admin@honeynwild.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" value="Admin123!" required>
+            </div>
+            
+            <button type="submit" class="btn" id="login-btn">
+                <span id="btn-text">Sign In</span>
+                <span id="btn-loading" style="display: none;">Signing In...</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://ibuyscrap.ca/api';
+        const TENANT_DOMAIN = 'honeynwild.com';
+        const DASHBOARD_URL = 'https://ibuyscrap.ca/tenant/dashboard';
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+        }
+        
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('login-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+            
+            try {
+                console.log('🔄 Attempting login for:', email);
+                
+                // Call login API
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Original-Host': TENANT_DOMAIN,
+                        'X-Tenant-Domain': TENANT_DOMAIN
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        tenantDomain: TENANT_DOMAIN
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    console.log('✅ Login successful!');
+                    console.log('🔍 User:', result.data.user.email, result.data.user.role);
+                    console.log('🔍 Tenant:', result.data.tenant?.name);
+                    
+                    showSuccess('Login successful! Redirecting...');
+                    
+                    // CRITICAL: Store auth data in sessionStorage using exact Zustand format
+                    const authStorageData = {
+                        state: {
+                            user: result.data.user,
+                            tenant: result.data.tenant,
+                            subscription: result.data.subscription || null,
+                            token: result.data.token,
+                            isAuthenticated: true
+                        },
+                        version: 0
+                    };
+                    
+                    try {
+                        // Store in sessionStorage (same as Zustand persist)
+                        sessionStorage.setItem('auth-storage', JSON.stringify(authStorageData));
+                        console.log('✅ Auth data stored in sessionStorage');
+                        
+                        // Verify storage
+                        const verification = sessionStorage.getItem('auth-storage');
+                        if (!verification) {
+                            throw new Error('SessionStorage verification failed');
+                        }
+                        console.log('✅ SessionStorage verified');
+                        
+                        // Small delay to ensure storage completes
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                        // DIRECT redirect to tenant dashboard
+                        console.log('🔄 Redirecting to:', DASHBOARD_URL);
+                        window.location.href = DASHBOARD_URL;
+                        
+                    } catch (storageError) {
+                        console.error('❌ Storage error:', storageError);
+                        showError('Login successful but session storage failed. Please try again.');
+                    }
+                    
+                } else {
+                    throw new Error(result.message || `Login failed: ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                showError(`Login failed: ${error.message}`);
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            }
+        }
+        
+        // Initialize login form
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 Direct dashboard redirect mode activated');
+            
+            // Set up form submission
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+        });
+    </script>
+</body>
+</html>
+
