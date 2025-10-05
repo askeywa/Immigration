@@ -11,7 +11,7 @@ import {
 } from '../controllers/authController';
 import { validateLogin, validateRegister, validateLoginMiddleware } from '../middleware/validation';
 import { authenticate } from '../middleware/auth';
-import { resolveTenant } from '../middleware/tenantResolution';
+import { resolveTenantEnhanced as resolveTenant } from '../middleware/enhancedTenantResolution';
 import { rowLevelSecurity } from '../middleware/rowLevelSecurity';
 import { authRateLimit, globalRateLimit } from '../middleware/rateLimiting';
 
