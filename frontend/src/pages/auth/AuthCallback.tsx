@@ -137,12 +137,11 @@ const AuthCallback: React.FC = () => {
           
           console.log('🔄 AuthCallback: Redirecting to:', redirectPath);
           
-          // CRITICAL: Use window.location.replace to ensure a full page reload
-          // This ensures the auth store is fully rehydrated from sessionStorage
-          // Increased timeout to ensure sessionStorage persist completes
+          // CRITICAL: Use window.location.replace for immediate redirect
+          // SessionStorage is already written, no need for long delay
           setTimeout(() => {
             window.location.replace(redirectPath);
-          }, 2000); // Increased from 1500 to 2000ms
+          }, 200); // Increased from 1500 to 2000ms
           
         } catch (storeError) {
           const errorMsg = 'Failed to store authentication data';
