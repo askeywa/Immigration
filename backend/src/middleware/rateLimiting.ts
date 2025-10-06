@@ -37,16 +37,36 @@ export const strictRateLimit = rateLimit({
   legacyHeaders: false,
 });
 
-// Authentication rate limiting (disabled for testing)
+// Authentication rate limiting - Industry standard: 5 attempts per 15 minutes
 export const authRateLimit = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100000, // limit each IP to 100000 auth requests per windowMs (effectively disabled)
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 auth requests per windowMs
   message: {
     success: false,
-    message: 'Too many authentication attempts, please try again later.'
+    message: 'Too many login attempts. Please try again in 15 minutes.',
+    error: 'RATE_LIMIT_EXCEEDED'
   },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req: Request, res: Response) => {
+    console.warn('🚫 Rate limit exceeded for login attempts', {
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+      email: req.body?.email,
+      timestamp: new Date().toISOString()
+    });
+    
+    res.status(429).json({
+      success: false,
+      message: 'Too many login attempts. Please try again in 15 minutes.',
+      error: 'RATE_LIMIT_EXCEEDED',
+      retryAfter: 900 // 15 minutes in seconds
+    });
+  },
+  skip: (req: Request) => {
+    // Skip rate limiting in development for testing
+    return process.env.NODE_ENV === 'development';
+  }
 });
 
 // Tenant-specific rate limiting

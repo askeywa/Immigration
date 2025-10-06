@@ -117,9 +117,25 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// Compare password method
+// Compare password method with timeout protection
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password);
+  try {
+    // Add timeout protection to prevent bcrypt from hanging
+    return await Promise.race([
+      bcrypt.compare(candidatePassword, this.password),
+      new Promise<boolean>((_, reject) => 
+        setTimeout(() => reject(new Error('Password comparison timeout')), 3000)
+      )
+    ]);
+  } catch (error) {
+    // Log timeout or other errors for monitoring
+    if (error instanceof Error && error.message.includes('timeout')) {
+      console.error('⚠️  Password comparison timeout for user:', this.email);
+    } else {
+      console.error('❌ Password comparison error:', error instanceof Error ? error.message : String(error));
+    }
+    return false; // Return false for any comparison failure
+  }
 };
 
 // Check if user is super admin
