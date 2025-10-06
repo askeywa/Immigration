@@ -162,7 +162,11 @@ export class TenantApiController {
    * POST /api/v1/tenant/users
    */
   static async createTenantUser(req: Request, res: Response): Promise<void> {
+    const controllerId = Math.random().toString(36).substring(7);
     try {
+      console.log(`[${controllerId}] ========== CONTROLLER START ==========`);
+      console.log(`[${controllerId}] 🔍 Controller: createTenantUser called`);
+      
       const { firstName, lastName, email, password, role } = req.body;
       
       // Get tenant context from middleware
@@ -235,6 +239,7 @@ export class TenantApiController {
         createdBy
       });
 
+      console.log(`[${controllerId}] ✅ Controller: Sending success response`);
       res.status(201).json({
         success: true,
         data: {
@@ -250,8 +255,10 @@ export class TenantApiController {
         },
         message: 'User created successfully'
       });
+      console.log(`[${controllerId}] ========== CONTROLLER END (SUCCESS) ==========`);
 
     } catch (error) {
+      console.log(`[${controllerId}] ❌ Controller: Error occurred`);
       log.error('Failed to create tenant user', {
         error: error instanceof Error ? error.message : String(error),
         tenantId: (req as any).tenantId,
@@ -259,11 +266,13 @@ export class TenantApiController {
       });
 
       if (error instanceof AppError) {
+        console.log(`[${controllerId}] ========== CONTROLLER END (APP ERROR) ==========`);
         res.status(error.statusCode).json({
           success: false,
           error: error.message
         });
       } else {
+        console.log(`[${controllerId}] ========== CONTROLLER END (SERVER ERROR) ==========`);
         res.status(500).json({
           success: false,
           error: 'Internal server error'

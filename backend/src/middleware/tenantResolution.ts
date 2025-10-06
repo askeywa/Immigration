@@ -34,12 +34,20 @@ export interface TenantRequest extends Request {
  * @param next Express next function
  */
 export const resolveTenant = async (req: TenantRequest, res: Response, next: NextFunction) => {
+  const requestId = Math.random().toString(36).substring(7);
   const requestStartTime = Date.now();
+  
+  console.log(`[${requestId}] ========== TENANT RESOLUTION START ==========`);
+  console.log(`[${requestId}] Time: ${new Date().toISOString()}`);
+  console.log(`[${requestId}] URL: ${req.method} ${req.url}`);
+  console.log(`[${requestId}] Host: ${req.get('host')}`);
   
   try {
     const tenantDomain = (req as any).get('x-tenant-domain') || (req as any).get('x-original-host');
     const host = (req as any).get('host') || (req as any).get('x-forwarded-host') || '';
     const protocol = (req as any).get('x-forwarded-proto') || (req as any).protocol || 'http';
+    
+    console.log(`[${requestId}] Headers - tenantDomain: ${tenantDomain}, host: ${host}, protocol: ${protocol}`);
     
     const domain = (tenantDomain || host).split(':')[0].toLowerCase();
     
@@ -64,20 +72,27 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
     });
     
     if (isSuperAdminDomain) {
-      console.log('✅ Super Admin Domain Detected:', domain);
+      console.log(`[${requestId}] ✅ Super Admin Domain Detected: ${domain}`);
       (req as any).tenant = undefined;
       (req as any).tenantId = undefined;
       (req as any).isSuperAdmin = true;
+      console.log(`[${requestId}] ========== TENANT RESOLUTION END (SUPER ADMIN) ==========`);
       return next();
     }
     
     // CRITICAL: Wrap tenant resolution in timeout
+    console.log(`[${requestId}] 🔍 Starting tenant resolution for domain: ${domain}`);
     const resolutionPromise = resolveTenantByDomain(domain);
     const overallTimeoutPromise = new Promise<null>((_, reject) => 
-      setTimeout(() => reject(new Error('RESOLUTION_TIMEOUT')), 5000)
+      setTimeout(() => {
+        console.log(`[${requestId}] ❌ RESOLUTION_TIMEOUT after 5 seconds`);
+        reject(new Error('RESOLUTION_TIMEOUT'));
+      }, 5000)
     );
     
+    console.log(`[${requestId}] ⏱️  Racing tenant resolution promises...`);
     const tenant = await Promise.race([resolutionPromise, overallTimeoutPromise]);
+    console.log(`[${requestId}] ✅ Tenant resolution completed`);
     
     if (tenant) {
       if (tenant.status !== 'active' && tenant.status !== 'trial') {
@@ -97,21 +112,24 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
       (res as any).set('X-Tenant-Name', tenant.name);
       
       const resolutionDuration = Date.now() - requestStartTime;
-      console.log(`✅ Tenant resolved in ${resolutionDuration}ms`);
+      console.log(`[${requestId}] ✅ Tenant resolved in ${resolutionDuration}ms`);
+      console.log(`[${requestId}] ========== TENANT RESOLUTION END (SUCCESS) ==========`);
       
       return next();
     }
     
     if (domain === 'api.sehwagimmigration.com' || domain === config.apiDomain) {
+      console.log(`[${requestId}] ========== TENANT RESOLUTION END (API DOMAIN) ==========`);
       return next();
     }
     
-    console.log('❌ No valid domain pattern found:', {
+    console.log(`[${requestId}] ❌ No valid domain pattern found:`, {
       domain,
       host,
       allowedSuperAdminDomains: config.allowedSuperAdminDomains
     });
     
+    console.log(`[${requestId}] ========== TENANT RESOLUTION END (NOT FOUND) ==========`);
     return res.status(404).json({
       success: false,
       error: 'TENANT_NOT_FOUND',
@@ -122,13 +140,14 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
     const errorMessage = error instanceof Error ? error.message : String(error);
     const resolutionDuration = Date.now() - requestStartTime;
     
-    console.error('❌ Tenant resolution error:', {
+    console.error(`[${requestId}] ❌ Tenant resolution error:`, {
       error: errorMessage,
       domain: (req as any).get('host'),
       duration: `${resolutionDuration}ms`
     });
     
     if (errorMessage.includes('TIMEOUT')) {
+      console.log(`[${requestId}] ========== TENANT RESOLUTION END (TIMEOUT ERROR) ==========`);
       return res.status(503).json({
         success: false,
         error: 'SERVICE_UNAVAILABLE',
@@ -137,6 +156,7 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
       });
     }
     
+    console.log(`[${requestId}] ========== TENANT RESOLUTION END (GENERAL ERROR) ==========`);
     return res.status(500).json({
       success: false,
       error: 'RESOLUTION_FAILED',
@@ -219,8 +239,9 @@ function isValidTenantName(tenantName: string): boolean {
  * @returns Tenant object or null if not found
  */
 async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
+  const queryId = Math.random().toString(36).substring(7);
   try {
-    console.log('🔍 Resolving tenant by domain:', domain);
+    console.log(`[${queryId}] 🔍 Resolving tenant by domain: ${domain}`);
     const queryStartTime = Date.now();
     
     // CRITICAL: Add timeout protection to prevent hanging
@@ -233,13 +254,17 @@ async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
     .exec();
     
     const timeoutPromise = new Promise<null>((_, reject) => 
-      setTimeout(() => reject(new Error('TENANT_QUERY_TIMEOUT')), 3500)
+      setTimeout(() => {
+        console.log(`[${queryId}] ❌ TENANT_QUERY_TIMEOUT after 3.5 seconds`);
+        reject(new Error('TENANT_QUERY_TIMEOUT'));
+      }, 3500)
     );
     
+    console.log(`[${queryId}] ⏱️  Starting MongoDB query with timeout...`);
     const tenant = await Promise.race([tenantQueryPromise, timeoutPromise]);
     
     const queryDuration = Date.now() - queryStartTime;
-    console.log(`🔍 Tenant query completed in ${queryDuration}ms:`, tenant ? {
+    console.log(`[${queryId}] ✅ Tenant query completed in ${queryDuration}ms:`, tenant ? {
       _id: tenant._id,
       name: tenant.name,
       domain: tenant.domain,
