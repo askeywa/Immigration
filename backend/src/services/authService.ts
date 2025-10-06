@@ -11,6 +11,31 @@ import { AuthenticationError, ValidationError, ConflictError } from '../utils/er
 import mongoose from 'mongoose';
 
 export class AuthService {
+  // Helper method to safely find subscription plan with timeout
+  private static async findSubscriptionPlanWithTimeout(): Promise<any> {
+    try {
+      // Try to find trial plan first
+      const trialPlan = await Promise.race([
+        SubscriptionPlan.findOne({ name: 'trial', isActive: true }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Plan query timeout')), 5000))
+      ]);
+      if (trialPlan) return trialPlan;
+    } catch (error) {
+      console.log('⚠️ Trial plan query failed, trying fallback');
+    }
+    
+    try {
+      // Fallback: find any active plan
+      return await Promise.race([
+        SubscriptionPlan.findOne({ isActive: true }).sort({ createdAt: 1 }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Fallback plan query timeout')), 3000))
+      ]);
+    } catch (error) {
+      console.log('⚠️ All plan queries failed:', error.message);
+      return null;
+    }
+  }
+
   static generateToken(userId: string, tenantId?: string, role?: string): string {
     // Generate JWT token with tenant context
     const payload: any = { userId };
@@ -212,7 +237,7 @@ export class AuthService {
       await tenant.save();
 
       // Create trial subscription
-      const trialPlan = await SubscriptionPlan.findOne({ name: 'trial', isActive: true });
+      const trialPlan = await this.findSubscriptionPlanWithTimeout();
       if (trialPlan) {
         subscription = new Subscription({
           tenantId: tenant._id,
@@ -274,7 +299,7 @@ export class AuthService {
       await tenant.save();
 
       // Create trial subscription
-      const trialPlan = await SubscriptionPlan.findOne({ name: 'trial', isActive: true });
+      const trialPlan = await this.findSubscriptionPlanWithTimeout();
       if (trialPlan) {
         subscription = new Subscription({
           tenantId: tenant._id,
@@ -303,7 +328,11 @@ export class AuthService {
       isActive: true
     });
     
-    await user.save();
+    // Save user with timeout protection
+    await Promise.race([
+      user.save(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('User save timeout')), 8000))
+    ]);
 
     // Update subscription user count if tenant was created
     if (subscription) {
@@ -354,13 +383,16 @@ export class AuthService {
     }
 
     // Register user with tenant
+    console.log('🔍 AuthService: About to call this.register()');
     const result = await this.register({
       ...userData,
       tenantId: userData.tenantId
     });
+    console.log('✅ AuthService: this.register() completed');
 
     // Update subscription usage
     if (subscription) {
+      console.log('🔍 AuthService: About to update subscription usage');
       const updateFields: any = {
         'usage.currentUsers': subscription.usage.currentUsers + 1,
         'usage.currentAdmins': subscription.usage.currentAdmins + (userData.role === 'admin' ? 1 : 0),
@@ -371,6 +403,7 @@ export class AuthService {
         { tenantId: new mongoose.Types.ObjectId(userData.tenantId) },
         updateFields
       );
+      console.log('✅ AuthService: Subscription usage updated');
     }
 
     return { user: result.user, token: result.token };
