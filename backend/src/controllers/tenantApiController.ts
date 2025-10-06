@@ -218,11 +218,11 @@ export class TenantApiController {
       }, createdBy); // Pass createdBy for auditing/logging
 
       // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => {
+      const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new AppError('User creation timed out', 408)), 8000);
       });
 
-      const result = await Promise.race([createUserPromise, timeoutPromise]);
+      const result = await Promise.race([createUserPromise, timeoutPromise]) as Awaited<typeof createUserPromise>;
 
       log.info('Tenant user created successfully', {
         userId: result.user._id?.toString(),
