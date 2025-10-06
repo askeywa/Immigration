@@ -4,6 +4,7 @@ import { TenantService } from '../services/tenantService';
 import { AppError } from '../utils/errors';
 import { log } from '../config/logging';
 import { config } from '../config/config';
+import { User } from '../models/User';
 
 export class TenantApiController {
   /**
@@ -216,7 +217,7 @@ export class TenantApiController {
       }, createdBy);
 
       log.info('Tenant user created successfully', {
-        userId: result.user._id,
+        userId: result.user._id?.toString(),
         email: result.user.email,
         role: result.user.role,
         tenantId,
