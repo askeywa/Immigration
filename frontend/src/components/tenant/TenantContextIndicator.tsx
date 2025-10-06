@@ -67,9 +67,9 @@ export const TenantContextIndicator: React.FC<TenantContextIndicatorProps> = ({
       >
         {/* Tenant logo or icon */}
         <div className="flex-shrink-0">
-          {tenant?.settings.branding?.logo ? (
+          {tenant?.settings?.branding?.logo ? (
             <img 
-              src={tenant.settings.branding.logo} 
+              src={tenant.settings?.branding?.logo} 
               alt={tenant.name}
               className="h-6 w-6 rounded-full object-cover"
             />
@@ -140,7 +140,7 @@ export const TenantContextIndicator: React.FC<TenantContextIndicatorProps> = ({
                 )}
                 
                 {/* Features */}
-                {tenant.settings.features && tenant.settings.features.length > 0 && (
+                {tenant.settings?.features && tenant.settings.features.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-2">Available Features</h4>
                     <div className="flex flex-wrap gap-1">
@@ -157,21 +157,21 @@ export const TenantContextIndicator: React.FC<TenantContextIndicatorProps> = ({
                 )}
                 
                 {/* Branding preview */}
-                {tenant.settings.branding && (
+                {tenant.settings?.branding && (
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-2">Branding</h4>
                     <div className="space-y-1 text-xs text-gray-600">
-                      {tenant.settings.branding.companyName && (
+                      {tenant.settings?.branding?.companyName && (
                         <div><span className="font-medium">Company:</span> {tenant.settings.branding.companyName}</div>
                       )}
-                      {tenant.settings.branding.primaryColor && (
+                      {tenant.settings?.branding?.primaryColor && (
                         <div className="flex items-center space-x-2">
                           <span className="font-medium">Primary Color:</span>
                           <div 
                             className="w-4 h-4 rounded border border-gray-300"
-                            style={{ backgroundColor: tenant.settings.branding.primaryColor }}
+                            style={{ backgroundColor: tenant.settings?.branding?.primaryColor }}
                           />
-                          <span className="text-gray-500">{tenant.settings.branding.primaryColor}</span>
+                          <span className="text-gray-500">{tenant.settings?.branding?.primaryColor}</span>
                         </div>
                       )}
                     </div>
@@ -262,7 +262,7 @@ export const TenantContextCompact: React.FC<{ className?: string }> = ({ classNa
       <div className="flex-shrink-0">
         {tenant?.settings.branding?.logo ? (
           <img 
-            src={tenant.settings.branding.logo} 
+            src={tenant.settings?.branding?.logo} 
             alt={tenant.name}
             className="h-5 w-5 rounded-full object-cover"
           />

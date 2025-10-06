@@ -330,11 +330,16 @@ app.use(express.static(frontendDistPath, {
   index: false // Don't auto-serve index.html for directory requests
 }));
 
-// SPA fallback: Serve index.html for all non-API routes
+// SPA fallback: Serve index.html for all non-API routes (but not static assets)
 app.get('*', (req, res, next) => {
   // Skip if it's an API route
   if (req.path.startsWith('/api/')) {
     return next();
+  }
+  
+  // Skip if it's a static asset (JS, CSS, images, etc.)
+  if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map)$/)) {
+    return next(); // Let express.static handle it
   }
   
   console.log(`Serving React app for route: ${req.path}`);
