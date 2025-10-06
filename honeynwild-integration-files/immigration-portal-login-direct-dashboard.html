@@ -655,7 +655,7 @@
                     
                     // Redirect to dashboard - SAME TENANT REDIRECT
                     setTimeout(() => {
-                        window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant/dashboard.html`;
+                        window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant/dashboard`;
                     }, 2000);
                 } else {
                     showMessage(data.message || 'Login failed. Please check your credentials.', 'error');
@@ -678,7 +678,7 @@
             if (existingToken) {
                 showMessage('Existing session found. Redirecting...', 'success');
                 setTimeout(() => {
-                    window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant/dashboard.html`;
+                    window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant/dashboard`;
                 }, 1000);
             }
 
