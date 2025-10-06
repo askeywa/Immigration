@@ -112,18 +112,31 @@ export const TenantSettings: React.FC = () => {
 
     try {
       console.log('🔧 TenantSettings: Making API call to /tenant/settings');
-      const response = await tenantApiService.get('/tenant/settings');
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('API call timeout after 10 seconds')), 10000);
+      });
+      
+      const apiCallPromise = tenantApiService.get('/tenant/settings');
+      const response = await Promise.race([apiCallPromise, timeoutPromise]) as any;
+      
       console.log('🔧 TenantSettings: API response:', response);
       
-      if (response.success) {
+      if (response && response.success) {
         setSettings(response.data);
         console.log('✅ TenantSettings: Settings loaded successfully');
       } else {
         setError('Failed to load tenant settings');
-        console.log('❌ TenantSettings: API returned success: false');
+        console.log('❌ TenantSettings: API returned success: false or no response');
       }
     } catch (err: any) {
       console.log('❌ TenantSettings: API call failed:', err);
+      console.log('❌ TenantSettings: Error details:', {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+      });
       log.error('Failed to load tenant settings', { error: err.message });
       setError('Failed to load tenant settings: ' + err.message);
     } finally {
