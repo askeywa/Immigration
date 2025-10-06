@@ -33,6 +33,28 @@ router.get('/tenant/info',
   TenantApiController.getTenantInfo
 );
 
+// Tenant settings routes
+router.get('/tenant/settings',
+  resolveTenant,
+  TenantApiController.getTenantSettings
+);
+
+router.put('/tenant/settings',
+  resolveTenant,
+  TenantApiController.updateTenantSettings
+);
+
+// Tenant branding routes
+router.get('/tenant/branding',
+  resolveTenant,
+  TenantApiController.getTenantBranding
+);
+
+router.post('/tenant/branding',
+  resolveTenant,
+  TenantApiController.updateTenantBranding
+);
+
 // Widget configuration for tenant integration
 router.get('/tenant/widget/config',
   resolveTenant,

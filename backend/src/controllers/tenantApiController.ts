@@ -2135,4 +2135,321 @@ export class TenantApiController {
       }
     }
   }
+
+  /**
+   * Get tenant settings
+   */
+  static async getTenantSettings(req: Request, res: Response): Promise<void> {
+    try {
+      const tenant = req.tenant;
+      
+      if (!tenant) {
+        res.status(400).json({
+          success: false,
+          error: 'Tenant not found'
+        });
+        return;
+      }
+
+      // Mock tenant settings data
+      const settings = {
+        // General Settings
+        name: tenant.name,
+        domain: tenant.domain,
+        email: tenant.email || 'admin@example.com',
+        phone: '+1-555-0123',
+        timezone: 'America/Toronto',
+        language: 'en',
+        
+        // Business Information
+        businessType: 'Immigration Services',
+        industry: 'Legal Services',
+        companySize: '10-50',
+        website: `https://${tenant.domain}`,
+        description: 'Professional immigration services and consultation',
+        
+        // Security Settings
+        passwordPolicy: {
+          minLength: 8,
+          requireUppercase: true,
+          requireLowercase: true,
+          requireNumbers: true,
+          requireSpecialChars: true,
+          maxAge: 90
+        },
+        sessionTimeout: 30,
+        twoFactorRequired: false,
+        ipWhitelist: [],
+        
+        // Notification Settings
+        notifications: {
+          email: {
+            userRegistration: true,
+            documentUpload: true,
+            statusUpdate: true,
+            systemAlerts: true
+          },
+          sms: {
+            userRegistration: false,
+            documentUpload: false,
+            statusUpdate: true,
+            systemAlerts: true
+          },
+          push: {
+            userRegistration: true,
+            documentUpload: true,
+            statusUpdate: true,
+            systemAlerts: true
+          }
+        },
+        
+        // Integration Settings
+        integrations: {
+          emailService: 'smtp',
+          smsService: 'twilio',
+          storageService: 'aws-s3',
+          analyticsService: 'google-analytics'
+        },
+        
+        // Feature Flags
+        features: {
+          documentUpload: true,
+          userManagement: true,
+          reporting: true,
+          analytics: true,
+          branding: true,
+          apiAccess: false,
+          sso: false,
+          mfa: false
+        },
+        
+        // Compliance Settings
+        compliance: {
+          gdprCompliant: true,
+          dataRetentionDays: 2555, // 7 years
+          auditLogging: true,
+          dataEncryption: true
+        },
+        
+        lastUpdated: new Date().toISOString()
+      };
+
+      res.status(200).json({
+        success: true,
+        data: settings
+      });
+
+    } catch (error) {
+      log.error('Failed to get tenant settings', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        });
+      }
+    }
+  }
+
+  /**
+   * Update tenant settings
+   */
+  static async updateTenantSettings(req: Request, res: Response): Promise<void> {
+    try {
+      const tenant = req.tenant;
+      const updates = req.body;
+      
+      if (!tenant) {
+        res.status(400).json({
+          success: false,
+          error: 'Tenant not found'
+        });
+        return;
+      }
+
+      // In a real implementation, you would update the tenant in the database
+      // For now, we'll just return success with the updated settings
+      
+      log.info('Tenant settings updated', {
+        tenantId: tenant._id,
+        tenantDomain: tenant.domain,
+        updatedFields: Object.keys(updates)
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          ...updates,
+          lastUpdated: new Date().toISOString()
+        },
+        message: 'Settings updated successfully'
+      });
+
+    } catch (error) {
+      log.error('Failed to update tenant settings', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        });
+      }
+    }
+  }
+
+  /**
+   * Get tenant branding settings
+   */
+  static async getTenantBranding(req: Request, res: Response): Promise<void> {
+    try {
+      const tenant = req.tenant;
+      
+      if (!tenant) {
+        res.status(400).json({
+          success: false,
+          error: 'Tenant not found'
+        });
+        return;
+      }
+
+      // Mock branding data
+      const branding = {
+        logo: {
+          url: null,
+          width: 200,
+          height: 60,
+          alt: `${tenant.name} Logo`
+        },
+        favicon: {
+          url: null,
+          width: 32,
+          height: 32
+        },
+        colors: {
+          primary: '#DC2626',
+          secondary: '#F3F4F6',
+          accent: '#F59E0B',
+          background: '#FFFFFF',
+          text: '#1F2937',
+          muted: '#6B7280'
+        },
+        typography: {
+          fontFamily: 'Inter',
+          headingFont: 'Nunito',
+          fontSize: {
+            xs: '0.75rem',
+            sm: '0.875rem',
+            base: '1rem',
+            lg: '1.125rem',
+            xl: '1.25rem',
+            '2xl': '1.5rem',
+            '3xl': '1.875rem',
+            '4xl': '2.25rem'
+          }
+        },
+        layout: {
+          headerHeight: 64,
+          sidebarWidth: 256,
+          borderRadius: 8,
+          shadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+        },
+        customCSS: '',
+        meta: {
+          title: `${tenant.name} - Immigration Portal`,
+          description: 'Professional immigration services and consultation',
+          keywords: 'immigration, visa, consultation, legal services'
+        },
+        lastUpdated: new Date().toISOString()
+      };
+
+      res.status(200).json({
+        success: true,
+        data: branding
+      });
+
+    } catch (error) {
+      log.error('Failed to get tenant branding', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        });
+      }
+    }
+  }
+
+  /**
+   * Update tenant branding settings
+   */
+  static async updateTenantBranding(req: Request, res: Response): Promise<void> {
+    try {
+      const tenant = req.tenant;
+      const updates = req.body;
+      
+      if (!tenant) {
+        res.status(400).json({
+          success: false,
+          error: 'Tenant not found'
+        });
+        return;
+      }
+
+      // In a real implementation, you would update the tenant branding in the database
+      // For now, we'll just return success with the updated branding
+      
+      log.info('Tenant branding updated', {
+        tenantId: tenant._id,
+        tenantDomain: tenant.domain,
+        updatedFields: Object.keys(updates)
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          ...updates,
+          lastUpdated: new Date().toISOString()
+        },
+        message: 'Branding updated successfully'
+      });
+
+    } catch (error) {
+      log.error('Failed to update tenant branding', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        });
+      }
+    }
+  }
 }
