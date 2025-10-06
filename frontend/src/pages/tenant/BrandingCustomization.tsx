@@ -13,6 +13,7 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline';
 import { useTenant } from '@/contexts/TenantContext';
+import { useAuthStore } from '@/store/authStore';
 import { tenantApiService } from '@/services/tenantApiService';
 import { log } from '@/utils/logger';
 
@@ -93,6 +94,13 @@ interface ColorPreset {
 
 export const BrandingCustomization: React.FC = () => {
   const { tenant, isTenantAdmin } = useTenant();
+  const { user: currentUser } = useAuthStore();
+  
+  // DEBUG: Log the state
+  console.log('🎨 BrandingCustomization: Component rendered');
+  console.log('🎨 isTenantAdmin:', isTenantAdmin);
+  console.log('🎨 currentUser:', currentUser);
+  console.log('🎨 tenant:', tenant);
   
   // State management
   const [branding, setBranding] = useState<BrandingSettings>({
@@ -195,24 +203,51 @@ export const BrandingCustomization: React.FC = () => {
 
   // Load branding settings
   const loadBranding = async () => {
-    if (!isTenantAdmin) return;
+    console.log('🎨 BrandingCustomization: loadBranding called');
+    console.log('🎨 isTenantAdmin:', isTenantAdmin);
+    
+    if (!isTenantAdmin) {
+      console.log('❌ BrandingCustomization: Not tenant admin, returning early');
+      setError('Not authorized - not a tenant admin');
+      setIsLoading(false);
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await tenantApiService.get('/tenant/branding');
+      console.log('🎨 BrandingCustomization: Making API call to /tenant/branding');
       
-      if (response.success) {
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('API call timeout after 10 seconds')), 10000);
+      });
+      
+      const apiCallPromise = tenantApiService.get('/tenant/branding');
+      const response = await Promise.race([apiCallPromise, timeoutPromise]) as any;
+      
+      console.log('🎨 BrandingCustomization: API response:', response);
+      
+      if (response && response.success) {
         setBranding({ ...branding, ...response.data });
+        console.log('✅ BrandingCustomization: Branding loaded successfully');
       } else {
         setError('Failed to load branding settings');
+        console.log('❌ BrandingCustomization: API returned success: false or no response');
       }
     } catch (err: any) {
+      console.log('❌ BrandingCustomization: API call failed:', err);
+      console.log('❌ BrandingCustomization: Error details:', {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+      });
       log.error('Failed to load branding settings', { error: err.message });
-      setError('Failed to load branding settings');
+      setError('Failed to load branding settings: ' + err.message);
     } finally {
       setIsLoading(false);
+      console.log('🎨 BrandingCustomization: Loading completed');
     }
   };
 
