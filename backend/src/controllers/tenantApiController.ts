@@ -2152,9 +2152,15 @@ export class TenantApiController {
         return;
       }
 
-      // Get tenant info from database
+      // Get tenant info from database with timeout
       const { Tenant } = require('../models/Tenant');
-      const tenant = await Tenant.findById(tenantId);
+      
+      const tenantPromise = Tenant.findById(tenantId);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 5000);
+      });
+      
+      const tenant = await Promise.race([tenantPromise, timeoutPromise]);
       
       if (!tenant) {
         res.status(404).json({
@@ -2288,9 +2294,15 @@ export class TenantApiController {
         return;
       }
 
-      // Get tenant info from database
+      // Get tenant info from database with timeout
       const { Tenant } = require('../models/Tenant');
-      const tenant = await Tenant.findById(tenantId);
+      
+      const tenantPromise = Tenant.findById(tenantId);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 5000);
+      });
+      
+      const tenant = await Promise.race([tenantPromise, timeoutPromise]);
       
       if (!tenant) {
         res.status(404).json({
@@ -2353,9 +2365,15 @@ export class TenantApiController {
         return;
       }
 
-      // Get tenant info from database
+      // Get tenant info from database with timeout
       const { Tenant } = require('../models/Tenant');
-      const tenant = await Tenant.findById(tenantId);
+      
+      const tenantPromise = Tenant.findById(tenantId);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 5000);
+      });
+      
+      const tenant = await Promise.race([tenantPromise, timeoutPromise]);
       
       if (!tenant) {
         res.status(404).json({
@@ -2456,9 +2474,15 @@ export class TenantApiController {
         return;
       }
 
-      // Get tenant info from database
+      // Get tenant info from database with timeout
       const { Tenant } = require('../models/Tenant');
-      const tenant = await Tenant.findById(tenantId);
+      
+      const tenantPromise = Tenant.findById(tenantId);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 5000);
+      });
+      
+      const tenant = await Promise.race([tenantPromise, timeoutPromise]);
       
       if (!tenant) {
         res.status(404).json({
