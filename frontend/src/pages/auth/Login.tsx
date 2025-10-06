@@ -59,7 +59,7 @@ export const Login: React.FC = () => {
         let redirectPath = '/dashboard';
         if (currentUser.role === 'super_admin') {
           redirectPath = '/super-admin';
-        } else if (currentUser.role === 'admin') {
+        } else if (currentUser.role === 'admin' || currentUser.role === 'tenant_admin') {
           redirectPath = '/tenant/dashboard';
         }
         console.log('🔍 Redirecting to:', redirectPath);

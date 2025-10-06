@@ -61,17 +61,21 @@ export const config = {
         return process.env.FRONTEND_URL || 'http://localhost:5174';
       }
       
-      // Production logic
+      // Production logic - ALL dashboards (super admin and tenant) are hosted on ibuyscrap.ca
+      // The tenant login pages are on their own domains, but after login they redirect to ibuyscrap.ca
       const isSuperAdmin = domain && ['ibuyscrap.ca', 'www.ibuyscrap.ca'].includes(domain);
       
       if (isSuperAdmin) {
-        return process.env.SUPER_ADMIN_FRONTEND_URL || 'https://ibuyscrap.ca';
+        return 'https://ibuyscrap.ca/super-admin';
       }
       
-      if (domain) {
-        return `https://${domain}`;
+      // For tenant logins from custom domains (like honeynwild.com), 
+      // redirect to the tenant dashboard on ibuyscrap.ca
+      if (domain && !['ibuyscrap.ca', 'www.ibuyscrap.ca'].includes(domain)) {
+        return 'https://ibuyscrap.ca/tenant/dashboard';
       }
       
+      // Default fallback
       return process.env.FRONTEND_URL || 'https://ibuyscrap.ca';
     },
     rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10), // 15 minutes

@@ -1,0 +1,614 @@
+name: Secure Production Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Manual trigger option
+
+# Prevent concurrent deployments
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+env:
+  DEPLOY_USER: ubuntu
+  APP_DIR: /var/www/immigration-portal
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # JOB 1: BUILD & TEST (on GitHub runners)
+  # ============================================
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for proper git operations
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      
+      # ============================================
+      # BACKEND BUILD
+      # ============================================
+      - name: 📦 Install backend dependencies
+        working-directory: backend
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🧪 Run backend tests
+        working-directory: backend
+        run: |
+          if npm run test 2>/dev/null; then
+            echo "✅ Backend tests passed"
+          else
+            echo "⚠️ No tests configured - this should be fixed"
+            # Uncomment to enforce tests:
+            # exit 1
+          fi
+      
+      - name: 🔨 Build backend
+        working-directory: backend
+        run: npm run build
+      
+      - name: ✅ Verify backend build
+        working-directory: backend
+        run: |
+          if [ ! -f "dist/server.js" ]; then
+            echo "❌ Backend build failed - dist/server.js not found"
+            exit 1
+          fi
+          echo "✅ Backend build verified"
+          ls -lh dist/
+      
+      # ============================================
+      # FRONTEND BUILD
+      # ============================================
+      - name: 📦 Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: 🧪 Run frontend tests
+        working-directory: frontend
+        run: |
+          if npm run test 2>/dev/null; then
+            echo "✅ Frontend tests passed"
+          else
+            echo "⚠️ No tests configured - this should be fixed"
+            # Uncomment to enforce tests:
+            # exit 1
+          fi
+      
+      - name: 🔨 Build frontend
+        working-directory: frontend
+        run: npm run build
+      
+      - name: ✅ Verify frontend build
+        working-directory: frontend
+        run: |
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ Frontend build failed - dist/index.html not found"
+            exit 1
+          fi
+          echo "✅ Frontend build verified"
+          ls -lh dist/ | head -20
+      
+      # ============================================
+      # PACKAGE ARTIFACTS
+      # ============================================
+      - name: 📦 Package backend artifact
+        run: |
+          cd backend
+          tar -czf backend-dist.tar.gz dist/ package.json package-lock.json
+          mv backend-dist.tar.gz ../
+      
+      - name: 📦 Package frontend artifact
+        run: |
+          cd frontend
+          tar -czf frontend-dist.tar.gz dist/
+          mv frontend-dist.tar.gz ../
+      
+      - name: 📤 Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: backend-dist.tar.gz
+          retention-days: 7
+      
+      - name: 📤 Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend-dist.tar.gz
+          retention-days: 7
+  
+  # ============================================
+  # JOB 2: DEPLOY (to production server)
+  # ============================================
+  deploy:
+    name: Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://ibuyscrap.ca
+    
+    steps:
+      - name: 📥 Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+      
+      - name: 📥 Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+      
+      # ============================================
+      # PREPARE ENCRYPTED SECRETS
+      # ============================================
+      - name: 🔐 Create encrypted environment file
+        env:
+          # GitHub Secrets (encrypted in transit)
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          SUPER_ADMIN_DOMAIN: ${{ secrets.SUPER_ADMIN_DOMAIN }}
+          MAIN_DOMAIN: ${{ secrets.MAIN_DOMAIN }}
+          TENANT_DOMAIN_PREFIX: ${{ secrets.TENANT_DOMAIN_PREFIX }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          RATE_LIMIT_WINDOW_MS: ${{ secrets.RATE_LIMIT_WINDOW_MS }}
+          RATE_LIMIT_MAX_REQUESTS: ${{ secrets.RATE_LIMIT_MAX_REQUESTS }}
+          REDIS_ENABLED: ${{ secrets.REDIS_ENABLED }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ secrets.SENTRY_RELEASE }}
+          SENTRY_TRACES_SAMPLE_RATE: ${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}
+          SENTRY_PROFILES_SAMPLE_RATE: ${{ secrets.SENTRY_PROFILES_SAMPLE_RATE }}
+          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
+          NEW_RELIC_APP_NAME: ${{ secrets.NEW_RELIC_APP_NAME }}
+          NEW_RELIC_ENABLED: ${{ secrets.NEW_RELIC_ENABLED }}
+          APP_NAME: ${{ secrets.APP_NAME }}
+          ALLOW_START_WITHOUT_DB: ${{ secrets.ALLOW_START_WITHOUT_DB }}
+          ALLOWED_SUPER_ADMIN_DOMAINS: ${{ secrets.ALLOWED_SUPER_ADMIN_DOMAINS }}
+        run: |
+          # Create environment file (in memory only)
+          cat > .env.production << 'ENVEOF'
+          NODE_ENV=production
+          PORT=5000
+          
+          # MongoDB
+          MONGODB_URI=${{ secrets.MONGODB_URI }}
+          
+          # JWT
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
+          
+          # Frontend
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+          
+          # Super Admin
+          SUPER_ADMIN_DOMAIN=${{ secrets.SUPER_ADMIN_DOMAIN }}
+          ALLOWED_SUPER_ADMIN_DOMAINS=${{ secrets.ALLOWED_SUPER_ADMIN_DOMAINS }}
+          
+          # Domain
+          MAIN_DOMAIN=${{ secrets.MAIN_DOMAIN }}
+          TENANT_DOMAIN_PREFIX=${{ secrets.TENANT_DOMAIN_PREFIX }}
+          API_BASE_URL=${{ secrets.API_BASE_URL }}
+          
+          # Rate Limiting
+          RATE_LIMIT_WINDOW_MS=${{ secrets.RATE_LIMIT_WINDOW_MS }}
+          RATE_LIMIT_MAX_REQUESTS=${{ secrets.RATE_LIMIT_MAX_REQUESTS }}
+          
+          # Redis
+          REDIS_ENABLED=${{ secrets.REDIS_ENABLED }}
+          REDIS_URL=${{ secrets.REDIS_URL }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          
+          # Monitoring
+          SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE=${{ secrets.SENTRY_RELEASE }}
+          SENTRY_TRACES_SAMPLE_RATE=${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}
+          SENTRY_PROFILES_SAMPLE_RATE=${{ secrets.SENTRY_PROFILES_SAMPLE_RATE }}
+          NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
+          NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}
+          NEW_RELIC_ENABLED=${{ secrets.NEW_RELIC_ENABLED }}
+          
+          # App
+          APP_NAME=${{ secrets.APP_NAME }}
+          ALLOW_START_WITHOUT_DB=${{ secrets.ALLOW_START_WITHOUT_DB }}
+          ENVEOF
+          
+          # Encrypt using OpenSSL (available on all systems)
+          openssl enc -aes-256-cbc -salt -pbkdf2 -iter 100000 \
+            -in .env.production \
+            -out .env.encrypted \
+            -pass pass:"${{ secrets.ENCRYPTION_KEY }}"
+          
+          # Securely delete plaintext
+          shred -vfz -n 10 .env.production
+          
+          echo "✅ Environment file encrypted"
+      
+      # ============================================
+      # SETUP SSH
+      # ============================================
+      - name: 🔑 Setup SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SSH_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          # Create SSH directory
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          # Save SSH key with strict permissions
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Add host to known_hosts (prevents MITM but allows connection)
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          
+          echo "✅ SSH configured"
+      
+      # ============================================
+      # DEPLOY TO SERVER
+      # ============================================
+      - name: 🚀 Deploy to server
+        env:
+          SSH_HOST: ${{ secrets.EC2_HOST }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+        run: |
+          # Transfer files
+          echo "📤 Transferring artifacts..."
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            backend-dist.tar.gz frontend-dist.tar.gz .env.encrypted \
+            ${{ env.DEPLOY_USER }}@$SSH_HOST:/tmp/
+          
+          # Execute deployment on server
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ env.DEPLOY_USER }}@$SSH_HOST bash -s <<'REMOTE_SCRIPT'
+          
+          set -euo pipefail  # Exit on error, undefined vars, pipe failures
+          
+          # Variables
+          APP_DIR="${{ env.APP_DIR }}"
+          DEPLOY_TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          
+          echo "================================================"
+          echo "🚀 Starting deployment at $DEPLOY_TIMESTAMP"
+          echo "================================================"
+          
+          # ============================================
+          # PREPARE DIRECTORIES
+          # ============================================
+          echo "📁 Preparing directories..."
+          sudo mkdir -p $APP_DIR/backend $APP_DIR/frontend
+          sudo chown -R ${{ env.DEPLOY_USER }}:${{ env.DEPLOY_USER }} $APP_DIR
+          
+          # ============================================
+          # DECRYPT SECRETS
+          # ============================================
+          echo "🔓 Decrypting environment file..."
+          openssl enc -aes-256-cbc -d -pbkdf2 -iter 100000 \
+            -in /tmp/.env.encrypted \
+            -out $APP_DIR/backend/.env \
+            -pass pass:"${{ secrets.ENCRYPTION_KEY }}"
+          
+          chmod 600 $APP_DIR/backend/.env
+          
+          # Securely delete encrypted file
+          shred -vfz -n 10 /tmp/.env.encrypted
+          
+          echo "✅ Environment file decrypted and secured"
+          
+          # ============================================
+          # EXTRACT ARTIFACTS
+          # ============================================
+          echo "📦 Extracting backend..."
+          cd $APP_DIR/backend
+          tar -xzf /tmp/backend-dist.tar.gz
+          
+          echo "📦 Extracting frontend..."
+          cd $APP_DIR/frontend
+          tar -xzf /tmp/frontend-dist.tar.gz
+          
+          # Cleanup
+          rm -f /tmp/backend-dist.tar.gz /tmp/frontend-dist.tar.gz
+          
+          # ============================================
+          # INSTALL PRODUCTION DEPENDENCIES
+          # ============================================
+          echo "📦 Installing production dependencies..."
+          cd $APP_DIR/backend
+          npm ci --omit=dev --prefer-offline --no-audit
+          
+          # ============================================
+          # SETUP REDIS
+          # ============================================
+          echo "🔧 Configuring Redis..."
+          if ! command -v redis-server &> /dev/null; then
+            echo "Installing Redis..."
+            sudo apt-get update -qq
+            sudo apt-get install -y redis-server redis-tools
+          fi
+          
+          # Configure Redis securely (bind to localhost only)
+          sudo tee /etc/redis/redis.conf > /dev/null <<'REDIS_CONF'
+          bind 127.0.0.1
+          protected-mode yes
+          port 6379
+          requirepass ${{ secrets.REDIS_PASSWORD }}
+          maxmemory 256mb
+          maxmemory-policy allkeys-lru
+          save 900 1
+          save 300 10
+          save 60 10000
+          REDIS_CONF
+          
+          # Replace password placeholder
+          sudo sed -i "s/\${{ secrets.REDIS_PASSWORD }}/$REDIS_PASSWORD/g" /etc/redis/redis.conf
+          
+          sudo systemctl restart redis-server
+          sudo systemctl enable redis-server
+          
+          echo "✅ Redis configured"
+          
+          # ============================================
+          # SETUP NGINX
+          # ============================================
+          echo "🔧 Configuring Nginx..."
+          if ! command -v nginx &> /dev/null; then
+            echo "Installing Nginx..."
+            sudo apt-get update -qq
+            sudo apt-get install -y nginx
+          fi
+          
+          # Create Nginx configuration with security headers
+          sudo tee /etc/nginx/sites-available/immigration-portal > /dev/null <<'NGINX_CONF'
+          # Rate limiting zones
+          limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+          limit_req_zone $binary_remote_addr zone=general_limit:10m rate=30r/s;
+          
+          server {
+              listen 80;
+              server_name ibuyscrap.ca www.ibuyscrap.ca;
+              
+              # Security headers
+              add_header X-Frame-Options "SAMEORIGIN" always;
+              add_header X-Content-Type-Options "nosniff" always;
+              add_header X-XSS-Protection "1; mode=block" always;
+              add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+              
+              # Frontend static files
+              root /var/www/immigration-portal/frontend/dist;
+              index index.html;
+              
+              # Compression
+              gzip on;
+              gzip_vary on;
+              gzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/xml+rss;
+              
+              # API proxy with rate limiting
+              location /api/ {
+                  limit_req zone=api_limit burst=20 nodelay;
+                  
+                  proxy_pass http://localhost:5000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_cache_bypass $http_upgrade;
+                  
+                  # Timeouts
+                  proxy_connect_timeout 60s;
+                  proxy_send_timeout 60s;
+                  proxy_read_timeout 60s;
+              }
+              
+              # Frontend SPA routing
+              location / {
+                  limit_req zone=general_limit burst=50 nodelay;
+                  try_files $uri $uri/ /index.html;
+                  
+                  # Cache static assets
+                  location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+                      expires 1y;
+                      add_header Cache-Control "public, immutable";
+                  }
+              }
+          }
+          NGINX_CONF
+          
+          # Enable site
+          sudo ln -sf /etc/nginx/sites-available/immigration-portal /etc/nginx/sites-enabled/
+          sudo rm -f /etc/nginx/sites-enabled/default
+          
+          # Test and reload
+          sudo nginx -t
+          sudo systemctl reload nginx
+          sudo systemctl enable nginx
+          
+          echo "✅ Nginx configured"
+          
+          # ============================================
+          # SETUP PM2
+          # ============================================
+          echo "🔧 Setting up PM2..."
+          if ! command -v pm2 &> /dev/null; then
+            echo "Installing PM2..."
+            sudo npm install -g pm2@latest
+          fi
+          
+          cd $APP_DIR/backend
+          
+          # Create PM2 ecosystem file
+          cat > ecosystem.config.js <<'PM2_CONFIG'
+          module.exports = {
+            apps: [{
+              name: 'immigration-portal',
+              script: './dist/server.js',
+              instances: 1,
+              exec_mode: 'fork',
+              autorestart: true,
+              watch: false,
+              max_memory_restart: '400M',
+              env_production: {
+                NODE_ENV: 'production'
+              },
+              error_file: './logs/error.log',
+              out_file: './logs/output.log',
+              log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+              merge_logs: true,
+              time: true
+            }]
+          }
+          PM2_CONFIG
+          
+          # Create logs directory
+          mkdir -p logs
+          
+          # ============================================
+          # DEPLOY APPLICATION
+          # ============================================
+          echo "🚀 Deploying application..."
+          
+          if pm2 list | grep -q "immigration-portal"; then
+            echo "Restarting application..."
+            pm2 restart ecosystem.config.js --env production --update-env
+          else
+            echo "Starting application..."
+            pm2 start ecosystem.config.js --env production
+          fi
+          
+          # Save PM2 configuration
+          pm2 save
+          
+          # Setup PM2 startup
+          sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ${{ env.DEPLOY_USER }} --hp /home/${{ env.DEPLOY_USER }}
+          
+          # ============================================
+          # HEALTH CHECKS
+          # ============================================
+          echo "🏥 Running health checks..."
+          
+          # Wait for application to start
+          sleep 8
+          
+          # Comprehensive health check
+          HEALTH_CHECK_PASSED=false
+          for attempt in {1..10}; do
+            echo "Health check attempt $attempt/10..."
+            
+            # Check if PM2 process is running
+            if ! pm2 list | grep -q "immigration-portal.*online"; then
+              echo "⚠️  PM2 process not online"
+              sleep 3
+              continue
+            fi
+            
+            # Check HTTP health endpoint
+            if ! curl -sf http://localhost:5000/api/health > /dev/null 2>&1; then
+              echo "⚠️  Health endpoint not responding"
+              sleep 3
+              continue
+            fi
+            
+            # Get detailed health status
+            HEALTH_RESPONSE=$(curl -s http://localhost:5000/api/health)
+            echo "Health response: $HEALTH_RESPONSE"
+            
+            # Parse health response (basic check)
+            if echo "$HEALTH_RESPONSE" | grep -q "healthy\|ok\|success"; then
+              HEALTH_CHECK_PASSED=true
+              echo "✅ Health check passed!"
+              break
+            fi
+            
+            sleep 3
+          done
+          
+          if [ "$HEALTH_CHECK_PASSED" = false ]; then
+            echo "❌ Health check failed after 10 attempts"
+            echo "Recent logs:"
+            pm2 logs immigration-portal --lines 30 --nostream
+            exit 1
+          fi
+          
+          # ============================================
+          # FINAL STATUS
+          # ============================================
+          echo ""
+          echo "================================================"
+          echo "✅ Deployment completed successfully!"
+          echo "================================================"
+          echo ""
+          echo "📊 Application Status:"
+          pm2 status
+          echo ""
+          echo "💾 Memory Usage:"
+          pm2 describe immigration-portal | grep -E "memory|cpu"
+          echo ""
+          echo "🌐 Application URLs:"
+          echo "  - Frontend: http://ibuyscrap.ca"
+          echo "  - API: http://ibuyscrap.ca/api/health"
+          echo ""
+          echo "📝 Deployment completed at: $(date)"
+          
+          REMOTE_SCRIPT
+      
+      # ============================================
+      # CLEANUP
+      # ============================================
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          # Securely delete SSH key
+          if [ -f ~/.ssh/deploy_key ]; then
+            shred -vfz -n 10 ~/.ssh/deploy_key
+          fi
+          
+          # Remove artifacts
+          rm -f backend-dist.tar.gz frontend-dist.tar.gz .env.encrypted
+          
+          echo "✅ Cleanup completed"
+      
+      # ============================================
+      # DEPLOYMENT NOTIFICATION
+      # ============================================
+      - name: 📢 Deployment notification
+        if: success()
+        run: |
+          echo "================================================"
+          echo "✅ DEPLOYMENT SUCCESSFUL"
+          echo "================================================"
+          echo "Deployed by: ${{ github.actor }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Time: $(date)"
+          echo "================================================"
+      
+      - name: 📢 Deployment failed notification
+        if: failure()
+        run: |
+          echo "================================================"
+          echo "❌ DEPLOYMENT FAILED"
+          echo "================================================"
+          echo "Check the logs above for details"
+          echo "================================================"

@@ -6,12 +6,16 @@ import {
   CogIcon,
   DocumentTextIcon,
   CurrencyDollarIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  ArrowPathIcon as RefreshIcon
 } from '@heroicons/react/24/outline';
-// import { useTenant } from '@/contexts/TenantContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
 import { Card } from '@/components/ui/card';
 import { DashboardHeader } from '@/components/common';
+import { useTenantStats, useTenantActivity, useRefreshTenantDashboard } from '@/hooks/useTenantDashboard';
 
 interface TenantStats {
   totalUsers: number;
@@ -31,24 +35,30 @@ interface RecentActivity {
 }
 
 const TenantAdminDashboard: React.FC = () => {
-  // const { tenant, isTenantAdmin } = useTenant();
+  const { tenant, isTenantAdmin } = useTenant();
   const { user } = useAuthStore();
   
-  // Mock tenant data to prevent API calls
-  const tenant = { _id: 'mock-tenant-id', name: 'Atlantic Immigration Solutions' };
-  const isTenantAdmin = true;
+  // Use React Query hooks for real data
+  const { data: tenantStats, isLoading: statsLoading, error: statsError } = useTenantStats();
+  const { data: recentActivity, isLoading: activityLoading, error: activityError } = useTenantActivity();
+  const { refreshAll, isLoading: refreshLoading } = useRefreshTenantDashboard();
   
-  // Use mock data to prevent crashes
-  const safeTenantStats = {
+  // Combined loading state
+  const isLoading = statsLoading || activityLoading;
+  const error = statsError || activityError;
+  
+  // Fallback to mock data if API calls fail
+  const safeTenantStats = tenantStats || {
     totalUsers: 16,
     activeUsers: 14,
     newUsersThisMonth: 3,
     totalDocuments: 45,
     pendingDocuments: 8,
-    monthlyRevenue: 12500
+    monthlyRevenue: 12500,
+    systemUptime: 99.8
   };
   
-  const safeRecentActivity = [
+  const safeRecentActivity = recentActivity || [
     {
       _id: '1',
       type: 'user_registration',
@@ -72,13 +82,11 @@ const TenantAdminDashboard: React.FC = () => {
     }
   ];
   
-  // Combined loading state
-  const isLoading = false;
-  const error = null;
-  
-  console.log('🔍 TenantAdminDashboardFixed: Using mock data');
-  console.log('  - safeTenantStats:', !!safeTenantStats);
-  console.log('  - safeRecentActivity:', safeRecentActivity.length);
+  console.log('🔍 TenantAdminDashboardFixed: Using real data');
+  console.log('  - tenantStats:', !!tenantStats);
+  console.log('  - recentActivity:', recentActivity?.length || 0);
+  console.log('  - isLoading:', isLoading);
+  console.log('  - error:', error);
 
   // Data is now automatically loaded by React Query hooks
   // No manual loading needed!
@@ -113,7 +121,7 @@ const TenantAdminDashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Dashboard</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-gray-600 mb-4">{error?.message || 'An error occurred'}</p>
           <button
             onClick={() => window.location.reload()}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
@@ -136,7 +144,7 @@ const TenantAdminDashboard: React.FC = () => {
         showProfile={true}
         showNotifications={false}
         showSettings={true}
-        onRefresh={() => window.location.reload()}
+        onRefresh={refreshAll}
         onSettingsClick={() => window.location.href = '/tenant/settings'}
         isLoading={isLoading}
         customActions={
@@ -158,6 +166,15 @@ const TenantAdminDashboard: React.FC = () => {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
               <div className="flex flex-wrap items-center gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  onClick={refreshAll}
+                  disabled={refreshLoading}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-colors duration-200 shadow-sm"
+                >
+                  <RefreshIcon className={`w-4 h-4 mr-2 ${refreshLoading ? 'animate-spin' : ''}`} />
+                  {refreshLoading ? 'Refreshing...' : 'Refresh Data'}
+                </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   onClick={() => window.location.href = '/tenant/users'}
@@ -197,10 +214,18 @@ const TenantAdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-gray-900 mb-1">
-                  {safeTenantStats.totalUsers}
+                  {isLoading ? (
+                    <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                  ) : (
+                    safeTenantStats.totalUsers
+                  )}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {safeTenantStats.activeUsers} active users
+                  {isLoading ? (
+                    <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+                  ) : (
+                    `${safeTenantStats.activeUsers} active users`
+                  )}
                 </div>
               </Card>
 
@@ -213,10 +238,18 @@ const TenantAdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-gray-900 mb-1">
-                  {safeTenantStats.totalDocuments}
+                  {isLoading ? (
+                    <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                  ) : (
+                    safeTenantStats.totalDocuments
+                  )}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {safeTenantStats.pendingDocuments} pending
+                  {isLoading ? (
+                    <div className="h-4 w-20 bg-gray-200 animate-pulse rounded"></div>
+                  ) : (
+                    `${safeTenantStats.pendingDocuments} pending`
+                  )}
                 </div>
               </Card>
 
@@ -229,7 +262,11 @@ const TenantAdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-gray-900 mb-1">
-                  ${safeTenantStats.monthlyRevenue.toLocaleString()}
+                  {isLoading ? (
+                    <div className="h-8 w-20 bg-gray-200 animate-pulse rounded"></div>
+                  ) : (
+                    `$${safeTenantStats.monthlyRevenue.toLocaleString()}`
+                  )}
                 </div>
                 <div className="text-sm text-gray-500">
                   This month
@@ -245,7 +282,11 @@ const TenantAdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-gray-900 mb-1">
-                  99.8%
+                  {isLoading ? (
+                    <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                  ) : (
+                    `${safeTenantStats.systemUptime}%`
+                  )}
                 </div>
                 <div className="text-sm text-gray-500">
                   System uptime

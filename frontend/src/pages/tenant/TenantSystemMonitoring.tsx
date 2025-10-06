@@ -1,12 +1,12 @@
-// frontend/src/pages/tenant/TenantUsers.tsx
+// frontend/src/pages/tenant/TenantSystemMonitoring.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { UsersIcon } from '@heroicons/react/24/outline';
+import { ServerIcon } from '@heroicons/react/24/outline';
 import { useTenant } from '@/contexts/TenantContext';
-import { UserManagement } from '@/components/tenant/UserManagement';
+import { SystemMonitoring } from '@/components/tenant/SystemMonitoring';
 import { DashboardHeader } from '@/components/common';
 
-const TenantUsers: React.FC = () => {
+export const TenantSystemMonitoring: React.FC = () => {
   const { tenant, isTenantAdmin } = useTenant();
 
   // Access denied check
@@ -14,7 +14,7 @@ const TenantUsers: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <UsersIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <ServerIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
           <p className="text-gray-600">Tenant admin access required for this page.</p>
         </div>
@@ -26,8 +26,8 @@ const TenantUsers: React.FC = () => {
     <div className="min-h-full bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {/* Dashboard Header */}
       <DashboardHeader
-        title="User Management"
-        subtitle={`Managing users for ${tenant?.name || 'your organization'}`}
+        title="System Monitoring"
+        subtitle={`Monitoring system health for ${tenant?.name || 'your organization'}`}
         showRefresh={true}
         showLogout={false}
         showProfile={true}
@@ -43,11 +43,9 @@ const TenantUsers: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <UserManagement />
+          <SystemMonitoring />
         </motion.div>
       </div>
     </div>
   );
 };
-
-export default TenantUsers;

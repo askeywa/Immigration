@@ -95,7 +95,7 @@ export const TenantSelection: React.FC = () => {
       await switchTenant(selectedTenantId);
       
       // Redirect to appropriate dashboard based on user role
-      if (user?.role === 'admin') {
+      if (user?.role === 'admin' || user?.role === 'tenant_admin') {
         navigate('/tenant/dashboard');
       } else {
         navigate('/dashboard');
