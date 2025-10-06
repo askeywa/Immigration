@@ -138,20 +138,14 @@ const TenantAdminDashboard: React.FC = () => {
       {/* Dashboard Header */}
       <DashboardHeader
         title="Tenant Dashboard"
-        subtitle={`Welcome back, ${user?.firstName || 'Admin'} ${user?.lastName || 'User'}`}
-        showRefresh={true}
+        subtitle={`Welcome back, ${tenant?.name || 'Tenant'}`}
+        showRefresh={false}
         showLogout={false}
         showProfile={true}
         showNotifications={false}
-        showSettings={true}
-        onRefresh={refreshAll}
-        onSettingsClick={() => window.location.href = '/tenant/settings'}
+        showSettings={false}
+        showTenantContext={false}
         isLoading={isLoading}
-        customActions={
-          <div className="text-sm text-gray-500">
-            Managing: {tenant?.name || 'Unknown Tenant'}
-          </div>
-        }
       />
 
       <div className="max-w-7xl mx-auto px-6 pb-6">
@@ -166,15 +160,6 @@ const TenantAdminDashboard: React.FC = () => {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
               <div className="flex flex-wrap items-center gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  onClick={refreshAll}
-                  disabled={refreshLoading}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-colors duration-200 shadow-sm"
-                >
-                  <RefreshIcon className={`w-4 h-4 mr-2 ${refreshLoading ? 'animate-spin' : ''}`} />
-                  {refreshLoading ? 'Refreshing...' : 'Refresh Data'}
-                </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   onClick={() => window.location.href = '/tenant/users'}

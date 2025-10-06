@@ -334,8 +334,8 @@ export class TenantApiController {
       } catch (docError) {
         // Documents model might not exist yet
         log.warn('Document model not found, using mock data for documents');
-        totalDocuments = Math.floor(Math.random() * 100) + 20;
-        pendingDocuments = Math.floor(Math.random() * 20) + 5;
+        totalDocuments = 12; // Realistic number for a new tenant
+        pendingDocuments = 3; // Realistic number of pending documents
       }
 
       // Get tenant subscription info for revenue calculation

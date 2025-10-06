@@ -22,6 +22,7 @@ interface DashboardHeaderProps {
   showProfile?: boolean;
   showNotifications?: boolean;
   showSettings?: boolean;
+  showTenantContext?: boolean;
   onRefresh?: () => void;
   onLogout?: () => void;
   onProfileClick?: () => void;
@@ -41,6 +42,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   showProfile = true,
   showNotifications = false,
   showSettings = false,
+  showTenantContext = true,
   onRefresh,
   onLogout,
   onProfileClick,
@@ -195,7 +197,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             )}
           </div>
           
-          <TenantContextCompact />
+          {showTenantContext && <TenantContextCompact />}
         </div>
         
         {/* Right Section - Actions and User Info */}
