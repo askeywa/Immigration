@@ -901,8 +901,11 @@ export class TenantApiController {
 
       const { User } = require('../models/User');
       
-      // Build filter query
-      const filter: any = { tenantId };
+      // Build filter query - exclude admin users
+      const filter: any = { 
+        tenantId,
+        role: { $ne: 'admin' } // Exclude admin users from the list
+      };
       
       if (search) {
         filter.$or = [
@@ -1171,18 +1174,19 @@ export class TenantApiController {
         newUsersThisMonth,
         usersWithCompleteProfiles
       ] = await Promise.all([
-        User.countDocuments({ tenantId }),
-        User.countDocuments({ tenantId, isActive: { $ne: false } }),
-        User.countDocuments({ tenantId, isActive: false }),
+        User.countDocuments({ tenantId, role: { $ne: 'admin' } }),
+        User.countDocuments({ tenantId, isActive: { $ne: false }, role: { $ne: 'admin' } }),
+        User.countDocuments({ tenantId, isActive: false, role: { $ne: 'admin' } }),
         User.aggregate([
-          { $match: { tenantId } },
+          { $match: { tenantId, role: { $ne: 'admin' } } },
           { $group: { _id: '$role', count: { $sum: 1 } } }
         ]),
         User.countDocuments({
           tenantId,
-          createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) }
+          createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+          role: { $ne: 'admin' }
         }),
-        User.countDocuments({ tenantId, profileComplete: true })
+        User.countDocuments({ tenantId, profileComplete: true, role: { $ne: 'admin' } })
       ]);
 
       const stats = {

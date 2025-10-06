@@ -1,7 +1,7 @@
 // frontend/src/pages/tenant/TenantUsers.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { UsersIcon } from '@heroicons/react/24/outline';
+import { UsersIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useTenant } from '@/contexts/TenantContext';
 import { UserManagement } from '@/components/tenant/UserManagement';
 import { DashboardHeader } from '@/components/common';
@@ -26,16 +26,20 @@ const TenantUsers: React.FC = () => {
     <div className="min-h-full bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {/* Dashboard Header */}
       <DashboardHeader
-        title="User Management"
+        title="Users Management"
         subtitle={`Managing users for ${tenant?.name || 'your organization'}`}
-        showRefresh={true}
+        showRefresh={false}
         showLogout={false}
         showProfile={true}
         showNotifications={false}
-        showSettings={true}
-        onRefresh={() => window.location.reload()}
-        onSettingsClick={() => window.location.href = '/tenant/settings'}
+        showSettings={false}
         isLoading={false}
+        customActions={
+          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
+            <PlusIcon className="w-4 h-4 mr-2" />
+            Add User
+          </button>
+        }
       />
 
       <div className="max-w-7xl mx-auto px-6 pb-6">

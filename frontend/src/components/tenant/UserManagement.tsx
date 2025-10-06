@@ -41,7 +41,6 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showUserDetails, setShowUserDetails] = useState<string | null>(null);
   const [bulkAction, setBulkAction] = useState<string>('');
-  const [bulkRole, setBulkRole] = useState<string>('');
 
   // React Query hooks
   const { data: usersData, isLoading, error, refetch } = useTenantUsers(filters);
@@ -69,7 +68,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
     const request: BulkUpdateRequest = {
       userIds: selectedUsers,
       action: bulkAction as any,
-      data: bulkAction === 'change_role' ? { role: bulkRole } : undefined
+      data: undefined
     };
 
     try {
@@ -77,7 +76,6 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
       setSelectedUsers([]);
       setShowBulkActions(false);
       setBulkAction('');
-      setBulkRole('');
       await refreshAll();
     } catch (error) {
       console.error('Bulk action failed:', error);
@@ -102,36 +100,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
   };
 
   // Get filter options
-  const roles = tenantUserService.getUserRoles();
   const statuses = tenantUserService.getUserStatuses();
   const sortOptions = tenantUserService.getSortOptions();
   const paginationOptions = tenantUserService.getPaginationOptions();
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-          <p className="text-gray-600">Manage tenant users and permissions</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => refreshAll()}
-            disabled={isLoading}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors duration-200"
-          >
-            <ArrowPathIcon className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          
-          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
-            <PlusIcon className="w-4 h-4 mr-2" />
-            Add User
-          </button>
-        </div>
-      </div>
 
       {/* Statistics */}
       {userStats && (
@@ -214,22 +188,6 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
               </div>
             </div>
 
-            {/* Role Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-              <select
-                value={filters.role || ''}
-                onChange={(e) => updateFilters({ role: e.target.value || undefined })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">All Roles</option>
-                {roles.map(role => (
-                  <option key={role.value} value={role.value}>
-                    {role.label}
-                  </option>
-                ))}
-              </select>
-            </div>
 
             {/* Status Filter */}
             <div>
@@ -337,28 +295,13 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
                     <option value="">Select action...</option>
                     <option value="activate">Activate</option>
                     <option value="deactivate">Deactivate</option>
-                    <option value="change_role">Change Role</option>
                     <option value="delete">Delete</option>
                   </select>
 
-                  {bulkAction === 'change_role' && (
-                    <select
-                      value={bulkRole}
-                      onChange={(e) => setBulkRole(e.target.value)}
-                      className="px-3 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Select role...</option>
-                      {roles.map(role => (
-                        <option key={role.value} value={role.value}>
-                          {role.label}
-                        </option>
-                      ))}
-                    </select>
-                  )}
 
                   <button
                     onClick={handleBulkAction}
-                    disabled={!bulkAction || (bulkAction === 'change_role' && !bulkRole)}
+                    disabled={!bulkAction}
                     className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   >
                     Apply
@@ -425,9 +368,6 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
                       User
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Role
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -468,11 +408,6 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
                             <div className="text-sm text-gray-500">{user.email}</div>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                          {tenantUserService.getRoleDisplayName(user.role)}
-                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${

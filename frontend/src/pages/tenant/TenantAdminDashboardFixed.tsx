@@ -156,24 +156,24 @@ const TenantAdminDashboard: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="mb-8"
         >
-          <div className="bg-white p-6 rounded-lg shadow-md border-0 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
-              <div className="flex flex-wrap items-center gap-3">
+          <div className="bg-white p-3 rounded-lg shadow-md border-0 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+              <h3 className="text-sm font-semibold text-gray-900">Quick Actions</h3>
+              <div className="flex flex-wrap items-center gap-2">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   onClick={() => window.location.href = '/tenant/users'}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200 shadow-sm"
+                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200 shadow-sm"
                 >
-                  <UsersIcon className="w-4 h-4 mr-2" />
+                  <UsersIcon className="w-3 h-3 mr-1.5" />
                   Manage Users
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   onClick={() => window.location.href = '/tenant/reports'}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 transition-colors duration-200 shadow-sm"
+                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 transition-colors duration-200 shadow-sm"
                 >
-                  <ChartBarIcon className="w-4 h-4 mr-2" />
+                  <ChartBarIcon className="w-3 h-3 mr-1.5" />
                   View Reports
                 </motion.button>
               </div>
