@@ -21,7 +21,7 @@ export class AuthService {
       ]);
       if (trialPlan) return trialPlan;
     } catch (error) {
-      console.log('⚠️ Trial plan query failed, trying fallback');
+      console.log('⚠️ Trial plan query failed, trying fallback:', error instanceof Error ? error.message : String(error));
     }
     
     try {
@@ -31,7 +31,7 @@ export class AuthService {
         new Promise((_, reject) => setTimeout(() => reject(new Error('Fallback plan query timeout')), 3000))
       ]);
     } catch (error) {
-      console.log('⚠️ All plan queries failed:', error.message);
+      console.log('⚠️ All plan queries failed:', error instanceof Error ? error.message : String(error));
       return null;
     }
   }
