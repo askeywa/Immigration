@@ -1,5 +1,6 @@
 // frontend/src/pages/tenant/TenantSettings.tsx
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
   CogIcon,
   BuildingOfficeIcon,
@@ -8,12 +9,15 @@ import {
   GlobeAltIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  PaintBrushIcon as PaletteIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
 import { tenantApiService } from '@/services/tenantApiService';
 import { log } from '@/utils/logger';
+import { DashboardHeader } from '@/components/common';
 
 interface TenantSettings {
   // General Settings
@@ -239,18 +243,56 @@ export const TenantSettings: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">Tenant Settings</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Configure your tenant preferences and settings
-          </p>
-        </div>
-      </div>
+    <div className="min-h-full bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      {/* Dashboard Header */}
+      <DashboardHeader
+        title="Tenant Settings"
+        subtitle={`Configure your tenant preferences and settings`}
+        showRefresh={false}
+        showLogout={false}
+        showProfile={true}
+        showNotifications={false}
+        showSettings={false}
+        isLoading={false}
+      />
 
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-6 pb-6">
+        {/* Quick Actions Bar */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-8 mt-6"
+        >
+          <div className="bg-white p-3 rounded-lg shadow-md border-0 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+              <h3 className="text-sm font-semibold text-gray-900">Quick Actions</h3>
+              <div className="flex flex-wrap items-center gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => window.location.href = '/tenant/branding'}
+                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors duration-200 shadow-sm"
+                >
+                  <PaletteIcon className="w-3 h-3 mr-1.5" />
+                  Branding
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => window.location.href = '/tenant/users'}
+                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200 shadow-sm"
+                >
+                  <UsersIcon className="w-3 h-3 mr-1.5" />
+                  Manage Users
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
         {/* Error Display */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
@@ -723,6 +765,7 @@ export const TenantSettings: React.FC = () => {
             </div>
           </div>
         )}
+        </motion.div>
       </div>
     </div>
   );

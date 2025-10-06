@@ -154,7 +154,7 @@ const TenantAdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-8"
+          className="mb-8 mt-6"
         >
           <div className="bg-white p-3 rounded-lg shadow-md border-0 bg-gradient-to-r from-blue-50 to-indigo-50">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
