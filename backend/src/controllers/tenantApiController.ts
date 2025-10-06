@@ -157,6 +157,110 @@ export class TenantApiController {
   }
 
   /**
+   * Create a new user for the tenant (admin only)
+   * POST /api/v1/tenant/users
+   */
+  static async createTenantUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { firstName, lastName, email, password, role } = req.body;
+      
+      // Get tenant context from middleware
+      const tenantRequest = req as any;
+      const tenantId = tenantRequest.tenantId;
+      const createdBy = tenantRequest.user?._id;
+      
+      log.info('Creating tenant user', {
+        email,
+        role: role || 'user',
+        tenantId,
+        createdBy,
+        ip: req.ip
+      });
+
+      // Validate required fields
+      if (!firstName || !lastName || !email || !password) {
+        throw new AppError('First name, last name, email, and password are required', 400);
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new AppError('Invalid email format', 400);
+      }
+
+      // Validate password strength
+      if (password.length < 6) {
+        throw new AppError('Password must be at least 6 characters long', 400);
+      }
+
+      // Validate role
+      const validRoles = ['user', 'admin'];
+      if (role && !validRoles.includes(role)) {
+        throw new AppError('Invalid role. Must be "user" or "admin"', 400);
+      }
+
+      // Check if user already exists
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
+      if (existingUser) {
+        throw new AppError('User with this email already exists', 409);
+      }
+
+      // Create the user using AuthService
+      const result = await AuthService.registerTenantUser({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.toLowerCase().trim(),
+        password,
+        role: role || 'user',
+        tenantId: tenantId
+      }, createdBy);
+
+      log.info('Tenant user created successfully', {
+        userId: result.user._id,
+        email: result.user.email,
+        role: result.user.role,
+        tenantId,
+        createdBy
+      });
+
+      res.status(201).json({
+        success: true,
+        data: {
+          user: {
+            id: result.user._id,
+            firstName: result.user.firstName,
+            lastName: result.user.lastName,
+            email: result.user.email,
+            role: result.user.role,
+            isActive: result.user.isActive,
+            createdAt: result.user.createdAt
+          }
+        },
+        message: 'User created successfully'
+      });
+
+    } catch (error) {
+      log.error('Failed to create tenant user', {
+        error: error instanceof Error ? error.message : String(error),
+        tenantId: (req as any).tenantId,
+        createdBy: (req as any).user?._id
+      });
+
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: 'Internal server error'
+        });
+      }
+    }
+  }
+
+  /**
    * Tenant user registration
    * POST /api/v1/tenant/auth/register
    */

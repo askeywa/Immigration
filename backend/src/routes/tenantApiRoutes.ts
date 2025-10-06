@@ -100,6 +100,11 @@ router.get('/tenant/users/:userId/activity',
   TenantApiController.getUserActivity
 );
 
+router.post('/tenant/users',
+  resolveTenant,
+  TenantApiController.createTenantUser
+);
+
 router.put('/tenant/users/bulk',
   resolveTenant,
   TenantApiController.bulkUpdateUsers

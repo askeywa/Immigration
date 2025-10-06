@@ -172,26 +172,26 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
             <h3 className="text-lg font-semibold text-gray-900">Filters & Search</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* All filters in one row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Search */}
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+            <div className="lg:col-span-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">Search</label>
               <div className="relative">
-                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <MagnifyingGlassIcon className="w-4 h-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search by name or email..."
                   value={filters.search || ''}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
 
-
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={filters.status || ''}
                 onChange={(e) => updateFilters({ status: e.target.value || undefined })}
@@ -208,7 +208,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
 
             {/* Items per page */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Per Page</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Per Page</label>
               <select
                 value={filters.limit || 25}
                 onChange={(e) => updateFilters({ limit: parseInt(e.target.value) })}
@@ -221,53 +221,62 @@ export const UserManagement: React.FC<UserManagementProps> = ({ className = '' }
                 ))}
               </select>
             </div>
-          </div>
 
-          {/* Sort and View Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4">
-            <div className="flex items-center gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
-                <div className="flex gap-2">
-                  <select
-                    value={filters.sortBy || 'createdAt'}
-                    onChange={(e) => updateFilters({ sortBy: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {sortOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => updateFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' })}
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors duration-200"
-                  >
-                    {filters.sortOrder === 'asc' ? '↑' : '↓'}
-                  </button>
-                </div>
+            {/* Sort By */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Sort By</label>
+              <div className="flex gap-1">
+                <select
+                  value={filters.sortBy || 'createdAt'}
+                  onChange={(e) => updateFilters({ sortBy: e.target.value })}
+                  className="flex-1 px-2 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {sortOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => updateFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' })}
+                  className="px-2 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors duration-200"
+                >
+                  {filters.sortOrder === 'asc' ? '↑' : '↓'}
+                </button>
               </div>
             </div>
+          </div>
 
+          {/* View Toggle - Fixed functionality */}
+          <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">View:</span>
               <button
-                onClick={() => setViewMode('list')}
+                onClick={() => {
+                  setViewMode('list');
+                  console.log('View mode changed to list');
+                }}
                 className={`p-2 rounded-md transition-colors duration-200 ${
                   viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                <ListBulletIcon className="w-5 h-5" />
+                <ListBulletIcon className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setViewMode('grid')}
+                onClick={() => {
+                  setViewMode('grid');
+                  console.log('View mode changed to grid');
+                }}
                 className={`p-2 rounded-md transition-colors duration-200 ${
                   viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                <Squares2X2Icon className="w-5 h-5" />
+                <Squares2X2Icon className="w-4 h-4" />
               </button>
+            </div>
+            
+            <div className="text-sm text-gray-500">
+              Showing {usersData?.users?.length || 0} users
             </div>
           </div>
         </Card>
