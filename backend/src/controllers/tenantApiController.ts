@@ -207,14 +207,22 @@ export class TenantApiController {
       }
 
       // Create the user using AuthService
-      const result = await AuthService.registerTenantUser({
+      // Create the user using AuthService with timeout
+      const createUserPromise = AuthService.registerTenantUser({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.toLowerCase().trim(),
         password,
         role: role || 'user',
         tenantId: tenantId
-      }, createdBy);
+      }, createdBy); // Pass createdBy for auditing/logging
+
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new AppError('User creation timed out', 408)), 8000);
+      });
+
+      const result = await Promise.race([createUserPromise, timeoutPromise]);
 
       log.info('Tenant user created successfully', {
         userId: result.user._id?.toString(),
