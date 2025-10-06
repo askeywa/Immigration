@@ -162,7 +162,7 @@ export const TenantContextIndicator: React.FC<TenantContextIndicatorProps> = ({
                     <h4 className="text-sm font-medium text-gray-900 mb-2">Branding</h4>
                     <div className="space-y-1 text-xs text-gray-600">
                       {tenant.settings?.branding?.companyName && (
-                        <div><span className="font-medium">Company:</span> {tenant.settings.branding.companyName}</div>
+                        <div><span className="font-medium">Company:</span> {tenant.settings?.branding?.companyName}</div>
                       )}
                       {tenant.settings?.branding?.primaryColor && (
                         <div className="flex items-center space-x-2">
@@ -260,7 +260,7 @@ export const TenantContextCompact: React.FC<{ className?: string }> = ({ classNa
     <div className={`flex items-center space-x-2 ${className}`}>
       {/* Tenant logo or icon */}
       <div className="flex-shrink-0">
-        {tenant?.settings.branding?.logo ? (
+        {tenant?.settings?.branding?.logo ? (
           <img 
             src={tenant.settings?.branding?.logo} 
             alt={tenant.name}

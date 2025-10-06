@@ -46,8 +46,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
         if (tenant?.settings?.branding) {
           // Generate theme from tenant's branding colors
           currentTheme = themeService.generateThemeFromColors(
-            tenant.settings.branding.primaryColor || '#3B82F6',
-            tenant.settings.branding.secondaryColor || '#6B7280',
+            tenant.settings?.branding?.primaryColor || '#3B82F6',
+            tenant.settings?.branding?.secondaryColor || '#6B7280',
             '#F59E0B' // Default accent color
           );
         } else {

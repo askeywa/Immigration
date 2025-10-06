@@ -396,9 +396,9 @@ export const useTenantTheme = () => {
     }
     
     return {
-      companyName: tenant.settings.branding.companyName || 'Maple Leaf Immigration Services',
-      primaryColor: tenant.settings.branding.primaryColor || '#DC2626',
-      secondaryColor: tenant.settings.branding.secondaryColor || '#F3F4F6'
+      companyName: tenant.settings?.branding?.companyName || 'Maple Leaf Immigration Services',
+      primaryColor: tenant.settings?.branding?.primaryColor || '#DC2626',
+      secondaryColor: tenant.settings?.branding?.secondaryColor || '#F3F4F6'
     };
   }, [tenant?.settings?.branding?.companyName, tenant?.settings?.branding?.primaryColor, tenant?.settings?.branding?.secondaryColor]);
   

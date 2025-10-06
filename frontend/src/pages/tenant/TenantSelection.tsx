@@ -234,7 +234,7 @@ export const TenantSelection: React.FC = () => {
                     <div className="flex-shrink-0">
                       {tenant.settings?.branding?.logo ? (
                         <img
-                          src={tenant.settings.branding.logo}
+                          src={tenant.settings?.branding?.logo}
                           alt={`${tenant.name} logo`}
                           className="h-12 w-12 rounded-lg object-contain border border-gray-200"
                         />
