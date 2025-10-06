@@ -11,6 +11,7 @@ import {
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import { useTenant } from '@/contexts/TenantContext';
+import { useAuthStore } from '@/store/authStore';
 import { tenantApiService } from '@/services/tenantApiService';
 import { log } from '@/utils/logger';
 
@@ -78,6 +79,13 @@ interface TenantSettings {
 
 export const TenantSettings: React.FC = () => {
   const { tenant, isTenantAdmin } = useTenant();
+  const { user: currentUser } = useAuthStore();
+  
+  // DEBUG: Log the state
+  console.log('🔧 TenantSettings: Component rendered');
+  console.log('🔧 isTenantAdmin:', isTenantAdmin);
+  console.log('🔧 currentUser:', currentUser);
+  console.log('🔧 tenant:', tenant);
   
   // State management
   const [settings, setSettings] = useState<TenantSettings | null>(null);
@@ -89,24 +97,38 @@ export const TenantSettings: React.FC = () => {
 
   // Load settings
   const loadSettings = async () => {
-    if (!isTenantAdmin) return;
+    console.log('🔧 TenantSettings: loadSettings called');
+    console.log('🔧 isTenantAdmin:', isTenantAdmin);
+    
+    if (!isTenantAdmin) {
+      console.log('❌ TenantSettings: Not tenant admin, returning early');
+      setError('Not authorized - not a tenant admin');
+      setIsLoading(false);
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
 
     try {
+      console.log('🔧 TenantSettings: Making API call to /tenant/settings');
       const response = await tenantApiService.get('/tenant/settings');
+      console.log('🔧 TenantSettings: API response:', response);
       
       if (response.success) {
         setSettings(response.data);
+        console.log('✅ TenantSettings: Settings loaded successfully');
       } else {
         setError('Failed to load tenant settings');
+        console.log('❌ TenantSettings: API returned success: false');
       }
     } catch (err: any) {
+      console.log('❌ TenantSettings: API call failed:', err);
       log.error('Failed to load tenant settings', { error: err.message });
-      setError('Failed to load tenant settings');
+      setError('Failed to load tenant settings: ' + err.message);
     } finally {
       setIsLoading(false);
+      console.log('🔧 TenantSettings: Loading completed');
     }
   };
 
