@@ -57,26 +57,39 @@ export const config = {
     getFrontendUrl: (domain?: string) => {
       const isDevelopment = process.env.NODE_ENV !== 'production';
       
+      console.log('🔍 getFrontendUrl called with domain:', domain);
+      console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
+      console.log('🔍 isDevelopment:', isDevelopment);
+      
       if (isDevelopment) {
-        return process.env.FRONTEND_URL || 'http://localhost:5174';
+        const devUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+        console.log('🔍 Returning dev URL:', devUrl);
+        return devUrl;
       }
       
       // Production logic - ALL dashboards (super admin and tenant) are hosted on ibuyscrap.ca
       // The tenant login pages are on their own domains, but after login they redirect to ibuyscrap.ca
       const isSuperAdmin = domain && ['ibuyscrap.ca', 'www.ibuyscrap.ca'].includes(domain);
+      console.log('🔍 isSuperAdmin:', isSuperAdmin);
       
       if (isSuperAdmin) {
-        return 'https://ibuyscrap.ca/super-admin';
+        const superAdminUrl = 'https://ibuyscrap.ca/super-admin';
+        console.log('🔍 Returning super admin URL:', superAdminUrl);
+        return superAdminUrl;
       }
       
       // For tenant logins from custom domains (like honeynwild.com), 
       // redirect to the tenant dashboard on ibuyscrap.ca
       if (domain && !['ibuyscrap.ca', 'www.ibuyscrap.ca'].includes(domain)) {
-        return 'https://ibuyscrap.ca/tenant/dashboard';
+        const tenantUrl = 'https://ibuyscrap.ca/tenant/dashboard';
+        console.log('🔍 Returning tenant URL:', tenantUrl);
+        return tenantUrl;
       }
       
       // Default fallback
-      return process.env.FRONTEND_URL || 'https://ibuyscrap.ca';
+      const fallbackUrl = process.env.FRONTEND_URL || 'https://ibuyscrap.ca';
+      console.log('🔍 Returning fallback URL:', fallbackUrl);
+      return fallbackUrl;
     },
     rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10), // 15 minutes
     rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '500', 10), // 500 requests per 15 minutes (reasonable for development)
