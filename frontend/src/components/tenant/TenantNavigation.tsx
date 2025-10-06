@@ -39,8 +39,6 @@ const TenantNavigation: React.FC<TenantNavigationProps> = ({ variant = 'default'
       items.push(
         { path: '/tenant/dashboard', label: 'Dashboard', icon: '🏠' },
         { path: '/tenant/users', label: 'Users', icon: '👥' },
-        { path: '/tenant/settings', label: 'Settings', icon: '⚙️' },
-        { path: '/tenant/branding', label: 'Branding', icon: '🎨' },
         { path: '/tenant/analytics', label: 'Analytics', icon: '📈' },
         { path: '/tenant/reports', label: 'Reports', icon: '📊' }
       );

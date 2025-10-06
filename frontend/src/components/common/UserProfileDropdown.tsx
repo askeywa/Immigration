@@ -168,6 +168,33 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({ classN
                   <span>Account Settings</span>
                 </button>
 
+                {/* Tenant Admin specific options */}
+                {(user.role === 'admin' || user.role === 'tenant_admin') && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate('/tenant/settings');
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
+                    >
+                      <Settings className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <span>Tenant Settings</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate('/tenant/branding');
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
+                    >
+                      <Building2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      <span>Branding</span>
+                    </button>
+                  </>
+                )}
+
                 {/* Super Admin specific options */}
                 {user.role === 'super_admin' && (
                   <>
