@@ -2141,10 +2141,23 @@ export class TenantApiController {
    */
   static async getTenantSettings(req: Request, res: Response): Promise<void> {
     try {
-      const tenant = req.tenant;
+      const tenantRequest = req as any;
+      const tenantId = tenantRequest.tenantId;
+      
+      if (!tenantId) {
+        res.status(400).json({
+          success: false,
+          error: 'Tenant ID is required'
+        });
+        return;
+      }
+
+      // Get tenant info from database
+      const { Tenant } = require('../models/Tenant');
+      const tenant = await Tenant.findById(tenantId);
       
       if (!tenant) {
-        res.status(400).json({
+        res.status(404).json({
           success: false,
           error: 'Tenant not found'
         });
@@ -2263,11 +2276,24 @@ export class TenantApiController {
    */
   static async updateTenantSettings(req: Request, res: Response): Promise<void> {
     try {
-      const tenant = req.tenant;
+      const tenantRequest = req as any;
+      const tenantId = tenantRequest.tenantId;
       const updates = req.body;
       
-      if (!tenant) {
+      if (!tenantId) {
         res.status(400).json({
+          success: false,
+          error: 'Tenant ID is required'
+        });
+        return;
+      }
+
+      // Get tenant info from database
+      const { Tenant } = require('../models/Tenant');
+      const tenant = await Tenant.findById(tenantId);
+      
+      if (!tenant) {
+        res.status(404).json({
           success: false,
           error: 'Tenant not found'
         });
@@ -2278,7 +2304,7 @@ export class TenantApiController {
       // For now, we'll just return success with the updated settings
       
       log.info('Tenant settings updated', {
-        tenantId: tenant._id,
+        tenantId: tenantId,
         tenantDomain: tenant.domain,
         updatedFields: Object.keys(updates)
       });
@@ -2316,10 +2342,23 @@ export class TenantApiController {
    */
   static async getTenantBranding(req: Request, res: Response): Promise<void> {
     try {
-      const tenant = req.tenant;
+      const tenantRequest = req as any;
+      const tenantId = tenantRequest.tenantId;
+      
+      if (!tenantId) {
+        res.status(400).json({
+          success: false,
+          error: 'Tenant ID is required'
+        });
+        return;
+      }
+
+      // Get tenant info from database
+      const { Tenant } = require('../models/Tenant');
+      const tenant = await Tenant.findById(tenantId);
       
       if (!tenant) {
-        res.status(400).json({
+        res.status(404).json({
           success: false,
           error: 'Tenant not found'
         });
@@ -2405,11 +2444,24 @@ export class TenantApiController {
    */
   static async updateTenantBranding(req: Request, res: Response): Promise<void> {
     try {
-      const tenant = req.tenant;
+      const tenantRequest = req as any;
+      const tenantId = tenantRequest.tenantId;
       const updates = req.body;
       
-      if (!tenant) {
+      if (!tenantId) {
         res.status(400).json({
+          success: false,
+          error: 'Tenant ID is required'
+        });
+        return;
+      }
+
+      // Get tenant info from database
+      const { Tenant } = require('../models/Tenant');
+      const tenant = await Tenant.findById(tenantId);
+      
+      if (!tenant) {
+        res.status(404).json({
           success: false,
           error: 'Tenant not found'
         });
@@ -2420,7 +2472,7 @@ export class TenantApiController {
       // For now, we'll just return success with the updated branding
       
       log.info('Tenant branding updated', {
-        tenantId: tenant._id,
+        tenantId: tenantId,
         tenantDomain: tenant.domain,
         updatedFields: Object.keys(updates)
       });
