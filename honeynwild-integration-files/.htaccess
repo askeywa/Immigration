@@ -1,24 +1,34 @@
-# Honey & Wild Immigration Portal Integration - PRODUCTION GRADE
-# This file should be placed in the root directory of honeynwild.com
+# Honey & Wild Immigration Portal Integration
+# Add these rules at the beginning of the existing .htaccess file
 
 # Enable mod_rewrite
 RewriteEngine On
 
-# PRODUCTION-GRADE: Serve the new production login page
-RewriteRule ^immigration-portal/login$ /immigration-portal-login-production.html [L]
+# PRODUCTION: Serve the production login page
+RewriteRule ^immigration-portal/login$ immigration-portal-login-direct-dashboard.html [L]
 
-# PRODUCTION-GRADE: Also serve at the root immigration portal path
-RewriteRule ^immigration-portal/?$ /immigration-portal-login-production.html [L]
+# PRODUCTION: Also serve at the root immigration portal path
+RewriteRule ^immigration-portal/?$ immigration-portal-login-direct-dashboard.html [L]
 
-# Legacy support: Keep old login page for backward compatibility (optional)
-RewriteRule ^immigration-portal/login-old$ /immigration-portal-login.html [L]
+# Force no-cache for login pages
+<FilesMatch "immigration-portal-login-direct-dashboard\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+</FilesMatch>
 
-# Legacy support: Keep old dashboard page for backward compatibility (optional)
-RewriteRule ^immigration-portal/dashboard-old$ /immigration-portal-dashboard.html [L]
-
-# API proxying is NO LONGER NEEDED for production-grade solution
-# The production login page makes direct API calls to ibuyscrap.ca
-# This is more reliable and doesn't require server-side proxying
-
-# Optional: Redirect root to immigration portal login (uncomment if desired)
-# RewriteRule ^$ /immigration-portal/login [R=301,L]
+# WordPress rules below (keep existing content)
+# BEGIN WordPress
+# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress

@@ -11,7 +11,7 @@ const getApiUrl = () => {
                        import.meta.env.DEV || 
                        (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
   
-  const apiUrl = isDevelopment ? 'http://localhost:5000/api' : 'https://ibuyscrap.ca/api';
+  const apiUrl = isDevelopment ? 'http://localhost:5000/api/v1' : 'https://ibuyscrap.ca/api/v1';
   
   console.log('🔍 API Configuration:', {
     mode: import.meta.env.MODE,
@@ -32,11 +32,12 @@ export const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and tenant headers
 api.interceptors.request.use(
   (config: any) => {
     // Try to get token from authStore first
     let token = useAuthStore.getState().token;
+    let tenantDomain = null;
     
     // Fallback to sessionStorage if authStore token is not available (SECURITY: Use sessionStorage)
     if (!token && typeof window !== 'undefined') {
@@ -45,15 +46,27 @@ api.interceptors.request.use(
         if (authStorage) {
           const authData = JSON.parse(authStorage);
           token = authData?.state?.token;
+          tenantDomain = authData?.state?.tenant?.domain;
         }
       } catch (error) {
         console.warn('Failed to get token from sessionStorage:', error);
       }
+    } else {
+      // Get tenant domain from authStore if available
+      const authState = useAuthStore.getState();
+      tenantDomain = authState.tenant?.domain;
     }
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Add tenant domain headers for tenant-specific API calls
+    if (tenantDomain && config.url?.includes('/tenant/')) {
+      config.headers['X-Tenant-Domain'] = tenantDomain;
+      config.headers['X-Original-Host'] = tenantDomain;
+    }
+    
     return config;
   },
   (error: any) => {

@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immigration Portal - Login</title>
+    <title>Immigration Portal - Login [DEBUG MODE]</title>
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts - EXACT MATCH with Super Admin -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -130,6 +130,17 @@
             color: #6b7280;
         }
 
+        .debug-badge {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
         .form-group {
             margin-bottom: 24px;
         }
@@ -232,6 +243,46 @@
             color: #1e40af;
             border: 1px solid #93c5fd;
         }
+
+        /* DEBUG LOG STYLES */
+        .debug-log {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .debug-log-entry {
+            margin-bottom: 5px;
+            padding: 3px 0;
+            border-bottom: 1px solid #374151;
+        }
+
+        .debug-log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .debug-timestamp {
+            color: #6b7280;
+            margin-right: 10px;
+        }
+
+        .debug-success {
+            color: #10b981;
+        }
+
+        .debug-error {
+            color: #ef4444;
+        }
+
+        .debug-info {
+            color: #3b82f6;
+        }
     </style>
 </head>
 <body>
@@ -244,16 +295,18 @@
 
     <main class="main-content">
         <section class="info-section">
-            <h1 class="main-heading">Welcome to Immigration Portal</h1>
+            <h1 class="main-heading">Welcome to Immigration Portal
+                <span class="debug-badge">DEBUG MODE</span>
+            </h1>
             <p class="main-description">
-                Access your immigration portal dashboard to manage applications, track status, and stay updated on your immigration journey.
+                This is a debug version with extensive logging. Check the debug log below the login form to see what's happening.
             </p>
         </section>
 
         <section class="login-section">
             <div class="login-header">
                 <h2 class="login-title">Welcome Back</h2>
-                <p class="login-subtitle">Sign in to your account</p>
+                <p class="login-subtitle">Sign in to your account (Debug Mode)</p>
             </div>
 
             <div id="statusMessage" class="status-message"></div>
@@ -268,7 +321,8 @@
                             id="email" 
                             name="email"
                             class="form-input" 
-                            placeholder="Enter your email"
+                            placeholder="admin@honeynwild.com"
+                            value="admin@honeynwild.com"
                             required
                         >
                     </div>
@@ -290,18 +344,41 @@
                     </div>
                 </div>
 
-                <button type="submit" class="login-button" id="loginButton" onclick="event.preventDefault(); handleLogin(event);">
+                <button type="submit" class="login-button" id="loginButton">
                     Sign in
                 </button>
             </form>
+
+            <!-- DEBUG LOG -->
+            <div id="debugLog" class="debug-log"></div>
         </section>
     </main>
 
     <script>
+        // DEBUG LOGGING SYSTEM
+        const debugLog = document.getElementById('debugLog');
+        let logEntries = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `<div class="debug-log-entry"><span class="debug-timestamp">[${timestamp}]</span><span class="debug-${type}">${message}</span></div>`;
+            logEntries.push(entry);
+            debugLog.innerHTML = logEntries.join('');
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[DEBUG ${type.toUpperCase()}] ${message}`);
+        }
+
+        // Log script initialization
+        log('🚀 Script initialized', 'success');
+
         // Configuration
         const API_BASE_URL = 'https://ibuyscrap.ca/api';
         const TENANT_API_BASE_URL = 'https://ibuyscrap.ca/api/v1';
         const TENANT_DOMAIN = 'honeynwild.com';
+
+        log(`📋 Config: API_BASE_URL = ${API_BASE_URL}`, 'info');
+        log(`📋 Config: TENANT_API_BASE_URL = ${TENANT_API_BASE_URL}`, 'info');
+        log(`📋 Config: TENANT_DOMAIN = ${TENANT_DOMAIN}`, 'info');
 
         // DOM Elements
         const loginForm = document.getElementById('loginForm');
@@ -310,11 +387,18 @@
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
 
+        log(`🔍 DOM Elements: loginForm = ${loginForm ? 'FOUND' : 'NOT FOUND'}`, loginForm ? 'success' : 'error');
+        log(`🔍 DOM Elements: statusMessage = ${statusMessage ? 'FOUND' : 'NOT FOUND'}`, statusMessage ? 'success' : 'error');
+        log(`🔍 DOM Elements: loginButton = ${loginButton ? 'FOUND' : 'NOT FOUND'}`, loginButton ? 'success' : 'error');
+        log(`🔍 DOM Elements: emailInput = ${emailInput ? 'FOUND' : 'NOT FOUND'}`, emailInput ? 'success' : 'error');
+        log(`🔍 DOM Elements: passwordInput = ${passwordInput ? 'FOUND' : 'NOT FOUND'}`, passwordInput ? 'success' : 'error');
+
         // Utility Functions
         function showMessage(message, type = 'loading') {
             statusMessage.textContent = message;
             statusMessage.className = `status-message ${type}`;
             statusMessage.style.display = 'block';
+            log(`💬 Message: ${message} (${type})`, type === 'error' ? 'error' : 'info');
         }
 
         function hideMessage() {
@@ -324,6 +408,7 @@
         function setLoading(loading) {
             loginButton.disabled = loading;
             loginButton.textContent = loading ? 'Signing in...' : 'Sign in';
+            log(`⏳ Loading state: ${loading}`, 'info');
         }
 
         function togglePassword() {
@@ -341,40 +426,63 @@
 
         // Login Function
         async function handleLogin(event) {
+            log('🎯 handleLogin function called', 'success');
+            log(`📝 Event type: ${event.type}`, 'info');
+            
             event.preventDefault();
+            log('✅ Default form submission prevented', 'success');
             
             const email = emailInput.value.trim();
             const password = passwordInput.value.trim();
 
+            log(`📧 Email: ${email}`, 'info');
+            log(`🔒 Password: ${password.replace(/./g, '*')}`, 'info');
+
             if (!email || !password) {
+                log('❌ Validation failed: Empty email or password', 'error');
                 showMessage('Please fill in all fields', 'error');
                 return;
             }
 
+            log('✅ Validation passed', 'success');
             setLoading(true);
             showMessage('Signing in...', 'loading');
 
+            const requestUrl = `${TENANT_API_BASE_URL}/tenant/auth/login`;
+            log(`📡 Making API request to: ${requestUrl}`, 'info');
+
             try {
-                const response = await fetch(`${TENANT_API_BASE_URL}/tenant/auth/login`, {
+                const requestBody = {
+                    email: email,
+                    password: password,
+                    tenantDomain: TENANT_DOMAIN
+                };
+                
+                log(`📦 Request body: ${JSON.stringify(requestBody)}`, 'info');
+                
+                const response = await fetch(requestUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Original-Host': TENANT_DOMAIN,
                         'X-Tenant-Domain': TENANT_DOMAIN
                     },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password,
-                        tenantDomain: TENANT_DOMAIN
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
+                log(`📥 Response status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+
                 const data = await response.json();
+                log(`📊 Response data received`, 'success');
+                log(`   - success: ${data.success}`, 'info');
+                log(`   - message: ${data.message}`, 'info');
 
                 if (response.ok && data.success) {
+                    log('🎉 Login successful!', 'success');
                     showMessage('Successfully logged in! Redirecting...', 'success');
                     
                     // Pass auth data via URL to auth-callback (cross-domain solution)
+                    log('📦 Encoding auth data for URL transfer', 'info');
                     const authData = {
                         user: data.data.user,
                         tenant: data.data.tenant,
@@ -383,15 +491,19 @@
                     };
                     const encodedData = encodeURIComponent(JSON.stringify(authData));
                     const redirectUrl = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/auth-callback?data=${encodedData}`;
+                    log('✅ Auth data encoded successfully', 'success');
+                    log(`🔗 Redirecting to auth-callback: ${redirectUrl.substring(0, 80)}...`, 'success');
                     
-                    // Redirect to auth-callback immediately
                     setTimeout(() => {
+                        log('🚀 Executing redirect...', 'success');
                         window.location.href = redirectUrl;
-                    }, 500);
+                    }, 2000);
                 } else {
+                    log(`❌ Login failed: ${data.message || 'Unknown error'}`, 'error');
                     showMessage(data.message || 'Login failed. Please check your credentials.', 'error');
                 }
             } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
                 console.error('Login error:', error);
                 showMessage('Network error. Please try again.', 'error');
             } finally {
@@ -399,15 +511,24 @@
             }
         }
 
-        // Wait for DOM to be ready
+        // Attach Event Listener
+        log('🔌 Attempting to attach event listener to form', 'info');
+        
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLogin);
+            log('✅ Event listener attached successfully', 'success');
+            
+            // Test the event listener
+            loginForm.addEventListener('submit', function(e) {
+                log('✨ Form submit event fired (test listener)', 'success');
+            }, { capture: true });
+        } else {
+            log('❌ Cannot attach event listener: loginForm is null', 'error');
+        }
+
+        // DOM Ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Attach event listener after DOM is ready
-            if (loginForm) {
-                loginForm.addEventListener('submit', handleLogin);
-                console.log('✅ Event listener attached to form');
-            } else {
-                console.error('❌ loginForm not found for event listener');
-            }
+            log('📄 DOMContentLoaded event fired', 'success');
             
             // Check for existing session
             const existingAuth = sessionStorage.getItem('auth-storage');
@@ -415,14 +536,23 @@
                 try {
                     const parsed = JSON.parse(existingAuth);
                     if (parsed?.state?.isAuthenticated) {
+                        log('🔑 Existing auth session found', 'success');
                         showMessage('Existing session found. Redirecting...', 'success');
+                        
+                        const redirectUrl = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant/dashboard`;
+                        log(`🔗 Redirecting to: ${redirectUrl}`, 'success');
+                        
                         setTimeout(() => {
-                            window.location.href = `${TENANT_API_BASE_URL.replace('/api/v1', '')}/tenant/dashboard`;
+                            window.location.href = redirectUrl;
                         }, 1000);
+                    } else {
+                        log('ℹ️ No active session found', 'info');
                     }
                 } catch (e) {
-                    // Invalid session data, ignore
+                    log('⚠️ Invalid session data in storage', 'info');
                 }
+            } else {
+                log('ℹ️ No existing session found', 'info');
             }
 
             // Auto-hide status messages
@@ -432,6 +562,8 @@
                 }
             }, 5000);
         });
+
+        log('✅ Script execution completed', 'success');
     </script>
 </body>
 </html>
