@@ -23,9 +23,9 @@ export const connectDatabase = async (): Promise<void> => {
 
       // Optimized connection settings to prevent timeouts and connection pool exhaustion
       const mongooseOptions: mongoose.ConnectOptions = {
-        // Connection pool settings - REDUCED to prevent exhaustion
-        maxPoolSize: process.env.NODE_ENV === 'production' ? 5 : 3, // Reduced from 10/5
-        minPoolSize: process.env.NODE_ENV === 'production' ? 1 : 1, // Reduced from 2/1
+        // Connection pool settings - INCREASED for better performance
+        maxPoolSize: process.env.NODE_ENV === 'production' ? 10 : 5, // Increased from 5/3
+        minPoolSize: process.env.NODE_ENV === 'production' ? 2 : 1,  // Increased from 1/1
         
         // Timeout settings - INCREASED to handle slow networks
         serverSelectionTimeoutMS: 30000, // Increased from 10000 (30 seconds)

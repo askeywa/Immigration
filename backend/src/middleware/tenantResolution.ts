@@ -34,16 +34,15 @@ export interface TenantRequest extends Request {
  * @param next Express next function
  */
 export const resolveTenant = async (req: TenantRequest, res: Response, next: NextFunction) => {
+  const requestStartTime = Date.now();
+  
   try {
-    // Check for tenant domain in custom header (for proxied requests)
     const tenantDomain = (req as any).get('x-tenant-domain') || (req as any).get('x-original-host');
     const host = (req as any).get('host') || (req as any).get('x-forwarded-host') || '';
     const protocol = (req as any).get('x-forwarded-proto') || (req as any).protocol || 'http';
     
-    // Use tenant domain from header if available, otherwise use host
     const domain = (tenantDomain || host).split(':')[0].toLowerCase();
     
-    // Debug logging for domain resolution
     console.log('🔍 Tenant Resolution Debug:', {
       host,
       domain,
@@ -51,8 +50,6 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
       protocol
     });
     
-    // Check for super admin domain (including localhost for development)
-    // Use dynamic domain list from environment variables
     const isSuperAdminDomain = config.allowedSuperAdminDomains.some(allowedDomain => {
       if (allowedDomain === 'localhost') {
         return domain === 'localhost' || domain.startsWith('localhost:');
@@ -74,56 +71,77 @@ export const resolveTenant = async (req: TenantRequest, res: Response, next: Nex
       return next();
     }
     
-    // Check if domain belongs to any registered tenant
-    const tenant = await resolveTenantByDomain(domain);
+    // CRITICAL: Wrap tenant resolution in timeout
+    const resolutionPromise = resolveTenantByDomain(domain);
+    const overallTimeoutPromise = new Promise<null>((_, reject) => 
+      setTimeout(() => reject(new Error('RESOLUTION_TIMEOUT')), 5000)
+    );
+    
+    const tenant = await Promise.race([resolutionPromise, overallTimeoutPromise]);
     
     if (tenant) {
-      // This is a registered tenant domain
-      // Check if tenant is active (lean query returns plain object, not Mongoose document)
       if (tenant.status !== 'active' && tenant.status !== 'trial') {
-        return next(new ValidationError(
-          'Tenant account is suspended',
-          'domain',
-          domain
-        ));
+        return res.status(403).json({
+          success: false,
+          error: 'TENANT_SUSPENDED',
+          message: 'Tenant account is suspended'
+        });
       }
       
-      // Add tenant information to request
       (req as any).tenant = tenant;
       (req as any).tenantId = (tenant._id as any).toString();
       (req as any).isSuperAdmin = false;
+      (req as any).tenantDomain = domain;
       
-      // Add tenant context to response headers for debugging
       (res as any).set('X-Tenant-ID', (tenant._id as any).toString());
       (res as any).set('X-Tenant-Name', tenant.name);
+      
+      const resolutionDuration = Date.now() - requestStartTime;
+      console.log(`✅ Tenant resolved in ${resolutionDuration}ms`);
       
       return next();
     }
     
-    // Check for API domain
     if (domain === 'api.sehwagimmigration.com' || domain === config.apiDomain) {
       return next();
     }
     
-    // No valid domain pattern found
     console.log('❌ No valid domain pattern found:', {
       domain,
       host,
       allowedSuperAdminDomains: config.allowedSuperAdminDomains
     });
-    return next(new ValidationError(
-      'Invalid domain format',
-      'domain',
-      host
-    ));
+    
+    return res.status(404).json({
+      success: false,
+      error: 'TENANT_NOT_FOUND',
+      message: 'Invalid domain or tenant not found'
+    });
     
   } catch (error) {
-    console.error('Tenant resolution error:', error);
-    return next(new ValidationError(
-      'Failed to resolve tenant',
-      'domain',
-      (req as any).get('host') || 'unknown'
-    ));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const resolutionDuration = Date.now() - requestStartTime;
+    
+    console.error('❌ Tenant resolution error:', {
+      error: errorMessage,
+      domain: (req as any).get('host'),
+      duration: `${resolutionDuration}ms`
+    });
+    
+    if (errorMessage.includes('TIMEOUT')) {
+      return res.status(503).json({
+        success: false,
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'Tenant resolution timeout. Please try again.',
+        details: 'Database query exceeded time limit'
+      });
+    }
+    
+    return res.status(500).json({
+      success: false,
+      error: 'RESOLUTION_FAILED',
+      message: 'Failed to resolve tenant'
+    });
   }
 };
 
@@ -203,14 +221,25 @@ function isValidTenantName(tenantName: string): boolean {
 async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
   try {
     console.log('🔍 Resolving tenant by domain:', domain);
+    const queryStartTime = Date.now();
     
-    // Find tenant by exact domain match
-    const tenant = await Tenant.findOne({ 
+    // CRITICAL: Add timeout protection to prevent hanging
+    const tenantQueryPromise = Tenant.findOne({ 
       domain: domain,
       status: { $in: ['active', 'trial'] }
-    }).lean();
+    })
+    .maxTimeMS(3000) // MongoDB server-side timeout: 3 seconds
+    .lean()
+    .exec();
     
-    console.log('🔍 Tenant query result:', tenant ? {
+    const timeoutPromise = new Promise<null>((_, reject) => 
+      setTimeout(() => reject(new Error('TENANT_QUERY_TIMEOUT')), 3500)
+    );
+    
+    const tenant = await Promise.race([tenantQueryPromise, timeoutPromise]);
+    
+    const queryDuration = Date.now() - queryStartTime;
+    console.log(`🔍 Tenant query completed in ${queryDuration}ms:`, tenant ? {
       _id: tenant._id,
       name: tenant.name,
       domain: tenant.domain,
@@ -221,8 +250,7 @@ async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
       return tenant as unknown as ITenant;
     }
     
-    // If not found by exact domain, try to find by subdomain pattern
-    // This handles cases where the tenant domain is stored as just the tenant name
+    // Subdomain pattern matching with timeout
     const tenantPrefix = config.tenantDomainPrefix || 'portal';
     const subdomainPattern = new RegExp(`^${tenantPrefix}\\.(.+)\\.sehwagimmigration\\.com$`);
     const match = domain.match(subdomainPattern);
@@ -230,14 +258,22 @@ async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
     if (match) {
       const tenantName = match[1];
       
-      // Try to find tenant by name (for backwards compatibility)
-      const subdomainTenant = await Tenant.findOne({
+      const subdomainQueryPromise = Tenant.findOne({
         $or: [
           { domain: tenantName },
           { name: { $regex: new RegExp(tenantName, 'i') } }
         ],
         status: { $in: ['active', 'trial'] }
-      }).lean();
+      })
+      .maxTimeMS(3000)
+      .lean()
+      .exec();
+      
+      const subdomainTimeoutPromise = new Promise<null>((_, reject) => 
+        setTimeout(() => reject(new Error('SUBDOMAIN_QUERY_TIMEOUT')), 3500)
+      );
+      
+      const subdomainTenant = await Promise.race([subdomainQueryPromise, subdomainTimeoutPromise]);
       
       if (subdomainTenant) {
         return subdomainTenant as unknown as ITenant;
@@ -246,8 +282,19 @@ async function resolveTenantByDomain(domain: string): Promise<ITenant | null> {
     
     return null;
   } catch (error) {
-    console.error('Error resolving tenant by domain:', error);
-    return null;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    if (errorMessage.includes('TIMEOUT')) {
+      console.error('❌ Tenant resolution timeout:', {
+        domain,
+        error: errorMessage,
+        suggestion: 'Check MongoDB connection pool and add domain index'
+      });
+    } else {
+      console.error('❌ Error resolving tenant by domain:', error);
+    }
+    
+    return null; // Return null instead of throwing to allow request to continue
   }
 }
 

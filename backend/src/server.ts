@@ -451,6 +451,18 @@ const startServer = async () => {
     try {
       await connectDatabase();
       log.info('✅ Database connected successfully');
+      
+      // Run database migrations
+      try {
+        const { addTenantDomainIndex } = await import('./models/migrations/add-tenant-domain-index');
+        await addTenantDomainIndex();
+        log.info('✅ Database migrations completed successfully');
+      } catch (migrationError) {
+        const errorMessage = migrationError instanceof Error ? migrationError.message : String(migrationError);
+        log.error('❌ Database migration failed:', { error: errorMessage });
+        // Don't fail startup for migration errors, but log them
+      }
+      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       log.error('❌ Database connection failed', { error: errorMessage });
