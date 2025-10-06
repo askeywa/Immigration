@@ -339,8 +339,10 @@ export class AuthService {
     const subscription = await Subscription.findOne({ tenantId: userData.tenantId }).populate('planId');
     if (subscription) {
       const plan = subscription.planId as any;
-      const canAddUser = await subscription.canAddUsers(1);
-      const canAddAdmin = userData.role === 'admin' ? await subscription.canAddAdmins(1) : true;
+      
+      // Check limits directly instead of using async methods to avoid hanging
+      const canAddUser = (subscription.usage.currentUsers + 1) <= plan.limits.maxUsers;
+      const canAddAdmin = userData.role === 'admin' ? (subscription.usage.currentAdmins + 1) <= plan.limits.maxAdmins : true;
       
       if (!canAddUser) {
         throw new ValidationError('User limit exceeded for current subscription plan');
