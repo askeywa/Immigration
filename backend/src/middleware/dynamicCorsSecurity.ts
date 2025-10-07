@@ -11,6 +11,7 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Fetch all trusted domains from database
+ * IMPROVED: Better handling of database failures with extended cache and fallback
  */
 async function fetchTrustedDomains(): Promise<string[]> {
   try {
@@ -19,7 +20,7 @@ async function fetchTrustedDomains(): Promise<string[]> {
       return trustedDomainsCache;
     }
 
-    // Base trusted domains (super admin)
+    // Base trusted domains (super admin) - these are ALWAYS trusted
     const baseDomains = [
       'http://localhost:3000',
       'http://localhost:5174',
@@ -28,10 +29,15 @@ async function fetchTrustedDomains(): Promise<string[]> {
       'https://www.ibuyscrap.ca',
     ];
 
-    // Fetch all active tenants
-    const tenants = await Tenant.find({
-      status: { $in: ['active', 'trial'] }
-    }).select('domain customDomains').lean();
+    // Fetch all active tenants with timeout protection
+    const tenants = await Promise.race([
+      Tenant.find({
+        status: { $in: ['active', 'trial'] }
+      }).select('domain customDomains').lean().exec(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Tenant query timeout')), 5000)
+      )
+    ]) as any[];
 
     // Build list of all trusted domains
     const tenantDomains = tenants.flatMap(tenant => {
@@ -61,15 +67,40 @@ async function fetchTrustedDomains(): Promise<string[]> {
 
     return trustedDomainsCache;
   } catch (error) {
-    log.error('Failed to fetch trusted domains', {
+    log.error('Failed to fetch trusted domains from database', {
       error: error instanceof Error ? error.message : String(error),
     });
-    return trustedDomainsCache; // Return cached version on error
+    
+    // IMPROVED: If cache exists but is stale, extend its lifetime during database issues
+    if (trustedDomainsCache.length > 0) {
+      log.warn('Using stale cache due to database error', {
+        cacheAge: Date.now() - cacheTimestamp,
+        cachedDomainsCount: trustedDomainsCache.length
+      });
+      return trustedDomainsCache;
+    }
+    
+    // IMPROVED: If no cache exists, return base domains as emergency fallback
+    const emergencyFallback = [
+      'http://localhost:3000',
+      'http://localhost:5174',
+      'http://localhost:5173',
+      'https://ibuyscrap.ca',
+      'https://www.ibuyscrap.ca',
+      'https://honeynwild.com', // Known tenant domain
+    ];
+    
+    log.warn('Using emergency fallback domains', {
+      count: emergencyFallback.length
+    });
+    
+    return emergencyFallback;
   }
 }
 
 /**
  * Dynamic CORS middleware that checks database for trusted domains
+ * Improved with fallback handling for database failures
  */
 export const dynamicCorsSecurity = () => {
   return cors({
@@ -95,6 +126,21 @@ export const dynamicCorsSecurity = () => {
           return callback(null, true);
         }
 
+        // IMPROVED: Check against hardcoded fallback domains if cache is empty or stale
+        const fallbackDomains = [
+          'https://ibuyscrap.ca',
+          'https://www.ibuyscrap.ca',
+          'https://honeynwild.com',
+          'http://localhost:3000',
+          'http://localhost:5173',
+          'http://localhost:5174',
+        ];
+
+        if (fallbackDomains.some(domain => origin.startsWith(domain))) {
+          log.warn('CORS: Origin allowed via fallback (database may be unavailable)', { origin });
+          return callback(null, true);
+        }
+
         // Origin not trusted
         log.warn('CORS: Origin Rejected', { origin });
         return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
@@ -103,6 +149,26 @@ export const dynamicCorsSecurity = () => {
           origin,
           error: error instanceof Error ? error.message : String(error),
         });
+        
+        // IMPROVED: Instead of blocking all requests, allow known domains as fallback
+        const emergencyFallbackDomains = [
+          'https://ibuyscrap.ca',
+          'https://www.ibuyscrap.ca',
+          'https://honeynwild.com',
+        ];
+
+        if (emergencyFallbackDomains.some(domain => origin.startsWith(domain))) {
+          log.warn('CORS: Emergency fallback - allowing known domain despite error', { origin });
+          return callback(null, true);
+        }
+
+        // For development, be more permissive during errors
+        if (process.env.NODE_ENV === 'development') {
+          log.warn('CORS: Development mode - allowing request despite error', { origin });
+          return callback(null, true);
+        }
+
+        // Only block if we're certain it's not a trusted domain
         return callback(new Error('CORS configuration error'), false);
       }
     },

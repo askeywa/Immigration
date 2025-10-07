@@ -1,5 +1,5 @@
 // frontend/src/pages/super-admin/SuperAdminDashboard.tsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   UsersIcon, 
@@ -25,7 +25,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
-import { tenantApiService } from '@/services/tenantApiService';
+import { useSuperAdminDashboard } from '@/hooks/useSuperAdminData';
 import { log } from '@/utils/logger';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -155,258 +155,21 @@ export const SuperAdminDashboard: React.FC = () => {
   const { isSuperAdmin } = useTenant();
   const { user, logout } = useAuthStore();
   
-  // State management
-  const [systemStats, setSystemStats] = useState<SystemStats | null>(null);
-  const [tenantStats, setTenantStats] = useState<TenantStats[]>([]);
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
-  const [systemAlerts, setSystemAlerts] = useState<SystemAlert[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use React Query for data fetching with caching
+  const { data, isLoading, error, refetch } = useSuperAdminDashboard();
+  
+  // Extract data from the hook (with fallbacks to prevent errors)
+  // React Query automatically handles caching, loading states, and refetching
+  const systemStats = data?.analytics?.systemStats || null;
+  const tenantStats = data?.tenants?.tenants || [];
+  const recentActivity = data?.analytics?.recentActivity || [];
+  const systemAlerts = data?.reports?.systemAlerts || [];
 
-  // Load dashboard data with enhanced mock data
-  const loadDashboardData = async () => {
-    console.log('🚀 SuperAdminDashboard: loadDashboardData called');
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // REMOVED: Artificial delay that was causing slow loading
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Fetch real data from APIs
-      console.log('🔍 SuperAdminDashboard: Fetching real system statistics...');
-      
-      // Use superAdminApi for super admin endpoints
-      const superAdminApi = (await import('@/services/superAdminApi')).default;
-      
-      // Fetch real tenants data from super admin endpoint
-      const tenantsResponse = await superAdminApi.get('/super-admin/tenants?page=1&limit=1000');
-      const totalTenants = tenantsResponse.data?.pagination?.totalTenants || tenantsResponse.data?.data?.tenants?.length || 0;
-      const activeTenants = tenantsResponse.data?.data?.tenants?.filter((tenant: any) => tenant.status === 'active').length || 0;
-      
-      // Fetch real users data from super admin endpoint
-      const usersResponse = await superAdminApi.get('/super-admin/users?page=1&limit=1000');
-      const totalUsers = usersResponse.data?.pagination?.total || usersResponse.data?.data?.users?.length || 0;
-      const activeUsers = usersResponse.data?.data?.users?.filter((user: any) => user.isActive !== false).length || 0;
-      
-      console.log('🔍 SuperAdminDashboard: Real data fetched:', {
-        totalTenants,
-        activeTenants,
-        totalUsers,
-        activeUsers
-      });
-      
-      // Calculate dynamic metrics
-      const currentDate = new Date();
-      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const startOfLastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-      const endOfLastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
-      
-      // Calculate new tenants this month (based on creation date)
-      const newTenantsThisMonth = tenantsResponse.data?.tenants?.filter((tenant: any) => {
-        const createdDate = new Date(tenant.createdAt);
-        return createdDate >= startOfMonth;
-      }).length || 0;
-      
-      // Calculate new users this month (based on creation date)
-      const newUsersThisMonth = usersResponse.data?.users?.filter((user: any) => {
-        const createdDate = new Date(user.createdAt);
-        return createdDate >= startOfMonth;
-      }).length || 0;
-      
-      // Calculate revenue based on tenant subscriptions (dynamic)
-      let totalRevenue = 0;
-      let monthlyRevenue = 0;
-      const tenants = tenantsResponse.data?.tenants || [];
-      
-      tenants.forEach((tenant: any) => {
-        if (tenant.subscription) {
-          const planAmount = tenant.subscription.amount || 0;
-          const monthsActive = tenant.subscription.monthsActive || 1;
-          totalRevenue += planAmount * monthsActive;
-          
-          // Monthly revenue for current month
-          if (tenant.subscription.status === 'active') {
-            monthlyRevenue += planAmount;
-          }
-        }
-      });
-      
-      // Calculate revenue growth (compare with last month)
-      const lastMonthRevenue = monthlyRevenue * 0.85; // Simulate 15% growth
-      const revenueGrowth = lastMonthRevenue > 0 ? ((monthlyRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
-      
-      // Calculate system health based on actual metrics
-      const errorRate = 0.1; // This could be calculated from actual error logs
-      const systemHealth = errorRate < 1 ? 'excellent' : errorRate < 5 ? 'good' : errorRate < 10 ? 'warning' : 'critical';
-      
-      // Calculate system uptime (this would come from actual monitoring)
-      const systemUptime = 99.8; // This should be fetched from actual monitoring data
-      
-      const realSystemStats: SystemStats = {
-        totalTenants,
-        activeTenants,
-        totalUsers,
-        activeUsers,
-        totalRevenue: Math.round(totalRevenue),
-        monthlyRevenue: Math.round(monthlyRevenue),
-        systemUptime,
-        lastBackup: new Date().toISOString(),
-        newTenantsThisMonth,
-        newUsersThisMonth,
-        revenueGrowth: Math.round(revenueGrowth * 10) / 10, // Round to 1 decimal
-        systemHealth
-      };
-
-      // Use real tenant data for tenant stats (show first 5 tenants)
-      const realTenantStats: TenantStats[] = tenantsResponse.data?.data?.tenants?.slice(0, 5).map((tenant: any) => {
-        // Calculate actual user count for this tenant
-        const tenantUsers = usersResponse.data?.data?.users?.filter((user: any) => 
-          user.tenantId === tenant._id
-        ) || [];
-        const userCount = tenantUsers.length;
-        
-        // Calculate actual revenue for this tenant
-        const revenue = tenant.subscription?.amount || 0;
-        
-        return {
-          _id: tenant._id,
-          name: tenant.name,
-          domain: tenant.domain,
-          status: tenant.status,
-          userCount,
-          subscription: tenant.subscription || {
-            planName: 'Standard',
-            status: 'active',
-            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-          },
-          lastActivity: tenant.lastLogin || tenant.updatedAt || tenant.createdAt,
-          revenue
-        };
-      }) || [];
-
-      // Generate dynamic recent activity based on real data
-      const realRecentActivity: RecentActivity[] = [];
-      
-      // Add recent tenant creation activity
-      const recentTenants = tenantsResponse.data?.data?.tenants?.filter((tenant: any) => {
-        const createdDate = new Date(tenant.createdAt);
-        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        return createdDate >= oneWeekAgo;
-      }).slice(0, 3) || [];
-      
-      recentTenants.forEach((tenant: any, index: number) => {
-        realRecentActivity.push({
-          _id: `tenant_${tenant._id}`,
-          type: 'tenant_created',
-          description: `New tenant "${tenant.name}" was created`,
-          timestamp: tenant.createdAt,
-          severity: 'low'
-        });
-      });
-      
-      // Add recent user registration activity if there are new users
-      if (newUsersThisMonth > 0) {
-        realRecentActivity.push({
-          _id: 'user_registration_summary',
-          type: 'user_registered',
-          description: `${newUsersThisMonth} new users registered across all tenants`,
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          severity: 'low'
-        });
-      }
-      
-      // Add revenue activity if there's monthly revenue
-      if (monthlyRevenue > 0) {
-        realRecentActivity.push({
-          _id: 'revenue_summary',
-          type: 'payment_received',
-          description: `Monthly revenue of $${monthlyRevenue.toLocaleString()} generated`,
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          severity: 'low'
-        });
-      }
-      
-      // Sort by timestamp (most recent first) and limit to 4 items
-      const sortedRecentActivity = realRecentActivity
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, 4);
-
-      const mockSystemAlerts: SystemAlert[] = [
-        {
-          _id: '1',
-          type: 'performance',
-          message: 'Database query response time increased by 15%',
-          severity: 'medium',
-          timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-          resolved: false
-        },
-        {
-          _id: '2',
-          type: 'security',
-          message: 'Unusual login pattern detected from IP 192.168.1.100',
-          severity: 'high',
-          timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-          resolved: false
-        },
-        {
-          _id: '3',
-          type: 'billing',
-          message: 'Payment reminder sent to 3 tenants',
-          severity: 'low',
-          timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-          resolved: true
-        }
-      ];
-
-      console.log('📊 SuperAdminDashboard: Setting system stats:', realSystemStats);
-      setSystemStats(realSystemStats);
-      setTenantStats(realTenantStats);
-      setRecentActivity(sortedRecentActivity);
-      setSystemAlerts(mockSystemAlerts);
-      
-      console.log('📊 SuperAdminDashboard: State set, isLoading will be set to false');
-
-    } catch (err: any) {
-      log.error('Failed to load super admin dashboard data', { error: err.message });
-      setError('Failed to load dashboard data');
-    } finally {
-      console.log('📊 SuperAdminDashboard: Setting isLoading to false');
-      setIsLoading(false);
-    }
+  // Handle manual refresh - React Query will automatically cache the results
+  const handleRefresh = () => {
+    console.log('🔄 SuperAdminDashboard: Manual refresh triggered');
+    refetch();
   };
-
-  // Load data on component mount and when page becomes visible
-  useEffect(() => {
-    console.log('🔄 SuperAdminDashboard: useEffect triggered, isSuperAdmin:', isSuperAdmin);
-    if (isSuperAdmin) {
-      console.log('🚀 SuperAdminDashboard: Calling loadDashboardData...');
-      loadDashboardData();
-    } else {
-      console.log('❌ SuperAdminDashboard: Not super admin, skipping data load');
-    }
-  }, [isSuperAdmin]);
-
-  // Refresh data when page becomes visible (e.g., returning from tenant creation)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && isSuperAdmin) {
-        console.log('🔄 SuperAdminDashboard: Page became visible, refreshing data...');
-        loadDashboardData();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isSuperAdmin]);
-
-  // Auto-refresh data every 5 minutes (optimized from 30 seconds)
-  useEffect(() => {
-    if (isSuperAdmin) {
-      const interval = setInterval(loadDashboardData, 300000); // 5 minutes
-      return () => clearInterval(interval);
-    }
-  }, [isSuperAdmin]);
 
   // Get severity color
   const getSeverityColor = (severity: string) => {
@@ -494,7 +257,7 @@ export const SuperAdminDashboard: React.FC = () => {
               transition={{ delay: 0.1 }}
             >
               <Button
-                onClick={loadDashboardData}
+                onClick={handleRefresh}
                 disabled={isLoading}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
               >
@@ -521,7 +284,9 @@ export const SuperAdminDashboard: React.FC = () => {
           <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
             <div className="flex">
               <ExclamationTriangleIcon className="h-5 w-5 text-red-400 dark:text-red-500 mr-2" />
-              <div className="text-sm text-red-700 dark:text-red-400">{error}</div>
+              <div className="text-sm text-red-700 dark:text-red-400">
+                {error instanceof Error ? error.message : 'Failed to load dashboard data'}
+              </div>
             </div>
           </div>
         )}

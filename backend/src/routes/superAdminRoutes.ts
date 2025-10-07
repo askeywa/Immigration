@@ -5,6 +5,7 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { getAllUsers, deleteUser } from '../controllers/userController';
 import { getSystemReports, exportSystemReport, getSystemAnalytics } from '../controllers/reportController';
 import { TenantController } from '../controllers/tenantController';
+import { superAdminCacheMiddleware } from '../middleware/cacheMiddleware';
 
 const router = Router();
 
@@ -12,23 +13,26 @@ const router = Router();
 router.use(authenticate);
 router.use(authorize('super_admin'));
 
-// Super Admin Tenant Management Routes
-router.get('/tenants', asyncHandler(TenantController.getAllTenants));
-router.get('/tenants/:id', asyncHandler(TenantController.getTenantById));
-router.get('/tenants/:id/users', asyncHandler(TenantController.getTenantUsers));
+// Cache middleware for GET requests (5 minute cache)
+const cacheFor5Min = superAdminCacheMiddleware(5 * 60 * 1000);
+
+// Super Admin Tenant Management Routes (with caching)
+router.get('/tenants', cacheFor5Min, asyncHandler(TenantController.getAllTenants));
+router.get('/tenants/:id', cacheFor5Min, asyncHandler(TenantController.getTenantById));
+router.get('/tenants/:id/users', cacheFor5Min, asyncHandler(TenantController.getTenantUsers));
 router.put('/tenants/:id', asyncHandler(TenantController.updateTenant));
 router.delete('/tenants/:id', asyncHandler(TenantController.deleteTenant));
 
-// Super Admin User Management Routes
-router.get('/users', getAllUsers);
+// Super Admin User Management Routes (with caching)
+router.get('/users', cacheFor5Min, getAllUsers);
 router.delete('/users/:id', deleteUser);
 
-// Super Admin Reports Routes
-router.get('/reports', getSystemReports);
+// Super Admin Reports Routes (with caching)
+router.get('/reports', cacheFor5Min, getSystemReports);
 router.get('/reports/export', exportSystemReport);
 
-// Super Admin Analytics Routes
-router.get('/analytics', getSystemAnalytics);
+// Super Admin Analytics Routes (with caching)
+router.get('/analytics', cacheFor5Min, getSystemAnalytics);
 router.get('/analytics/tenant/:tenantId', asyncHandler(async (req, res) => {
   const { tenantId } = req.params;
   res.json({

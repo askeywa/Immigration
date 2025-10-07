@@ -378,9 +378,17 @@ app.use(errorTrackingMiddleware);
 // Global error handler (must be last)
 app.use(errorHandler);
 
+// Import Redis service
+import { RedisService } from './services/redisService';
+
 // Initialize services with proper error handling
 const initializeServices = async () => {
   const services = [
+    {
+      name: 'Redis Service',
+      init: () => RedisService.getInstance().initialize(),
+      critical: false
+    },
     {
       name: 'Sentry Service',
       init: async () => {

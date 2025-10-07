@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { TenantService } from '../services/tenantService';
 import { TenantRequest } from '../middleware/tenantResolution';
 import { log } from '../utils/logger';
+import { CacheInvalidation } from '../utils/cacheInvalidation';
 
 export class TenantController {
   /**
@@ -466,6 +467,9 @@ export class TenantController {
 
       const tenant = await TenantService.updateTenant(id, updateData);
 
+      // Invalidate tenant cache after update
+      await CacheInvalidation.invalidateTenantCache(id);
+
       log.info('Tenant updated', { 
         tenantId: id,
         updatedBy: user?._id 
@@ -501,6 +505,9 @@ export class TenantController {
 
     try {
       await TenantService.deleteTenant(id);
+
+      // Invalidate tenant cache after deletion
+      await CacheInvalidation.invalidateTenantCache(id);
 
       log.info('Tenant deleted', { 
         tenantId: id,

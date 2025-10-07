@@ -1,25 +1,28 @@
 // backend/src/middleware/cacheMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
 import { localCache } from '../services/localCacheService';
+import { redisService } from '../services/redisService';
 import { log } from '../utils/logger';
 
 interface CacheOptions {
   ttl?: number; // Time to live in milliseconds
   keyGenerator?: (req: Request) => string;
   skipCache?: (req: Request) => boolean;
+  useRedis?: boolean; // Whether to use Redis (default: true if available)
 }
 
 /**
- * Cache middleware for API responses
+ * Cache middleware for API responses (supports both Redis and in-memory cache)
  */
 export function cacheMiddleware(options: CacheOptions = {}) {
   const {
     ttl = 5 * 60 * 1000, // 5 minutes default
     keyGenerator = defaultKeyGenerator,
-    skipCache = () => false
+    skipCache = () => false,
+    useRedis = true
   } = options;
 
-  return (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     console.log('🔍 Cache middleware called for:', req.url);
     
     // Skip cache if specified
@@ -31,11 +34,31 @@ export function cacheMiddleware(options: CacheOptions = {}) {
     const cacheKey = keyGenerator(req);
     console.log('🔑 Generated cache key:', cacheKey);
     
-    // Check cache first
+    // Try Redis first if enabled and available
+    if (useRedis && redisService.isConnected()) {
+      try {
+        const cachedResponse = await redisService.get(cacheKey);
+        if (cachedResponse) {
+          console.log('✅ REDIS CACHE HIT:', req.url);
+          log.debug('Redis cache hit', { 
+            method: req.method, 
+            url: req.url, 
+            cacheKey 
+          });
+          return res.json(cachedResponse);
+        }
+      } catch (error) {
+        log.warn('Redis cache check failed, falling back to local cache', {
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+    }
+    
+    // Fallback to local cache
     const cachedResponse = localCache.get(cacheKey);
     if (cachedResponse) {
-      console.log('✅ CACHE HIT:', req.url, 'Key:', cacheKey.substring(0, 50) + '...');
-      log.debug('Cache hit', { 
+      console.log('✅ LOCAL CACHE HIT:', req.url, 'Key:', cacheKey.substring(0, 50) + '...');
+      log.debug('Local cache hit', { 
         method: req.method, 
         url: req.url, 
         cacheKey 
@@ -53,13 +76,27 @@ export function cacheMiddleware(options: CacheOptions = {}) {
     res.json = function(body: any) {
       // Only cache successful responses
       if (res.statusCode >= 200 && res.statusCode < 300) {
+        // Cache in local memory
         localCache.set(cacheKey, body, ttl);
-        console.log('💾 CACHE SET:', req.url, 'TTL:', ttl + 'ms');
+        console.log('💾 LOCAL CACHE SET:', req.url, 'TTL:', ttl + 'ms');
+        
+        // Also cache in Redis if enabled
+        if (useRedis && redisService.isConnected()) {
+          const ttlSeconds = Math.floor(ttl / 1000);
+          redisService.set(cacheKey, body, ttlSeconds).catch(err => {
+            log.warn('Failed to cache in Redis, but local cache succeeded', {
+              error: err instanceof Error ? err.message : String(err)
+            });
+          });
+          console.log('💾 REDIS CACHE SET:', req.url, 'TTL:', ttlSeconds + 's');
+        }
+        
         log.debug('Cache set', { 
           method: req.method, 
           url: req.url, 
           cacheKey,
-          ttl 
+          ttl,
+          redis: useRedis && redisService.isConnected()
         });
       } else {
         console.log('⚠️ NOT CACHING:', req.url, 'Status:', res.statusCode);
@@ -135,9 +172,38 @@ export function userCacheMiddleware(ttl: number = 3 * 60 * 1000) {
 }
 
 /**
- * Clear cache for specific patterns
+ * Cache middleware for super admin routes
  */
-export function clearCachePattern(pattern: string): void {
+export function superAdminCacheMiddleware(ttl: number = 5 * 60 * 1000) {
+  return cacheMiddleware({
+    ttl,
+    useRedis: true,
+    keyGenerator: (req: Request) => {
+      const user = (req as any).user;
+      const { method, url, query } = req;
+      
+      return `superadmin:${user?._id}:${method}:${url}:${JSON.stringify(query)}`;
+    }
+  });
+}
+
+/**
+ * Clear cache for specific patterns (both Redis and local)
+ */
+export async function clearCachePattern(pattern: string): Promise<void> {
+  // Clear Redis cache
+  if (redisService.isConnected()) {
+    try {
+      const clearedRedis = await redisService.clearPattern(`*${pattern}*`);
+      log.info('Redis cache cleared for pattern', { pattern, clearedCount: clearedRedis });
+    } catch (error) {
+      log.warn('Failed to clear Redis cache', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+  
+  // Clear local cache
   const stats = localCache.getStats();
   let clearedCount = 0;
   
@@ -148,13 +214,26 @@ export function clearCachePattern(pattern: string): void {
     }
   });
   
-  log.info('Cache cleared for pattern', { pattern, clearedCount });
+  log.info('Local cache cleared for pattern', { pattern, clearedCount });
 }
 
 /**
- * Clear all cache
+ * Clear all cache (both Redis and local)
  */
-export function clearAllCache(): void {
+export async function clearAllCache(): Promise<void> {
+  // Clear Redis cache
+  if (redisService.isConnected()) {
+    try {
+      await redisService.clearPattern('*');
+      log.info('All Redis cache cleared');
+    } catch (error) {
+      log.warn('Failed to clear all Redis cache', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+  
+  // Clear local cache
   localCache.clear();
-  log.info('All cache cleared');
+  log.info('All local cache cleared');
 }

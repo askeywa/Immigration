@@ -82,6 +82,9 @@ export const connectDatabase = async (): Promise<void> => {
       // Set up connection event handlers
       setupConnectionEventHandlers();
       
+      // Start MongoDB keep-alive to prevent Atlas free tier auto-pause
+      startMongoDBKeepAlive();
+      
       return; // Success, exit retry loop
       
     } catch (error) {
@@ -175,3 +178,51 @@ export const getDatabaseInfo = () => {
     isConnected: isDatabaseConnected()
   };
 };
+
+/**
+ * Keep-alive mechanism to prevent MongoDB Atlas free tier from auto-pausing
+ * Sends a lightweight ping every 10 minutes
+ */
+let keepAliveInterval: NodeJS.Timeout | null = null;
+
+function startMongoDBKeepAlive(): void {
+  // Clear any existing interval
+  if (keepAliveInterval) {
+    clearInterval(keepAliveInterval);
+  }
+
+  const KEEP_ALIVE_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+  log.info('🔄 MongoDB keep-alive started (ping every 10 minutes)');
+
+  keepAliveInterval = setInterval(async () => {
+    try {
+      if (isDatabaseConnected()) {
+        // Send a lightweight ping command
+        await mongoose.connection.db?.admin().ping();
+        log.debug('✅ MongoDB keep-alive ping sent');
+      } else {
+        log.warn('⚠️  MongoDB not connected, skipping keep-alive ping');
+      }
+    } catch (error) {
+      log.error('❌ MongoDB keep-alive ping failed:', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }, KEEP_ALIVE_INTERVAL);
+
+  // Ensure interval is cleaned up on process exit
+  process.on('SIGTERM', () => {
+    if (keepAliveInterval) {
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+    }
+  });
+
+  process.on('SIGINT', () => {
+    if (keepAliveInterval) {
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+    }
+  });
+}
