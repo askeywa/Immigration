@@ -633,7 +633,7 @@ const SuperAdminTenants: React.FC = () => {
       const response = await superAdminApi.get(`/super-admin/tenants?page=1&limit=1000&_t=${cacheBuster}`); // Get all tenants
       console.log('🔍 SuperAdminTenants: API response:', response);
       console.log('🔍 SuperAdminTenants: Tenants data:', response.data?.data?.tenants);
-      console.log('🔍 SuperAdminTenants: Pagination data:', response.pagination);
+      console.log('🔍 SuperAdminTenants: Pagination data:', response.data?.pagination);
       
       // CRITICAL: Extract pagination FIRST before setting tenants
       const paginationData = response.data?.pagination || {};
@@ -799,7 +799,7 @@ const SuperAdminTenants: React.FC = () => {
       
       // Check if the API response indicates success
       console.log('🔍 SuperAdminTenants: Response structure check:', {
-        responseSuccess: response.success,
+        responseSuccess: response.data?.success,
         hasResponseData: !!response.data,
         responseDataType: typeof response.data,
         responseDataKeys: response.data ? Object.keys(response.data) : []
@@ -840,7 +840,7 @@ const SuperAdminTenants: React.FC = () => {
             setCreateError(response.data.message || 'Validation failed');
           }
         } else {
-          setCreateError(response.message || 'Failed to create tenant');
+          setCreateError(response.data?.message || 'Failed to create tenant');
         }
         console.log('❌ SuperAdminTenants: API response indicated failure:', response);
       }
@@ -1040,15 +1040,15 @@ const SuperAdminTenants: React.FC = () => {
       
       console.log('🗑️ SuperAdminTenants: Delete result:', result);
       
-      if (result.success) {
+      if (result.data?.success) {
         setShowDeleteModal(false);
         setTenantToDelete(null);
         await fetchTenants(); // Refresh the list
         await fetchAllTenantsForStats(); // Refresh statistics
         console.log('✅ SuperAdminTenants: Tenant deleted successfully!');
       } else {
-        console.error('❌ Failed to delete tenant:', result.message);
-        alert(`Failed to delete tenant: ${result.message || 'Unknown error'}`);
+        console.error('❌ Failed to delete tenant:', result.data?.message);
+        alert(`Failed to delete tenant: ${result.data?.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('❌ Error deleting tenant:', error);
@@ -1080,7 +1080,7 @@ const SuperAdminTenants: React.FC = () => {
         statusChangeDate: new Date().toISOString()
       });
 
-      if (result.success) {
+      if (result.data?.success) {
         // Optimistic state update - update UI immediately
         setTenants(prevTenants => 
           prevTenants.map(t => 
@@ -1093,8 +1093,8 @@ const SuperAdminTenants: React.FC = () => {
         await fetchAllTenantsForStats();
         console.log(`✅ SuperAdminTenants: Tenant "${tenant.name}" has been ${action}d successfully!`);
       } else {
-        console.error('Failed to update tenant status:', result.message);
-        alert(`Failed to ${action} tenant: ${result.message || 'Unknown error'}`);
+        console.error('Failed to update tenant status:', result.data?.message);
+        alert(`Failed to ${action} tenant: ${result.data?.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error updating tenant status:', error);
@@ -1123,7 +1123,7 @@ const SuperAdminTenants: React.FC = () => {
         statusChangeDate: new Date().toISOString()
       });
 
-      if (result.success) {
+      if (result.data?.success) {
         // Optimistic state update - update UI immediately
         setTenants(prevTenants => 
           prevTenants.map(t => 
@@ -1136,8 +1136,8 @@ const SuperAdminTenants: React.FC = () => {
         await fetchAllTenantsForStats();
         console.log(`✅ SuperAdminTenants: Tenant "${tenant.name}" has been suspended successfully!`);
       } else {
-        console.error('Failed to suspend tenant:', result.message);
-        alert(`Failed to suspend tenant: ${result.message || 'Unknown error'}`);
+        console.error('Failed to suspend tenant:', result.data?.message);
+        alert(`Failed to suspend tenant: ${result.data?.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error suspending tenant:', error);
@@ -1166,7 +1166,7 @@ const SuperAdminTenants: React.FC = () => {
         statusChangeDate: new Date().toISOString()
       });
 
-      if (result.success) {
+      if (result.data?.success) {
         // Optimistic state update - update UI immediately
         setTenants(prevTenants => 
           prevTenants.map(t => 
@@ -1179,8 +1179,8 @@ const SuperAdminTenants: React.FC = () => {
         await fetchAllTenantsForStats();
         console.log(`✅ SuperAdminTenants: Tenant "${tenant.name}" has been unsuspended successfully!`);
       } else {
-        console.error('Failed to unsuspend tenant:', result.message);
-        alert(`Failed to unsuspend tenant: ${result.message || 'Unknown error'}`);
+        console.error('Failed to unsuspend tenant:', result.data?.message);
+        alert(`Failed to unsuspend tenant: ${result.data?.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error unsuspending tenant:', error);
@@ -1219,7 +1219,7 @@ const SuperAdminTenants: React.FC = () => {
         lastModified: new Date().toISOString()
       });
 
-      if (result.success) {
+      if (result.data?.success) {
         // Update the selected tenant data to reflect changes
         setSelectedTenant({ ...selectedTenant, ...editFormData });
         setIsEditing(false);
@@ -1230,7 +1230,7 @@ const SuperAdminTenants: React.FC = () => {
         console.log('✅ SuperAdminTenants: Tenant updated successfully!');
         showNotification('✅ Tenant updated successfully!', 'success');
       } else {
-        showNotification(`Failed to update tenant: ${result.message || 'Unknown error'}`, 'error');
+        showNotification(`Failed to update tenant: ${result.data?.message || 'Unknown error'}`, 'error');
       }
     } catch (error) {
       console.error('Error updating tenant:', error);
