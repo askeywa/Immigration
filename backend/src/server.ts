@@ -151,14 +151,7 @@ app.use(securityHeaders());
 // ENHANCED: Dynamic CORS with multi-domain tenant support
 app.use(dynamicCorsSecurity());
 
-// Serve static files from React build (CSS, JS, images, etc.)
-// IMPORTANT: This must be AFTER security middleware to apply CSP headers
-app.use(express.static(frontendDistPath, {
-  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
-  etag: true,
-  lastModified: true,
-  index: false // Don't auto-serve index.html for directory requests
-}));
+// Static file serving will be configured after frontendDistPath is declared
 
 // Trust proxy for rate limiting with X-Forwarded-For headers
 // This is essential for proper rate limiting behind a reverse proxy (Nginx)
@@ -331,7 +324,14 @@ const frontendDistPath = path.join(__dirname, '../../frontend/dist');
 
 console.log('Frontend dist path:', frontendDistPath);
 
-// Static file serving will be moved after security middleware
+// Serve static files from React build (CSS, JS, images, etc.)
+// IMPORTANT: This must be AFTER security middleware to apply CSP headers
+app.use(express.static(frontendDistPath, {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+  etag: true,
+  lastModified: true,
+  index: false // Don't auto-serve index.html for directory requests
+}));
 
 // SPA fallback: Serve index.html for all non-API routes (but not static assets)
 app.get('*', (req, res, next) => {
