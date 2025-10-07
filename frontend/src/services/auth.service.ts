@@ -1,12 +1,12 @@
 // frontend/src/services/auth.service.ts
 import { api } from './api';
+import { superAdminApi } from './superAdminApi';
 import { LoginResponse, RegisterRequest, RegisterResponse, Tenant } from '@/types/auth.types';
 
 export const authService = {
   login: async (email: string, password: string, tenantDomain?: string): Promise<LoginResponse> => {
     console.log('🔍 AuthService: Making API call to /auth/login');
     console.log('🔍 AuthService: Request data:', { email, password: '[HIDDEN]', tenantDomain });
-    console.log('🔍 AuthService: API base URL:', api.defaults.baseURL);
     console.log('🔍 AuthService: Environment check:', {
       mode: import.meta.env.MODE,
       dev: import.meta.env.DEV,
@@ -15,11 +15,36 @@ export const authService = {
     });
     
     try {
-      const response = await api.post<LoginResponse>('/auth/login', {
+      // Determine if this is a super admin login or tenant login
+      const isSuperAdminLogin = !tenantDomain || tenantDomain === '' || email.includes('superadmin');
+      
+      console.log('🔍 AuthService: Login type:', { 
+        isSuperAdminLogin, 
+        tenantDomain, 
         email,
-        password,
-        tenantDomain: tenantDomain || '',
+        willUseApi: isSuperAdminLogin ? 'superAdminApi (/api)' : 'tenantApi (/api/v1)'
       });
+      
+      let response;
+      
+      if (isSuperAdminLogin) {
+        // Super admin login - use /api/auth/login
+        console.log('🔍 AuthService: Using super admin API:', superAdminApi.defaults.baseURL);
+        response = await superAdminApi.post<LoginResponse>('/auth/login', {
+          email,
+          password,
+          tenantDomain: tenantDomain || '',
+        });
+      } else {
+        // Tenant login - use /api/v1/tenant/auth/login
+        console.log('🔍 AuthService: Using tenant API:', api.defaults.baseURL);
+        response = await api.post<LoginResponse>('/tenant/auth/login', {
+          email,
+          password,
+          tenantDomain: tenantDomain || '',
+        });
+      }
+      
       console.log('🔍 AuthService: API response received:', {
         success: response.data.success,
         user: response.data.data?.user?.email,

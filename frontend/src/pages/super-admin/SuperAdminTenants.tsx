@@ -4,8 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { tenantApiService } from '@/services/tenantApiService';
-import { api } from '@/services/api';
+import { superAdminApi } from '@/services/superAdminApi';
 import { useTenant } from '@/contexts/TenantContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoSave } from '@/hooks/useAutoSave';
@@ -582,14 +581,9 @@ const SuperAdminTenants: React.FC = () => {
   // Fetch all tenants for statistics (separate from paginated data)
   const fetchAllTenantsForStats = async () => {
     try {
-      tenantApiService.setTenantContext({
-        isSuperAdmin: true,
-        includeTenantContext: false
-      });
-      
       // Fetch with high limit to get all tenants for statistics
-      const response = await tenantApiService.getAllTenants(1, 1000);
-      const allTenants = response.data?.tenants || [];
+      const response = await superAdminApi.get('/super-admin/tenants?page=1&limit=1000');
+      const allTenants = response.data?.data?.tenants || [];
       
       const stats = {
         total: allTenants.length,
@@ -633,23 +627,17 @@ const SuperAdminTenants: React.FC = () => {
       setLoading(true);
       console.log('🔍 SuperAdminTenants: Starting fetchTenants...');
       
-      // Configure tenantApiService for super admin context
-      tenantApiService.setTenantContext({
-        isSuperAdmin: true,
-        includeTenantContext: false // Super admin calls don't need tenant context
-      });
-      
       // Fetch ALL tenants for client-side filtering and pagination
       // Add cache-busting parameter to ensure fresh data
       const cacheBuster = Date.now();
-      const response = await tenantApiService.getAllTenants(1, 1000, cacheBuster); // Get all tenants
+      const response = await superAdminApi.get(`/super-admin/tenants?page=1&limit=1000&_t=${cacheBuster}`); // Get all tenants
       console.log('🔍 SuperAdminTenants: API response:', response);
-      console.log('🔍 SuperAdminTenants: Tenants data:', response.data?.tenants);
+      console.log('🔍 SuperAdminTenants: Tenants data:', response.data?.data?.tenants);
       console.log('🔍 SuperAdminTenants: Pagination data:', response.pagination);
       
       // CRITICAL: Extract pagination FIRST before setting tenants
-      const paginationData = response.pagination || {};
-      const tenantsData = response.data?.tenants || [];
+      const paginationData = response.data?.pagination || {};
+      const tenantsData = response.data?.data?.tenants || [];
       
       // Set all state in proper order
       setTenants(tenantsData); // Now contains ALL tenants
@@ -804,14 +792,8 @@ const SuperAdminTenants: React.FC = () => {
       
       console.log('🔍 SuperAdminTenants: Sending final data (without description, with subscriptionPlan):', finalTenantData);
       
-      // Configure tenantApiService for super admin context
-      tenantApiService.setTenantContext({
-        isSuperAdmin: true,
-        includeTenantContext: false // Super admin calls don't need tenant context
-      });
-      
-      // Use tenantApiService to create tenant with proper authentication
-      const response = await tenantApiService.post('/tenants', finalTenantData);
+      // Use superAdminApi to create tenant with proper authentication
+      const response = await superAdminApi.post('/super-admin/tenants', finalTenantData);
       
       console.log('🔍 SuperAdminTenants: Create tenant response:', response);
       
@@ -823,9 +805,9 @@ const SuperAdminTenants: React.FC = () => {
         responseDataKeys: response.data ? Object.keys(response.data) : []
       });
       
-      if (response.success && response.data) {
+      if (response.data?.success && response.data?.data) {
         // Check if the backend response also indicates success
-        const backendResponse = response.data;
+        const backendResponse = response.data.data;
         console.log('🔍 SuperAdminTenants: Backend response check:', {
           backendSuccess: backendResponse.success,
           backendSuccessType: typeof backendResponse.success,
@@ -918,42 +900,39 @@ const SuperAdminTenants: React.FC = () => {
     setShowDetailsModal(true);
 
     try {
-      // Configure tenant API service for super admin context
-      tenantApiService.setTenantContext({ isSuperAdmin: true, includeTenantContext: false });
-      
       // Fetch detailed tenant information with comprehensive data
       const [tenantResponse, usersResponse, analyticsResponse] = await Promise.all([
-        tenantApiService.getTenantById(tenant._id),
-        tenantApiService.getTenantUsers(tenant._id),
-        api.get(`/super-admin/analytics/tenant/${tenant._id}`).catch(() => ({ ok: false })) // Graceful fallback if analytics endpoint doesn't exist
+        superAdminApi.get(`/super-admin/tenants/${tenant._id}`),
+        superAdminApi.get(`/super-admin/tenants/${tenant._id}/users`),
+        superAdminApi.get(`/super-admin/analytics/tenant/${tenant._id}`).catch(() => ({ ok: false })) // Graceful fallback if analytics endpoint doesn't exist
       ]);
 
       // Process tenant data
       let tenantDetails: TenantDetails;
-      if (tenantResponse.success && tenantResponse.data) {
+      if (tenantResponse.data?.success && tenantResponse.data?.data) {
         tenantDetails = {
           ...tenant,
-          ...tenantResponse.data,
-          users: usersResponse.success ? usersResponse.data || [] : [],
-          userCount: usersResponse.success ? usersResponse.data?.length || 0 : 0,
-          activeUserCount: usersResponse.success ? 
-            usersResponse.data?.filter((user: any) => user.isActive).length || 0 : 0,
+          ...tenantResponse.data.data,
+          users: usersResponse.data?.success ? usersResponse.data?.data || [] : [],
+          userCount: usersResponse.data?.success ? usersResponse.data?.data?.length || 0 : 0,
+          activeUserCount: usersResponse.data?.success ? 
+            usersResponse.data?.data?.filter((user: any) => user.isActive).length || 0 : 0,
           // Additional detailed information
-          lastLogin: tenantResponse.data.lastLogin || 'Never',
-          subscriptionDetails: tenantResponse.data.subscription || null,
-          settings: tenantResponse.data.settings || null,
+          lastLogin: tenantResponse.data.data.lastLogin || 'Never',
+          subscriptionDetails: tenantResponse.data.data.subscription || null,
+          settings: tenantResponse.data.data.settings || null,
           usage: {
-            storageUsed: tenantResponse.data.storageUsed || '0 MB',
-            apiCallsThisMonth: tenantResponse.data.apiCallsThisMonth || 0,
-            bandwidthUsed: tenantResponse.data.bandwidthUsed || '0 GB'
+            storageUsed: tenantResponse.data.data.storageUsed || '0 MB',
+            apiCallsThisMonth: tenantResponse.data.data.apiCallsThisMonth || 0,
+            bandwidthUsed: tenantResponse.data.data.bandwidthUsed || '0 GB'
           }
         };
       } else {
         // Fallback to basic tenant data if detailed fetch fails
         tenantDetails = {
           ...tenant,
-          users: usersResponse.success ? usersResponse.data || [] : [],
-          userCount: usersResponse.success ? usersResponse.data?.length || 0 : 0,
+          users: usersResponse.data?.success ? usersResponse.data?.data || [] : [],
+          userCount: usersResponse.data?.success ? usersResponse.data?.data?.length || 0 : 0,
           activeUserCount: 0,
           lastLogin: 'Unknown',
           subscriptionDetails: null,
@@ -1010,18 +989,15 @@ const SuperAdminTenants: React.FC = () => {
     setIsEditing(true); // Open directly in edit mode
 
     try {
-      // Configure tenant API service for super admin context
-      tenantApiService.setTenantContext({ isSuperAdmin: true, includeTenantContext: false });
-      
       // Fetch detailed tenant information for editing
-      const tenantResponse = await tenantApiService.getTenantById(tenant._id);
+      const tenantResponse = await superAdminApi.get(`/super-admin/tenants/${tenant._id}`);
       
-      if (tenantResponse.success && tenantResponse.data) {
+      if (tenantResponse.data?.success && tenantResponse.data?.data) {
         const tenantData = {
           ...tenant,
-          ...tenantResponse.data,
+          ...tenantResponse.data.data,
           // Ensure we have editable fields
-          originalData: { ...tenantResponse.data }, // Keep original for comparison
+          originalData: { ...tenantResponse.data.data }, // Keep original for comparison
           hasChanges: false
         };
         setSelectedTenant(tenantData);
@@ -1060,13 +1036,7 @@ const SuperAdminTenants: React.FC = () => {
     try {
       console.log('🗑️ SuperAdminTenants: Deleting tenant:', tenantToDelete._id);
       
-      // Configure tenantApiService for super admin context
-      tenantApiService.setTenantContext({
-        isSuperAdmin: true,
-        includeTenantContext: false
-      });
-      
-      const result = await tenantApiService.delete(`/tenants/${tenantToDelete._id}`);
+      const result = await superAdminApi.delete(`/super-admin/tenants/${tenantToDelete._id}`);
       
       console.log('🗑️ SuperAdminTenants: Delete result:', result);
       
@@ -1103,10 +1073,7 @@ const SuperAdminTenants: React.FC = () => {
     setIsUpdating(true);
 
     try {
-      // Configure tenant API service for super admin context
-      tenantApiService.setTenantContext({ isSuperAdmin: true, includeTenantContext: false });
-      
-      const result = await tenantApiService.updateTenant(tenant._id, { 
+      const result = await superAdminApi.patch(`/super-admin/tenants/${tenant._id}`, { 
         status: newStatus,
         updatedBy: 'super_admin',
         statusChangeReason: `Status changed to ${newStatus} by Super Admin`,
@@ -1149,10 +1116,7 @@ const SuperAdminTenants: React.FC = () => {
     setIsUpdating(true);
 
     try {
-      // Configure tenant API service for super admin context
-      tenantApiService.setTenantContext({ isSuperAdmin: true, includeTenantContext: false });
-      
-      const result = await tenantApiService.updateTenant(tenant._id, { 
+      const result = await superAdminApi.patch(`/super-admin/tenants/${tenant._id}`, { 
         status: 'suspended',
         updatedBy: 'super_admin',
         statusChangeReason: 'Tenant suspended by Super Admin',
@@ -1195,10 +1159,7 @@ const SuperAdminTenants: React.FC = () => {
     setIsUpdating(true);
 
     try {
-      // Configure tenant API service for super admin context
-      tenantApiService.setTenantContext({ isSuperAdmin: true, includeTenantContext: false });
-      
-      const result = await tenantApiService.updateTenant(tenant._id, { 
+      const result = await superAdminApi.patch(`/super-admin/tenants/${tenant._id}`, { 
         status: 'active',
         updatedBy: 'super_admin',
         statusChangeReason: 'Tenant unsuspended by Super Admin',
@@ -1252,10 +1213,7 @@ const SuperAdminTenants: React.FC = () => {
 
     setIsSaving(true);
     try {
-      // Configure tenant API service for super admin context
-      tenantApiService.setTenantContext({ isSuperAdmin: true, includeTenantContext: false });
-      
-      const result = await tenantApiService.updateTenant(selectedTenant._id, {
+      const result = await superAdminApi.patch(`/super-admin/tenants/${selectedTenant._id}`, {
         ...editFormData,
         updatedBy: 'super_admin',
         lastModified: new Date().toISOString()

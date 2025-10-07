@@ -76,13 +76,14 @@ const SuperAdminAnalytics: React.FC = () => {
       setLoading(true);
       console.log('🔄 Fetching analytics data from backend...');
       
-      // Use tenantApiService to get system analytics
-      const response = await tenantApiService.getSystemAnalytics({ range: timeRange });
+      // Use superAdminApi to get system analytics
+      const superAdminApi = (await import('@/services/superAdminApi')).default;
+      const response = await superAdminApi.get(`/super-admin/analytics?range=${timeRange}`);
       console.log('📊 Analytics API response:', response);
       
-      if (response.success && response.data) {
-        console.log('✅ Setting dynamic analytics data:', response.data);
-        setAnalyticsData(response.data);
+      if (response.data?.success && response.data?.data) {
+        console.log('✅ Setting dynamic analytics data:', response.data.data);
+        setAnalyticsData(response.data.data);
       } else {
         console.error('❌ Analytics API returned unsuccessful response:', response);
         // Set minimal default data to prevent crashes - all zeros

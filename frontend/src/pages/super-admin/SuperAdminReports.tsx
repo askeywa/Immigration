@@ -76,8 +76,9 @@ const SuperAdminReports: React.FC = () => {
   const fetchReportData = async () => {
     try {
       setLoading(true);
-      const response = await tenantApiService.getSystemReports({ dateRange });
-      setReportData(response.data);
+      const superAdminApi = (await import('@/services/superAdminApi')).default;
+      const response = await superAdminApi.get(`/super-admin/reports?dateRange=${dateRange}`);
+      setReportData(response.data?.data);
     } catch (error) {
       console.error('Error fetching report data:', error);
       // Set default data to prevent crashes
@@ -103,13 +104,11 @@ const SuperAdminReports: React.FC = () => {
 
   const exportReport = async (format: 'pdf' | 'csv' | 'excel') => {
     try {
-      const response = await tenantApiService.exportSystemReport({ 
-        format, 
-        dateRange 
-      });
+      const superAdminApi = (await import('@/services/superAdminApi')).default;
+      const response = await superAdminApi.get(`/super-admin/reports/export?format=${format}&dateRange=${dateRange}`);
       
       // Create download link
-      const blob = new Blob([response.data], { 
+      const blob = new Blob([response.data?.data || response.data], { 
         type: format === 'pdf' ? 'application/pdf' : 'text/csv' 
       });
       const url = window.URL.createObjectURL(blob);

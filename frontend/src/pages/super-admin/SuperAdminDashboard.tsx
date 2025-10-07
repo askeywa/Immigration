@@ -176,21 +176,18 @@ export const SuperAdminDashboard: React.FC = () => {
       // Fetch real data from APIs
       console.log('🔍 SuperAdminDashboard: Fetching real system statistics...');
       
-      // Configure tenantApiService for super admin context
-      tenantApiService.setTenantContext({
-        isSuperAdmin: true,
-        includeTenantContext: false
-      });
+      // Use superAdminApi for super admin endpoints
+      const superAdminApi = (await import('@/services/superAdminApi')).default;
       
-      // Fetch real tenants data
-      const tenantsResponse = await tenantApiService.getAllTenants(1, 1000); // Get all tenants
-      const totalTenants = tenantsResponse.pagination?.totalTenants || tenantsResponse.data?.tenants?.length || 0;
-      const activeTenants = tenantsResponse.data?.tenants?.filter((tenant: any) => tenant.status === 'active').length || 0;
+      // Fetch real tenants data from super admin endpoint
+      const tenantsResponse = await superAdminApi.get('/super-admin/tenants?page=1&limit=1000');
+      const totalTenants = tenantsResponse.data?.pagination?.totalTenants || tenantsResponse.data?.data?.tenants?.length || 0;
+      const activeTenants = tenantsResponse.data?.data?.tenants?.filter((tenant: any) => tenant.status === 'active').length || 0;
       
-      // Fetch real users data
-      const usersResponse = await tenantApiService.getAllUsers(1, 1000); // Get all users
-      const totalUsers = usersResponse.pagination?.total || usersResponse.data?.users?.length || 0;
-      const activeUsers = usersResponse.data?.users?.filter((user: any) => user.isActive !== false).length || 0;
+      // Fetch real users data from super admin endpoint
+      const usersResponse = await superAdminApi.get('/super-admin/users?page=1&limit=1000');
+      const totalUsers = usersResponse.data?.pagination?.total || usersResponse.data?.data?.users?.length || 0;
+      const activeUsers = usersResponse.data?.data?.users?.filter((user: any) => user.isActive !== false).length || 0;
       
       console.log('🔍 SuperAdminDashboard: Real data fetched:', {
         totalTenants,
@@ -262,9 +259,9 @@ export const SuperAdminDashboard: React.FC = () => {
       };
 
       // Use real tenant data for tenant stats (show first 5 tenants)
-      const realTenantStats: TenantStats[] = tenantsResponse.data?.tenants?.slice(0, 5).map((tenant: any) => {
+      const realTenantStats: TenantStats[] = tenantsResponse.data?.data?.tenants?.slice(0, 5).map((tenant: any) => {
         // Calculate actual user count for this tenant
-        const tenantUsers = usersResponse.data?.users?.filter((user: any) => 
+        const tenantUsers = usersResponse.data?.data?.users?.filter((user: any) => 
           user.tenantId === tenant._id
         ) || [];
         const userCount = tenantUsers.length;
@@ -292,7 +289,7 @@ export const SuperAdminDashboard: React.FC = () => {
       const realRecentActivity: RecentActivity[] = [];
       
       // Add recent tenant creation activity
-      const recentTenants = tenantsResponse.data?.tenants?.filter((tenant: any) => {
+      const recentTenants = tenantsResponse.data?.data?.tenants?.filter((tenant: any) => {
         const createdDate = new Date(tenant.createdAt);
         const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         return createdDate >= oneWeekAgo;

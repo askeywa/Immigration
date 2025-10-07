@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { tenantApiService } from '@/services/tenantApiService';
+import { superAdminApi } from '@/services/superAdminApi';
 import { 
   UserIcon, 
   BuildingOfficeIcon, 
@@ -64,14 +64,9 @@ const SuperAdminUsers: React.FC = () => {
   // Fetch all users for statistics (separate from paginated data)
   const fetchAllUsersForStats = async () => {
     try {
-      tenantApiService.setTenantContext({
-        isSuperAdmin: true,
-        includeTenantContext: false
-      });
-      
       // Fetch with high limit to get all users for statistics
-      const response = await tenantApiService.getAllUsers(1, 1000);
-      const allUsers = response.data?.users || [];
+      const response = await superAdminApi.get('/super-admin/users?page=1&limit=1000');
+      const allUsers = response.data?.data?.users || [];
       
       const stats = {
         total: allUsers.length,
@@ -105,23 +100,17 @@ const SuperAdminUsers: React.FC = () => {
       console.log('🔄 SuperAdminUsers: Starting fetchUsers...', new Date().toISOString());
       setLoading(true);
       
-      // Configure tenantApiService for super admin context
-      tenantApiService.setTenantContext({
-        isSuperAdmin: true,
-        includeTenantContext: false // Super admin calls don't need tenant context
-      });
-      
       // Fetch ALL users for client-side filtering and pagination
       // Add cache-busting parameter to ensure fresh data
       const cacheBuster = Date.now();
-      const response = await tenantApiService.getAllUsers(1, 1000, cacheBuster); // Get all users
+      const response = await superAdminApi.get(`/super-admin/users?page=1&limit=1000&_t=${cacheBuster}`); // Get all users
       console.log('📥 SuperAdminUsers: API response:', response);
-      console.log('👥 SuperAdminUsers: Users data:', response.data?.users);
-      console.log('📄 SuperAdminUsers: Pagination data:', response.pagination);
+      console.log('👥 SuperAdminUsers: Users data:', response.data?.data?.users);
+      console.log('📄 SuperAdminUsers: Pagination data:', response.data?.pagination);
       
       // CRITICAL: Extract pagination FIRST before setting users
-      const paginationData = response.pagination || {};
-      const usersData = response.data?.users || [];
+      const paginationData = response.data?.pagination || {};
+      const usersData = response.data?.data?.users || [];
       
       // Set all state in proper order
       setUsers(usersData); // Now contains ALL users
