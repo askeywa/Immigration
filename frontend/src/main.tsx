@@ -14,6 +14,22 @@ import SentryService from './config/sentry'
 const sentryService = SentryService.getInstance();
 sentryService.initialize().catch(console.error);
 
+// Remove loading fallback after React mounts
+const removeLoadingFallback = () => {
+  const fallback = document.getElementById('loading-fallback');
+  if (fallback) {
+    setTimeout(() => {
+      fallback.style.opacity = '0';
+      setTimeout(() => {
+        fallback.remove();
+      }, 160);
+    }, 100);
+  }
+};
+
+// Call after root render
+setTimeout(removeLoadingFallback, 500);
+
 // Create React Query client with enhanced caching
 const queryClient = new QueryClient({
   defaultOptions: {

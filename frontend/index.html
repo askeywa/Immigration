@@ -67,25 +67,24 @@
     <!-- Vite entry point - this is required for development mode -->
     <script type="module" src="/src/main.tsx"></script>
     
-    <script>
-      // Hide loading fallback as soon as React mounts
-      (function(){
-        var root = document.getElementById('root');
-        var fb = document.getElementById('loading-fallback');
-        if(!root || !fb) return;
-        function hide(){
-          if(!fb) return;
-          fb.style.transition = 'opacity 120ms ease';
-          fb.style.opacity = '0';
-          setTimeout(function(){ if(fb && fb.parentNode) fb.parentNode.removeChild(fb); }, 160);
-        }
-        var obs = new MutationObserver(function(){
-          if(root.childElementCount > 0){ hide(); obs.disconnect(); }
-        });
-        obs.observe(root, { childList: true });
-        // safety timeout in case observer misses
-        setTimeout(hide, 4000);
-      })();
-    </script>
+    <!-- Loading fallback will be removed by React after mount -->
+    <style>
+      #loading-fallback {
+        position: fixed;
+        inset: 0;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 120ms ease;
+      }
+      
+      /* Hide loading fallback when React mounts */
+      #root:not(:empty) ~ #loading-fallback {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
   </body>
 </html>
