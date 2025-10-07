@@ -87,6 +87,8 @@ const TenantAdminDashboard: React.FC = () => {
   console.log('  - recentActivity:', recentActivity?.length || 0);
   console.log('  - isLoading:', isLoading);
   console.log('  - error:', error);
+  console.log('  - safeTenantStats:', !!safeTenantStats);
+  console.log('  - safeRecentActivity:', safeRecentActivity?.length || 0);
 
   // Data is now automatically loaded by React Query hooks
   // No manual loading needed!
@@ -181,15 +183,27 @@ const TenantAdminDashboard: React.FC = () => {
           </div>
         </motion.div>
 
+        {/* Debug Info */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+            <h4 className="font-semibold text-yellow-800">Debug Info:</h4>
+            <p className="text-sm text-yellow-700">
+              Stats: {JSON.stringify(tenantStats)}, 
+              Activity: {recentActivity?.length || 0} items, 
+              Loading: {isLoading ? 'Yes' : 'No'}, 
+              Error: {error ? 'Yes' : 'No'}
+            </p>
+          </div>
+        )}
+
         {/* Dashboard Content */}
-        {safeTenantStats && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Total Users Card */}
               <Card className="p-6 border-0 shadow-md hover:shadow-lg transition-all duration-200 bg-white">
                 <div className="flex items-center justify-between mb-3">
@@ -279,7 +293,6 @@ const TenantAdminDashboard: React.FC = () => {
               </Card>
             </div>
           </motion.div>
-        )}
 
         {/* Recent Activity */}
         <motion.div 
@@ -293,7 +306,7 @@ const TenantAdminDashboard: React.FC = () => {
               <ChartBarIcon className="h-5 w-5 text-gray-400" />
             </div>
             <div className="space-y-4">
-              {safeRecentActivity.map((activity, index) => (
+              {safeRecentActivity && safeRecentActivity.length > 0 ? safeRecentActivity.map((activity, index) => (
                 <div key={activity._id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                     <span className="text-blue-600 text-sm font-medium">
@@ -314,7 +327,11 @@ const TenantAdminDashboard: React.FC = () => {
                     {activity.severity}
                   </span>
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No recent activity available</p>
+                </div>
+              )}
             </div>
           </Card>
         </motion.div>
