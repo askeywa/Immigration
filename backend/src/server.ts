@@ -175,9 +175,39 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
+// Body parsing middleware - ENHANCED with better error handling
+app.use(express.json({ 
+  limit: '10mb',
+  type: 'application/json',
+  verify: (req, res, buf, encoding) => {
+    // Store raw body for debugging
+    (req as any).rawBody = buf.toString(encoding as BufferEncoding);
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Add error handling for malformed JSON
+app.use((error: any, req: any, res: any, next: any) => {
+  if (error instanceof SyntaxError && (error as any).status === 400 && 'body' in error) {
+    console.log('🔍 JSON PARSE ERROR DEBUG:');
+    console.log('Error:', error.message);
+    console.log('Raw body:', (req as any).rawBody);
+    console.log('Content-Type:', req.get('content-type'));
+    console.log('Headers:', req.headers);
+    
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid JSON format',
+      code: 'INVALID_JSON',
+      debug: {
+        error: error.message,
+        receivedContentType: req.get('content-type'),
+        bodyLength: (req as any).rawBody?.length || 0
+      }
+    });
+  }
+  next(error);
+});
 
 // Input sanitization middleware (must be after body parsing)
 app.use(sanitizeRequest);
