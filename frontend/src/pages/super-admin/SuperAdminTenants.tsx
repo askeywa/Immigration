@@ -6,36 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { superAdminApi } from '@/services/superAdminApi';
 import { useTenant } from '@/contexts/TenantContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { MotionDiv, OptimizedAnimatePresence } from '@/components/motion/OptimizedMotion';
 import { useAutoSave } from '@/hooks/useAutoSave';
-import { 
-  EyeIcon, 
-  CogIcon, 
-  TrashIcon, 
-  PlayIcon, 
-  PauseIcon,
-  XMarkIcon,
-  UserIcon,
-  CalendarIcon,
-  CreditCardIcon,
-  GlobeAltIcon,
-  PlusIcon,
-  MagnifyingGlassIcon,
-  FunnelIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  BuildingOfficeIcon,
-  ShieldCheckIcon,
-  ChartBarIcon,
-  BellIcon,
-  EllipsisVerticalIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  XCircleIcon,
-  ClockIcon,
-  Squares2X2Icon,
-  ListBulletIcon
-} from '@heroicons/react/24/outline';
+import { Icon } from '@/components/icons/IconLoader';
 
 // Color utility functions for status and plan badges
 const getStatusColor = (status: string): string => {
@@ -58,17 +31,17 @@ const getStatusColor = (status: string): string => {
 const getStatusIcon = (status: string): React.ReactNode => {
   switch (status?.toLowerCase()) {
     case 'active':
-      return <CheckCircleIcon className="w-3 h-3" />;
+      return <Icon name="check-circle" className="w-3 h-3" />;
     case 'suspended':
-      return <XCircleIcon className="w-3 h-3" />;
+      return <Icon name="x-circle" className="w-3 h-3" />;
     case 'trial':
-      return <ClockIcon className="w-3 h-3" />;
+      return <Icon name="clock" className="w-3 h-3" />;
     case 'cancelled':
-      return <XCircleIcon className="w-3 h-3" />;
+      return <Icon name="x-circle" className="w-3 h-3" />;
     case 'expired':
-      return <ExclamationTriangleIcon className="w-3 h-3" />;
+      return <Icon name="exclamation-triangle" className="w-3 h-3" />;
     default:
-      return <ExclamationTriangleIcon className="w-3 h-3" />;
+      return <Icon name="exclamation-triangle" className="w-3 h-3" />;
   }
 };
 
@@ -244,7 +217,7 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 text-center">
         <div className="flex items-center justify-center space-x-3">
           <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-full">
-            <BuildingOfficeIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <Icon name="building-office" className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
             <h4 className="text-base font-semibold text-blue-900 dark:text-blue-100">New Organization Setup</h4>
@@ -305,7 +278,7 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
       {/* Admin Contact */}
       <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
         <div className="flex items-center space-x-2 mb-4">
-          <UserIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          <Icon name="user" className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Admin Contact</h4>
         </div>
         
@@ -406,7 +379,7 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <PlusIcon className="w-4 h-4" />
+              <Icon name="plus" className="w-4 h-4" />
               <span>Create Tenant</span>
             </div>
           )}
@@ -569,40 +542,15 @@ const SuperAdminTenants: React.FC = () => {
     }, 3000);
   };
 
+  // Load data only once on mount
   useEffect(() => {
     fetchTenants();
-  }, [currentPage, statusFilter, sortBy, sortOrder]);
+  }, []); // Empty dependency array - load only once on mount
 
   // Force re-render when search term changes
   useEffect(() => {
     console.log(`🔍 Search term changed to: "${searchTerm}"`);
   }, [searchTerm]);
-
-  // Fetch all tenants for statistics (separate from paginated data)
-  const fetchAllTenantsForStats = async () => {
-    try {
-      // Fetch with high limit to get all tenants for statistics
-      const response = await superAdminApi.get('/super-admin/tenants?page=1&limit=1000');
-      const allTenants = response.data?.data?.tenants || [];
-      
-      const stats = {
-        total: allTenants.length,
-        active: allTenants.filter(t => t.status === 'active').length,
-        trial: allTenants.filter(t => t.status === 'trial').length,
-        suspended: allTenants.filter(t => t.status === 'suspended').length,
-      };
-      
-      setTenantStats(stats);
-      console.log('🔍 SuperAdminTenants: Updated tenant statistics:', stats);
-    } catch (error) {
-      console.error('❌ SuperAdminTenants: Error fetching tenant stats:', error);
-    }
-  };
-
-  // Fetch stats when component mounts
-  useEffect(() => {
-    fetchAllTenantsForStats();
-  }, []);
 
   // Dark mode detection for portal content
   useEffect(() => {
@@ -628,9 +576,8 @@ const SuperAdminTenants: React.FC = () => {
       console.log('🔍 SuperAdminTenants: Starting fetchTenants...');
       
       // Fetch ALL tenants for client-side filtering and pagination
-      // Add cache-busting parameter to ensure fresh data
-      const cacheBuster = Date.now();
-      const response = await superAdminApi.get(`/super-admin/tenants?page=1&limit=1000&_t=${cacheBuster}`); // Get all tenants
+      // Removed cache-busting parameter to enable backend caching
+      const response = await superAdminApi.get(`/super-admin/tenants?page=1&limit=1000`); // Get all tenants
       console.log('🔍 SuperAdminTenants: API response:', response);
       console.log('🔍 SuperAdminTenants: Tenants data:', response.data?.data?.tenants);
       console.log('🔍 SuperAdminTenants: Pagination data:', response.data?.pagination);
@@ -643,6 +590,16 @@ const SuperAdminTenants: React.FC = () => {
       setTenants(tenantsData); // Now contains ALL tenants
       setTotalPages(paginationData.totalPages || 1);
       setTotalTenants(paginationData.totalTenants || paginationData.totalCount || tenantsData.length);
+      
+      // Calculate tenant statistics from loaded data
+      const stats = {
+        total: tenantsData.length,
+        active: tenantsData.filter(t => t.status === 'active').length,
+        trial: tenantsData.filter(t => t.status === 'trial').length,
+        suspended: tenantsData.filter(t => t.status === 'suspended').length,
+      };
+      setTenantStats(stats);
+      console.log('🔍 SuperAdminTenants: Updated tenant statistics:', stats);
       
       // Debug: Log subscription data for each tenant
       console.log('🔍 SuperAdminTenants: Tenant subscription data:');
@@ -685,12 +642,12 @@ const SuperAdminTenants: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return <CheckCircleIcon className="w-4 h-4" />;
-      case 'inactive': return <XCircleIcon className="w-4 h-4" />;
-      case 'suspended': return <ExclamationTriangleIcon className="w-4 h-4" />;
-      case 'pending': return <ClockIcon className="w-4 h-4" />;
-      case 'trial': return <ClockIcon className="w-4 h-4" />;
-      default: return <ClockIcon className="w-4 h-4" />;
+      case 'active': return <Icon name="check-circle" className="w-4 h-4" />;
+      case 'inactive': return <Icon name="x-circle" className="w-4 h-4" />;
+      case 'suspended': return <Icon name="exclamation-triangle" className="w-4 h-4" />;
+      case 'pending': return <Icon name="clock" className="w-4 h-4" />;
+      case 'trial': return <Icon name="clock" className="w-4 h-4" />;
+      default: return <Icon name="clock" className="w-4 h-4" />;
     }
   };
 
@@ -823,7 +780,6 @@ const SuperAdminTenants: React.FC = () => {
           // Refresh the tenant list and reset pagination
           setCurrentPage(1);
           await fetchTenants();
-          await fetchAllTenantsForStats();
           console.log('✅ SuperAdminTenants: Tenant created successfully');
         } else {
           setCreateError(backendResponse.message || 'Failed to create tenant');
@@ -1043,8 +999,7 @@ const SuperAdminTenants: React.FC = () => {
       if (result.data?.success) {
         setShowDeleteModal(false);
         setTenantToDelete(null);
-        await fetchTenants(); // Refresh the list
-        await fetchAllTenantsForStats(); // Refresh statistics
+        await fetchTenants(); // Refresh the list and statistics
         console.log('✅ SuperAdminTenants: Tenant deleted successfully!');
       } else {
         console.error('❌ Failed to delete tenant:', result.data?.message);
@@ -1090,7 +1045,6 @@ const SuperAdminTenants: React.FC = () => {
         
         // Refresh the list and statistics
         await fetchTenants();
-        await fetchAllTenantsForStats();
         console.log(`✅ SuperAdminTenants: Tenant "${tenant.name}" has been ${action}d successfully!`);
       } else {
         console.error('Failed to update tenant status:', result.data?.message);
@@ -1133,7 +1087,6 @@ const SuperAdminTenants: React.FC = () => {
         
         // Refresh the list and statistics
         await fetchTenants();
-        await fetchAllTenantsForStats();
         console.log(`✅ SuperAdminTenants: Tenant "${tenant.name}" has been suspended successfully!`);
       } else {
         console.error('Failed to suspend tenant:', result.data?.message);
@@ -1176,7 +1129,6 @@ const SuperAdminTenants: React.FC = () => {
         
         // Refresh the list and statistics
         await fetchTenants();
-        await fetchAllTenantsForStats();
         console.log(`✅ SuperAdminTenants: Tenant "${tenant.name}" has been unsuspended successfully!`);
       } else {
         console.error('Failed to unsuspend tenant:', result.data?.message);
@@ -1225,8 +1177,7 @@ const SuperAdminTenants: React.FC = () => {
         setIsEditing(false);
         setEditFormData(null);
         setShowManageModal(false); // Close the modal after successful save
-        await fetchTenants(); // Refresh the list
-        await fetchAllTenantsForStats(); // Refresh statistics
+        await fetchTenants(); // Refresh the list and statistics
         console.log('✅ SuperAdminTenants: Tenant updated successfully!');
         showNotification('✅ Tenant updated successfully!', 'success');
       } else {
@@ -1305,7 +1256,7 @@ const SuperAdminTenants: React.FC = () => {
                 }}
                 className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
               >
-                <PlusIcon className="w-5 h-5" />
+                <Icon name="plus" className="w-5 h-5" />
                 Add Tenant
               </Button>
             </div>
@@ -1320,7 +1271,7 @@ const SuperAdminTenants: React.FC = () => {
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{tenantStats.total}</p>
                 </div>
                 <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                  <BuildingOfficeIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <Icon name="building-office" className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </div>
@@ -1333,7 +1284,7 @@ const SuperAdminTenants: React.FC = () => {
                   </p>
                 </div>
                 <div className="p-3 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
-                  <CheckCircleIcon className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                  <Icon name="check-circle" className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
               </div>
             </div>
@@ -1346,7 +1297,7 @@ const SuperAdminTenants: React.FC = () => {
                   </p>
                 </div>
                 <div className="p-3 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-                  <ClockIcon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                  <Icon name="clock" className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                 </div>
               </div>
             </div>
@@ -1359,7 +1310,7 @@ const SuperAdminTenants: React.FC = () => {
                   </p>
                 </div>
                 <div className="p-3 bg-red-100 dark:bg-red-900/50 rounded-lg">
-                  <ExclamationTriangleIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  <Icon name="exclamation-triangle" className="w-6 h-6 text-red-600 dark:text-red-400" />
                 </div>
               </div>
             </div>
@@ -1370,7 +1321,7 @@ const SuperAdminTenants: React.FC = () => {
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  <Icon name="magnifying-glass" className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   <Input
                     placeholder="Search tenants by name, domain, or email..."
                     value={searchTerm}
@@ -1387,7 +1338,7 @@ const SuperAdminTenants: React.FC = () => {
                   data-testid="view-mode-card"
                   className={`px-3 py-2 ${viewMode === 'card' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
                 >
-                  <Squares2X2Icon className="w-4 h-4" />
+                  <Icon name="squares-2x2" className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -1396,7 +1347,7 @@ const SuperAdminTenants: React.FC = () => {
                   data-testid="view-mode-list"
                   className={`px-3 py-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
                 >
-                  <ListBulletIcon className="w-4 h-4" />
+                  <Icon name="list-bullet" className="w-4 h-4" />
                 </Button>
               </div>
               <div className="flex gap-3">
@@ -1420,7 +1371,7 @@ const SuperAdminTenants: React.FC = () => {
         {viewMode === 'card' ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8" key={`tenants-grid-${searchTerm}-${statusFilter}`}>
             {paginatedTenants.map((tenant) => (
-            <motion.div
+            <MotionDiv
               key={tenant._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1433,7 +1384,7 @@ const SuperAdminTenants: React.FC = () => {
                   <div className="flex-1 min-w-0 mr-3">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex-shrink-0">
-                        <BuildingOfficeIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <Icon name="building-office" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
@@ -1452,7 +1403,7 @@ const SuperAdminTenants: React.FC = () => {
                     </Badge>
                     {currentTenant?._id === tenant._id && (
                       <Badge className="bg-blue-100 text-blue-800 border-blue-200 border text-xs whitespace-nowrap">
-                        <ShieldCheckIcon className="w-3 h-3 mr-1" />
+                        <Icon name="shield-check" className="w-3 h-3 mr-1" />
                         Current
                       </Badge>
                     )}
@@ -1521,7 +1472,7 @@ const SuperAdminTenants: React.FC = () => {
             onClick={() => handleViewDetails(tenant)}
             className="flex-1 flex items-center justify-center gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 dark:border-gray-600"
           >
-            <EyeIcon className="w-4 h-4" />
+            <Icon name="eye" className="w-4 h-4" />
             <span className="text-xs sm:text-sm">View</span>
           </Button>
           <Button
@@ -1530,7 +1481,7 @@ const SuperAdminTenants: React.FC = () => {
             onClick={() => handleManage(tenant)}
             className="flex-1 flex items-center justify-center gap-1 text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-700 dark:border-gray-600"
           >
-            <CogIcon className="w-4 h-4" />
+            <Icon name="cog" className="w-4 h-4" />
             <span className="text-xs sm:text-sm">Edit</span>
           </Button>
           <Button
@@ -1539,12 +1490,12 @@ const SuperAdminTenants: React.FC = () => {
             onClick={() => handleDelete(tenant)}
             className="flex-1 flex items-center justify-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 dark:border-gray-600"
           >
-            <TrashIcon className="w-4 h-4" />
+            <Icon name="trash" className="w-4 h-4" />
             <span className="text-xs sm:text-sm">Delete</span>
           </Button>
         </div>
               </div>
-            </motion.div>
+            </MotionDiv>
           ))}
           </div>
         ) : (
@@ -1576,7 +1527,7 @@ const SuperAdminTenants: React.FC = () => {
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {paginatedTenants.map((tenant) => (
-                    <motion.tr
+                    <MotionDiv as="tr"
                       key={tenant._id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -1587,7 +1538,7 @@ const SuperAdminTenants: React.FC = () => {
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                              <BuildingOfficeIcon className="h-6 w-6 text-white" />
+                              <Icon name="building-office" className="h-6 w-6 text-white" />
                             </div>
                           </div>
                           <div className="ml-4">
@@ -1627,7 +1578,7 @@ const SuperAdminTenants: React.FC = () => {
                             onClick={() => handleViewDetails(tenant)}
                             className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
                           >
-                            <EyeIcon className="w-4 h-4" />
+                            <Icon name="eye" className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="outline"
@@ -1635,7 +1586,7 @@ const SuperAdminTenants: React.FC = () => {
                             onClick={() => handleManage(tenant)}
                             className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-700"
                           >
-                            <CogIcon className="w-4 h-4" />
+                            <Icon name="cog" className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="outline"
@@ -1643,11 +1594,11 @@ const SuperAdminTenants: React.FC = () => {
                             onClick={() => handleDelete(tenant)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
                           >
-                            <TrashIcon className="w-4 h-4" />
+                            <Icon name="trash" className="w-4 h-4" />
                           </Button>
                         </div>
                       </td>
-                    </motion.tr>
+                    </MotionDiv>
                   ))}
                 </tbody>
               </table>
@@ -1670,7 +1621,7 @@ const SuperAdminTenants: React.FC = () => {
                 disabled={currentPage === 1}
                 className="flex items-center gap-1 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               >
-                <ChevronLeftIcon className="w-4 h-4" />
+                <Icon name="chevron-left" className="w-4 h-4" />
                 Previous
               </Button>
               
@@ -1705,7 +1656,7 @@ const SuperAdminTenants: React.FC = () => {
                 className="flex items-center gap-1 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 Next
-                <ChevronRightIcon className="w-4 h-4" />
+                <Icon name="chevron-right" className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -1714,7 +1665,7 @@ const SuperAdminTenants: React.FC = () => {
         {filteredTenants.length === 0 && (
           <div className="text-center py-12">
             <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <BuildingOfficeIcon className="w-12 h-12 text-gray-400" />
+              <Icon name="building-office" className="w-12 h-12 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No tenants found</h3>
             <p className="text-gray-500 mb-6">
@@ -1733,7 +1684,7 @@ const SuperAdminTenants: React.FC = () => {
                 }}
                 className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white"
               >
-                <PlusIcon className="w-5 h-5 mr-2" />
+                <Icon name="plus" className="w-5 h-5 mr-2" />
                 Create First Tenant
               </Button>
             )}
@@ -1763,7 +1714,7 @@ const SuperAdminTenants: React.FC = () => {
             onClick={() => setShowCreateModal(false)}
             className="p-2"
           >
-            <XMarkIcon className="w-4 h-4" />
+            <Icon name="x-mark" className="w-4 h-4" />
           </Button>
         </div>
         
@@ -1787,15 +1738,15 @@ const SuperAdminTenants: React.FC = () => {
       </Modal>
 
       {/* Tenant Details Modal */}
-      <AnimatePresence>
+      <OptimizedAnimatePresence>
         {showDetailsModal && selectedTenant && typeof selectedTenant === 'object' && (
-          <motion.div 
+          <MotionDiv 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
-            <motion.div 
+            <MotionDiv 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -1811,7 +1762,7 @@ const SuperAdminTenants: React.FC = () => {
                   onClick={() => setShowDetailsModal(false)}
                   className="p-2"
                 >
-                  <XMarkIcon className="w-4 h-4" />
+                  <Icon name="x-mark" className="w-4 h-4" />
                 </Button>
               </div>
 
@@ -1825,13 +1776,13 @@ const SuperAdminTenants: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card className="p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                        <GlobeAltIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <Icon name="globe-alt" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         Basic Information
                       </h4>
                       <div className="space-y-3 text-sm">
                         <div className="flex justify-between">
                           <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <BuildingOfficeIcon className="w-4 h-4" />
+                            <Icon name="building-office" className="w-4 h-4" />
                             Name:
                           </span>
                           <span className="text-gray-900 dark:text-white">
@@ -1840,7 +1791,7 @@ const SuperAdminTenants: React.FC = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <GlobeAltIcon className="w-4 h-4" />
+                            <Icon name="globe-alt" className="w-4 h-4" />
                             Domain:
                           </span>
                           <span className="text-gray-900 dark:text-white">
@@ -1849,7 +1800,7 @@ const SuperAdminTenants: React.FC = () => {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <ShieldCheckIcon className="w-4 h-4" />
+                            <Icon name="shield-check" className="w-4 h-4" />
                             Status:
                           </span>
                           <Badge className={`${getStatusColor(selectedTenant.status)} flex items-center gap-1`}>
@@ -1859,7 +1810,7 @@ const SuperAdminTenants: React.FC = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <CalendarIcon className="w-4 h-4" />
+                            <Icon name="calendar" className="w-4 h-4" />
                             Created:
                           </span>
                           <span className="text-gray-900 dark:text-white">
@@ -1868,7 +1819,7 @@ const SuperAdminTenants: React.FC = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <UserIcon className="w-4 h-4" />
+                            <Icon name="user" className="w-4 h-4" />
                             Last Login:
                           </span>
                           <span className="text-gray-900 dark:text-white">
@@ -1880,7 +1831,7 @@ const SuperAdminTenants: React.FC = () => {
 
                     <Card className="p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                        <UserIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <Icon name="user" className="w-5 h-5 text-green-600 dark:text-green-400" />
                         User Statistics
                       </h4>
                       <div className="space-y-3 text-sm">
@@ -1922,7 +1873,7 @@ const SuperAdminTenants: React.FC = () => {
                   {(selectedTenant as any).usage && (
                     <Card className="p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                        <ChartBarIcon className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        <Icon name="chart-bar" className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         Usage & Performance
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -1954,13 +1905,13 @@ const SuperAdminTenants: React.FC = () => {
                   {selectedTenant.contactInfo && (
                     <Card className="p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                        <BellIcon className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        <Icon name="bell" className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                         Contact Information
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div className="flex justify-between">
                           <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <BellIcon className="w-4 h-4" />
+                            <Icon name="bell" className="w-4 h-4" />
                             Email:
                           </span>
                           <span className="text-gray-900 dark:text-white">
@@ -1969,7 +1920,7 @@ const SuperAdminTenants: React.FC = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <BellIcon className="w-4 h-4" />
+                            <Icon name="bell" className="w-4 h-4" />
                             Phone:
                           </span>
                           <span className="text-gray-900 dark:text-white">
@@ -1979,7 +1930,7 @@ const SuperAdminTenants: React.FC = () => {
                         {selectedTenant.contactInfo.address && (
                           <div className="md:col-span-2">
                             <span className="font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                              <BellIcon className="w-4 h-4" />
+                              <Icon name="bell" className="w-4 h-4" />
                               Address:
                             </span>
                             <span className="text-gray-900 dark:text-white ml-2">
@@ -2017,7 +1968,7 @@ const SuperAdminTenants: React.FC = () => {
                   {selectedTenant.subscription && typeof selectedTenant.subscription === 'object' && (
                     <Card className="p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                        <CreditCardIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        <Icon name="credit-card" className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                         Subscription Details
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -2064,21 +2015,21 @@ const SuperAdminTenants: React.FC = () => {
                   Failed to load tenant details
                 </div>
               )}
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
         )}
-      </AnimatePresence>
+      </OptimizedAnimatePresence>
 
       {/* Manage Tenant Modal */}
-      <AnimatePresence>
+      <OptimizedAnimatePresence>
         {showManageModal && selectedTenant && (
-          <motion.div 
+          <MotionDiv 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
-            <motion.div 
+            <MotionDiv 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -2099,7 +2050,7 @@ const SuperAdminTenants: React.FC = () => {
                     }}
                     className="p-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                   >
-                    <XMarkIcon className="w-4 h-4" />
+                    <Icon name="x-mark" className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
@@ -2116,7 +2067,7 @@ const SuperAdminTenants: React.FC = () => {
                     <div className="space-y-6">
                       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                         <div className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                          <CogIcon className="w-5 h-5" />
+                          <Icon name="cog" className="w-5 h-5" />
                           <span className="font-medium">Edit Mode - Make your changes below</span>
                         </div>
                       </div>
@@ -2166,7 +2117,7 @@ const SuperAdminTenants: React.FC = () => {
                       {/* Subscription Plan */}
                       <div className="bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
                         <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                          <CreditCardIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                          <Icon name="credit-card" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                           Subscription Plan
                         </h4>
                         <div>
@@ -2356,21 +2307,21 @@ const SuperAdminTenants: React.FC = () => {
                   )}
                 </div>
               )}
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
         )}
-      </AnimatePresence>
+      </OptimizedAnimatePresence>
 
       {/* Delete Confirmation Modal */}
-      <AnimatePresence>
+      <OptimizedAnimatePresence>
         {showDeleteModal && tenantToDelete && (
-          <motion.div 
+          <MotionDiv 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           >
-            <motion.div 
+            <MotionDiv 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -2386,7 +2337,7 @@ const SuperAdminTenants: React.FC = () => {
                   onClick={() => setShowDeleteModal(false)}
                   className="p-2"
                 >
-                  <XMarkIcon className="w-4 h-4" />
+                  <Icon name="x-mark" className="w-4 h-4" />
                 </Button>
               </div>
 
@@ -2417,15 +2368,15 @@ const SuperAdminTenants: React.FC = () => {
                   {isDeleting ? 'Deleting...' : 'Delete Permanently'}
                 </Button>
               </div>
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
         )}
-      </AnimatePresence>
+      </OptimizedAnimatePresence>
 
       {/* Notification */}
-      <AnimatePresence>
+      <OptimizedAnimatePresence>
         {notification.show && (
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: -50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -50, scale: 0.9 }}
@@ -2441,10 +2392,10 @@ const SuperAdminTenants: React.FC = () => {
             <div className="p-4 flex items-center space-x-3">
               <div className="flex-shrink-0">
                 {notification.type === 'success' && (
-                  <CheckCircleIcon className="w-5 h-5 text-white" />
+                  <Icon name="check-circle" className="w-5 h-5 text-white" />
                 )}
                 {notification.type === 'error' && (
-                  <XCircleIcon className="w-5 h-5 text-white" />
+                  <Icon name="x-circle" className="w-5 h-5 text-white" />
                 )}
                 {notification.type === 'info' && (
                   <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center">
@@ -2459,12 +2410,12 @@ const SuperAdminTenants: React.FC = () => {
                 onClick={() => setNotification(prev => ({ ...prev, show: false }))}
                 className="flex-shrink-0 ml-2 text-white hover:text-gray-200 transition-colors"
               >
-                <XMarkIcon className="w-4 h-4" />
+                <Icon name="x-mark" className="w-4 h-4" />
               </button>
             </div>
-          </motion.div>
+          </MotionDiv>
         )}
-      </AnimatePresence>
+      </OptimizedAnimatePresence>
     </div>
   );
 };

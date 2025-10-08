@@ -12,6 +12,10 @@ export class LocalCacheService {
   private cache = new Map<string, CacheItem>();
   private readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
   private readonly MAX_CACHE_SIZE = 1000; // Maximum number of cached items
+  private stats = {
+    hits: 0,
+    misses: 0
+  };
 
   private constructor() {
     // Clean up expired items every minute
@@ -59,6 +63,7 @@ export class LocalCacheService {
     
     if (!item) {
       console.log('❌ LocalCache.get: No item found');
+      this.stats.misses++;
       return null;
     }
 
@@ -67,11 +72,13 @@ export class LocalCacheService {
       this.cache.delete(key);
       console.log('❌ LocalCache.get: Item expired');
       log.debug('Cache miss - expired', { key });
+      this.stats.misses++;
       return null;
     }
 
     console.log('✅ LocalCache.get: Cache hit!');
     log.debug('Cache hit', { key });
+    this.stats.hits++;
     return item.data as T;
   }
 
@@ -112,10 +119,12 @@ export class LocalCacheService {
   /**
    * Get cache statistics
    */
-  getStats(): { size: number; keys: string[] } {
+  getStats(): { size: number; keys: string[]; hits: number; misses: number } {
     return {
       size: this.cache.size,
-      keys: Array.from(this.cache.keys())
+      keys: Array.from(this.cache.keys()),
+      hits: this.stats.hits,
+      misses: this.stats.misses
     };
   }
 

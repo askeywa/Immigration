@@ -1,37 +1,18 @@
 // frontend/src/components/tenant/TenantRouter.tsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuthStore } from '@/store/authStore';
 import { TenantLayout } from './TenantLayout';
 import { log } from '@/utils/logger';
-
-// Lazy-loaded tenant-specific components
-const TenantDashboard = React.lazy(() => import('@/pages/tenant/TenantAdminDashboardFixed'));
-const TenantUsers = React.lazy(() => import('@/pages/tenant/TenantUsers'));
-const TenantProfiles = React.lazy(() => import('@/pages/tenant/TenantProfiles'));
-const TenantReports = React.lazy(() => import('@/pages/tenant/TenantReports'));
-const TenantSettings = React.lazy(() => import('@/pages/tenant/TenantSettings'));
-const TenantDocuments = React.lazy(() => import('@/pages/tenant/TenantDocuments'));
-const TenantBranding = React.lazy(() => import('@/pages/tenant/BrandingCustomization'));
-const TenantAnalytics = React.lazy(() => import('@/pages/tenant/TenantAnalytics'));
-
-// Super admin components
-const SuperAdminDashboard = React.lazy(() => import('@/pages/super-admin/SuperAdminDashboard'));
-const SuperAdminTenants = React.lazy(() => import('@/pages/super-admin/SuperAdminTenants'));
-const SuperAdminUsers = React.lazy(() => import('@/pages/super-admin/SuperAdminUsers'));
-const SuperAdminReports = React.lazy(() => import('@/pages/super-admin/SuperAdminReports'));
-const SuperAdminAnalytics = React.lazy(() => import('@/pages/super-admin/SuperAdminAnalytics'));
-
-// Regular user components
-const UserDashboard = React.lazy(() => import('@/pages/user/UserDashboard'));
-const ProfileAssessment = React.lazy(() => import('@/pages/user/ProfileAssessment'));
-const CrsScore = React.lazy(() => import('@/pages/user/CrsScore'));
-const DocumentsChecklist = React.lazy(() => import('@/pages/user/DocumentsChecklist'));
-const AdditionalInfo = React.lazy(() => import('@/pages/user/AdditionalInfo'));
-const DocumentsUpload = React.lazy(() => import('@/pages/user/DocumentsUpload'));
-const ProfileSettings = React.lazy(() => import('@/pages/user/ProfileSettings'));
-const AccountSettings = React.lazy(() => import('@/pages/user/AccountSettings'));
+import { ComponentPreloader } from '@/components/navigation/ComponentPreloader';
+import { OptimizedRoute } from '@/components/navigation/OptimizedRoute';
+import { 
+  SuperAdminRoutes, 
+  TenantAdminRoutes, 
+  UserRoutes,
+  preloadRoutesByRole 
+} from '@/components/navigation/RouteGroups';
 
 // Loading component
 const LoadingSpinner: React.FC = () => (
@@ -177,6 +158,18 @@ export const TenantRouter: React.FC = () => {
       }, 0);
     }
   }, [location.pathname, redirectPath, navigate]);
+
+  // Smart preloading based on user role
+  React.useEffect(() => {
+    if (user?.role) {
+      // Preload routes in the background after initial load
+      const timeoutId = setTimeout(() => {
+        preloadRoutesByRole(user.role as string);
+      }, 1000); // Wait 1 second after initial load
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [user?.role]);
   
   return (
     <TenantLayout>
@@ -187,27 +180,44 @@ export const TenantRouter: React.FC = () => {
             <>
               <Route path="/super-admin" element={
                 <TenantAccessGuard requiredRole="super_admin">
-                  <SuperAdminDashboard />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <SuperAdminRoutes.Dashboard />
+                  </Suspense>
                 </TenantAccessGuard>
               } />
               <Route path="/super-admin/tenants" element={
                 <TenantAccessGuard requiredRole="super_admin">
-                  <SuperAdminTenants />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <SuperAdminRoutes.Tenants />
+                  </Suspense>
                 </TenantAccessGuard>
               } />
               <Route path="/super-admin/users" element={
                 <TenantAccessGuard requiredRole="super_admin">
-                  <SuperAdminUsers />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <SuperAdminRoutes.Users />
+                  </Suspense>
                 </TenantAccessGuard>
               } />
               <Route path="/super-admin/reports" element={
                 <TenantAccessGuard requiredRole="super_admin">
-                  <SuperAdminReports />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <SuperAdminRoutes.Reports />
+                  </Suspense>
                 </TenantAccessGuard>
               } />
               <Route path="/super-admin/analytics" element={
                 <TenantAccessGuard requiredRole="super_admin">
-                  <SuperAdminAnalytics />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <SuperAdminRoutes.Analytics />
+                  </Suspense>
+                </TenantAccessGuard>
+              } />
+              <Route path="/super-admin/performance" element={
+                <TenantAccessGuard requiredRole="super_admin">
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <SuperAdminRoutes.Performance />
+                  </Suspense>
                 </TenantAccessGuard>
               } />
             </>
@@ -218,42 +228,44 @@ export const TenantRouter: React.FC = () => {
             <>
               <Route path="/tenant/dashboard" element={
                 <TenantAccessGuard requiredRole="admin">
-                  <TenantDashboard />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <TenantAdminRoutes.Dashboard />
+                  </Suspense>
                 </TenantAccessGuard>
               } />
               <Route path="/tenant/users" element={
                 <TenantAccessGuard requiredRole="admin">
-                  <TenantUsers />
+                  <TenantAdminRoutes.Users />
                 </TenantAccessGuard>
               } />
               <Route path="/tenant/profiles" element={
                 <TenantAccessGuard requiredRole="admin">
-                  <TenantProfiles />
+                  <TenantAdminRoutes.Profiles />
                 </TenantAccessGuard>
               } />
               <Route path="/tenant/reports" element={
                 <TenantAccessGuard requiredRole="admin">
-                  <TenantReports />
+                  <TenantAdminRoutes.Reports />
                 </TenantAccessGuard>
               } />
               <Route path="/tenant/settings" element={
                 <TenantAccessGuard requiredRole="admin">
-                  <TenantSettings />
+                  <TenantAdminRoutes.Settings />
                 </TenantAccessGuard>
               } />
               <Route path="/tenant/documents" element={
                 <TenantAccessGuard requiredRole="admin">
-                  <TenantDocuments />
+                  <TenantAdminRoutes.Documents />
                 </TenantAccessGuard>
               } />
               <Route path="/tenant/branding" element={
                 <TenantAccessGuard requiredRole="admin">
-                  <TenantBranding />
+                  <TenantAdminRoutes.Branding />
                 </TenantAccessGuard>
               } />
               <Route path="/tenant/analytics" element={
                 <TenantAccessGuard requiredRole="admin">
-                  <TenantAnalytics />
+                  <TenantAdminRoutes.Analytics />
                 </TenantAccessGuard>
               } />
             </>
@@ -264,42 +276,42 @@ export const TenantRouter: React.FC = () => {
             <>
               <Route path="/dashboard" element={
                 <TenantAccessGuard requiredRole="user">
-                  <UserDashboard />
+                  <UserRoutes.Dashboard />
                 </TenantAccessGuard>
               } />
               <Route path="/profile/assessment" element={
                 <TenantAccessGuard requiredRole="user">
-                  <ProfileAssessment />
+                  <UserRoutes.ProfileAssessment />
                 </TenantAccessGuard>
               } />
               <Route path="/crs" element={
                 <TenantAccessGuard requiredRole="user">
-                  <CrsScore />
+                  <UserRoutes.CrsScore />
                 </TenantAccessGuard>
               } />
               <Route path="/documents/checklist" element={
                 <TenantAccessGuard requiredRole="user">
-                  <DocumentsChecklist />
+                  <UserRoutes.DocumentsChecklist />
                 </TenantAccessGuard>
               } />
               <Route path="/additional-info" element={
                 <TenantAccessGuard requiredRole="user">
-                  <AdditionalInfo />
+                  <UserRoutes.AdditionalInfo />
                 </TenantAccessGuard>
               } />
               <Route path="/documents" element={
                 <TenantAccessGuard requiredRole="user">
-                  <DocumentsUpload />
+                  <UserRoutes.DocumentsUpload />
                 </TenantAccessGuard>
               } />
               <Route path="/profile/settings" element={
                 <TenantAccessGuard requiredRole="user">
-                  <ProfileSettings />
+                  <UserRoutes.ProfileSettings />
                 </TenantAccessGuard>
               } />
               <Route path="/account/settings" element={
                 <TenantAccessGuard requiredRole="user">
-                  <AccountSettings />
+                  <UserRoutes.AccountSettings />
                 </TenantAccessGuard>
               } />
             </>

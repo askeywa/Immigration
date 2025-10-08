@@ -34,6 +34,8 @@ pids/
 *.pid
 *.seed
 *.pid.lock
+.server.lock
+.server.pid
 
 # Coverage directory used by tools like istanbul
 coverage/
@@ -90,8 +92,8 @@ jspm_packages/
 # TernJS port file
 .tern-port
 
-# Documentation files
-*.md
+# Documentation files (exclude generated docs, keep important ones)
+# *.md files are NOT ignored - we want to keep documentation
 
 # Test files and debug images
 *.png

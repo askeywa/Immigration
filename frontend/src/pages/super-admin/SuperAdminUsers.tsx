@@ -57,43 +57,10 @@ const SuperAdminUsers: React.FC = () => {
     superAdmins: 0
   });
 
+  // Load data only once on mount
   useEffect(() => {
     fetchUsers();
-  }, []); // Only fetch once on mount
-
-  // Fetch all users for statistics (separate from paginated data)
-  const fetchAllUsersForStats = async () => {
-    try {
-      // Fetch with high limit to get all users for statistics
-      const response = await superAdminApi.get('/super-admin/users?page=1&limit=1000');
-      const allUsers = response.data?.data?.users || [];
-      
-      const stats = {
-        total: allUsers.length,
-        tenantAdmins: allUsers.filter(u => u.role === 'tenant_admin').length,
-        tenantUsers: allUsers.filter(u => u.role === 'tenant_user').length,
-        superAdmins: allUsers.filter(u => u.role === 'super_admin').length,
-      };
-      
-      setUserStats(stats);
-      console.log('📊 SuperAdminUsers: Updated user statistics:', stats);
-    } catch (error) {
-      console.error('❌ SuperAdminUsers: Error fetching user stats:', error);
-      
-      // Set default stats on error to prevent UI issues
-      setUserStats({
-        total: 0,
-        tenantAdmins: 0,
-        tenantUsers: 0,
-        superAdmins: 0,
-      });
-    }
-  };
-
-  // Fetch stats when component mounts
-  useEffect(() => {
-    fetchAllUsersForStats();
-  }, []);
+  }, []); // Empty dependency array - load only once on mount
 
   const fetchUsers = async () => {
     try {
@@ -101,9 +68,8 @@ const SuperAdminUsers: React.FC = () => {
       setLoading(true);
       
       // Fetch ALL users for client-side filtering and pagination
-      // Add cache-busting parameter to ensure fresh data
-      const cacheBuster = Date.now();
-      const response = await superAdminApi.get(`/super-admin/users?page=1&limit=1000&_t=${cacheBuster}`); // Get all users
+      // Removed cache-busting parameter to enable backend caching
+      const response = await superAdminApi.get(`/super-admin/users?page=1&limit=1000`); // Get all users
       console.log('📥 SuperAdminUsers: API response:', response);
       console.log('👥 SuperAdminUsers: Users data:', response.data?.data?.users);
       console.log('📄 SuperAdminUsers: Pagination data:', response.data?.pagination);
@@ -116,6 +82,16 @@ const SuperAdminUsers: React.FC = () => {
       setUsers(usersData); // Now contains ALL users
       setTotalPages(paginationData.totalPages || 1);
       setTotalUsers(paginationData.totalUsers || paginationData.totalCount || usersData.length);
+      
+      // Calculate user statistics from loaded data
+      const stats = {
+        total: usersData.length,
+        tenantAdmins: usersData.filter(u => u.role === 'tenant_admin').length,
+        tenantUsers: usersData.filter(u => u.role === 'tenant_user').length,
+        superAdmins: usersData.filter(u => u.role === 'super_admin').length,
+      };
+      setUserStats(stats);
+      console.log('📊 SuperAdminUsers: Updated user statistics:', stats);
       
       console.log('📊 SuperAdminUsers: Pagination set:', {
         totalPages: paginationData.totalPages,

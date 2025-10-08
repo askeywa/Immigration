@@ -6,6 +6,7 @@ import { getAllUsers, deleteUser } from '../controllers/userController';
 import { getSystemReports, exportSystemReport, getSystemAnalytics } from '../controllers/reportController';
 import { TenantController } from '../controllers/tenantController';
 import { superAdminCacheMiddleware } from '../middleware/cacheMiddleware';
+import { PerformanceController } from '../controllers/performanceController';
 
 const router = Router();
 
@@ -63,5 +64,11 @@ router.get('/health', asyncHandler(async (req, res) => {
     }
   });
 }));
+
+// Performance monitoring routes
+router.get('/performance/metrics', asyncHandler(PerformanceController.getPerformanceMetrics));
+router.get('/performance/cache', asyncHandler(PerformanceController.getCacheAnalytics));
+router.get('/performance/history', asyncHandler(PerformanceController.getApiPerformanceHistory));
+router.post('/performance/clear-cache', asyncHandler(PerformanceController.clearAllCaches));
 
 export default router;

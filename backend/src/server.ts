@@ -146,6 +146,10 @@ try {
 // Comprehensive Logging Middleware
 app.use(comprehensiveLogging);
 
+// Performance tracking middleware
+import { trackApiPerformance } from './controllers/performanceController';
+app.use(trackApiPerformance);
+
 // Security middleware (order is important!)
 app.use(securityHeaders());
 // ENHANCED: Dynamic CORS with multi-domain tenant support
