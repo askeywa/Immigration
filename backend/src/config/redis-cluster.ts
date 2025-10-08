@@ -28,8 +28,29 @@ export class RedisClusterManager {
   getClusterConfig(): RedisClusterConfig {
     const isProduction = process.env.NODE_ENV === 'production';
     const isDevelopment = process.env.NODE_ENV === 'development';
+    const clusterMode = process.env.REDIS_CLUSTER_MODE === 'true';
 
-    if (isProduction) {
+    // Force single instance mode if REDIS_CLUSTER_MODE is false
+    if (!clusterMode) {
+      return {
+        nodes: [{ host: 'localhost', port: 6379 }],
+        options: {
+          redisOptions: {
+            password: process.env.REDIS_PASSWORD,
+            connectTimeout: 5000,
+            lazyConnect: true,
+            maxRetriesPerRequest: null,
+            enableReadyCheck: false,
+            keepAlive: 30000,
+            family: 4,
+            db: 0
+          },
+          enableOfflineQueue: false
+        }
+      };
+    }
+
+    if (isProduction && clusterMode) {
       // Production cluster configuration
       const clusterNodes: ClusterNode[] = [
         { host: process.env.REDIS_MASTER_1_HOST || 'redis-master-1', port: parseInt(process.env.REDIS_MASTER_1_PORT || '6379') },
@@ -115,19 +136,21 @@ export class RedisClusterManager {
       try {
         const config = this.getClusterConfig();
         const isProduction = process.env.NODE_ENV === 'production';
+        const clusterMode = process.env.REDIS_CLUSTER_MODE === 'true';
 
         log.info(`Connecting to Redis... (attempt ${attempt}/${maxRetries})`, {
           environment: process.env.NODE_ENV,
-          isClusterMode: isProduction && config.nodes.length > 1,
-          nodeCount: config.nodes.length
+          isClusterMode: clusterMode && config.nodes.length > 1,
+          nodeCount: config.nodes.length,
+          clusterModeEnabled: clusterMode
         });
 
-        if (isProduction && config.nodes.length > 1) {
-          // Use cluster mode for production
+        if (clusterMode && config.nodes.length > 1) {
+          // Use cluster mode when explicitly enabled
           this.cluster = new Redis.Cluster(config.nodes, config.options);
           this.isClusterMode = true;
         } else {
-          // Use single instance for development
+          // Use single instance (default behavior)
           const node = config.nodes[0];
           this.cluster = new Redis({
             host: typeof node === 'string' ? (node as any).split(':')[0] : (node as any).host,

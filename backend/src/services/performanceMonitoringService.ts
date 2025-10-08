@@ -577,7 +577,7 @@ export class PerformanceMonitoringService {
           alert.userId || 'system',
           alert.tenantId || 'system',
           'performance_alert',
-          `Performance alert: ${alert.message}`
+          'performance' // Use valid enum value instead of long message
         );
       }
     });

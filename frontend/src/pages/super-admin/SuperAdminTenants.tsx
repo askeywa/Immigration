@@ -161,6 +161,7 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
   const firstNameRef = React.useRef<HTMLInputElement>(null);
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const [validationError, setValidationError] = React.useState<string | null>(null);
 
   // Clear fields when component mounts (modal opens) or when resetTrigger changes
   React.useEffect(() => {
@@ -174,6 +175,7 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError(null);
     
     // Collect data from refs
     const fullName = firstNameRef.current?.value?.trim() || '';
@@ -191,20 +193,30 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
       }
     };
     
-    // Validate required fields
+    // Validate required fields with user feedback
     if (!formData.name.trim()) {
+      setValidationError('Organization name is required');
+      nameRef.current?.focus();
       return;
     }
     if (!formData.domain.trim()) {
+      setValidationError('Domain is required');
+      domainRef.current?.focus();
       return;
     }
     if (!formData.adminUser.firstName.trim()) {
+      setValidationError('Admin name is required');
+      firstNameRef.current?.focus();
       return;
     }
     if (!formData.adminUser.email.trim()) {
+      setValidationError('Admin email is required');
+      emailRef.current?.focus();
       return;
     }
     if (!formData.adminUser.password.trim()) {
+      setValidationError('Admin password is required');
+      passwordRef.current?.focus();
       return;
     }
     
@@ -213,6 +225,14 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl mx-auto">
+      {/* Validation Error Alert */}
+      {validationError && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-center space-x-2">
+          <Icon name="exclamation-triangle" className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+          <p className="text-sm text-red-800 dark:text-red-200">{validationError}</p>
+        </div>
+      )}
+      
       {/* Professional Form Header */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 text-center">
         <div className="flex items-center justify-center space-x-3">
@@ -780,6 +800,8 @@ const SuperAdminTenants: React.FC = () => {
           // Refresh the tenant list and reset pagination
           setCurrentPage(1);
           await fetchTenants();
+          // Show success notification
+          showNotification('✅ Tenant created successfully!', 'success');
           console.log('✅ SuperAdminTenants: Tenant created successfully');
         } else {
           setCreateError(backendResponse.message || 'Failed to create tenant');

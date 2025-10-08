@@ -19,9 +19,11 @@ const cacheFor5Min = superAdminCacheMiddleware(5 * 60 * 1000);
 
 // Super Admin Tenant Management Routes (with caching)
 router.get('/tenants', cacheFor5Min, asyncHandler(TenantController.getAllTenants));
+router.post('/tenants', asyncHandler(TenantController.createTenant));
 router.get('/tenants/:id', cacheFor5Min, asyncHandler(TenantController.getTenantById));
 router.get('/tenants/:id/users', cacheFor5Min, asyncHandler(TenantController.getTenantUsers));
 router.put('/tenants/:id', asyncHandler(TenantController.updateTenant));
+router.patch('/tenants/:id', asyncHandler(TenantController.updateTenant));
 router.delete('/tenants/:id', asyncHandler(TenantController.deleteTenant));
 
 // Super Admin User Management Routes (with caching)

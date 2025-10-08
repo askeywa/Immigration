@@ -127,6 +127,8 @@ jobs:
           REDIS_ENABLED: ${{ secrets.REDIS_ENABLED }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          NODE_ENV: ${{ secrets.NODE_ENV || 'development' }}
+          REDIS_CLUSTER_MODE: ${{ secrets.REDIS_CLUSTER_MODE || 'false' }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_RELEASE: ${{ secrets.SENTRY_RELEASE }}
           SENTRY_TRACES_SAMPLE_RATE: ${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}
@@ -139,7 +141,7 @@ jobs:
           ALLOWED_SUPER_ADMIN_DOMAINS: ${{ secrets.ALLOWED_SUPER_ADMIN_DOMAINS }}
         run: |
           cat > env.production << 'EOF'
-            NODE_ENV=production
+            NODE_ENV=${{ secrets.NODE_ENV || 'development' }}
             PORT=5000
           FRONTEND_URL=${{ secrets.FRONTEND_URL }}
           
@@ -167,6 +169,7 @@ jobs:
           REDIS_ENABLED=${{ secrets.REDIS_ENABLED }}
           REDIS_URL=${{ secrets.REDIS_URL }}
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          REDIS_CLUSTER_MODE=${{ secrets.REDIS_CLUSTER_MODE || 'false' }}
           
           # Sentry
           SENTRY_DSN=${{ secrets.SENTRY_DSN }}

@@ -307,11 +307,13 @@ export class TenantService {
         await adminUser.save({ session });
         console.log('✅ Step 4: Admin user created successfully with ID:', adminUser._id);
 
-        // 5. Setup Cloudflare DNS (if configured)
+        // 5. Setup Cloudflare DNS (if configured) - Skip in development for faster response
         console.log('📝 Step 5: Setting up Cloudflare DNS...');
         let dnsSetup = null;
-        try {
-          if (process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ZONE_ID) {
+        
+        // Skip DNS setup in development to improve response time
+        if (process.env.NODE_ENV === 'production' && process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ZONE_ID) {
+          try {
             const cloudflareService = CloudflareService.getInstance();
             const isConnected = await cloudflareService.testConnection();
             
@@ -345,22 +347,22 @@ export class TenantService {
               console.log('⚠️ Step 5: Cloudflare connection failed, skipping DNS setup');
               dnsSetup = { success: false, error: 'Cloudflare connection failed' };
             }
-          } else {
-            console.log('⚠️ Step 5: Cloudflare not configured, skipping DNS setup');
-            dnsSetup = { success: false, error: 'Cloudflare not configured' };
+          } catch (dnsError) {
+            console.error('❌ Step 5: DNS setup failed:', dnsError);
+            dnsSetup = { 
+              success: false, 
+              error: dnsError instanceof Error ? dnsError.message : String(dnsError) 
+            };
+            // Don't fail tenant creation if DNS setup fails
+            log.warning('DNS setup failed for tenant', {
+              tenantId: (tenant._id as any).toString(),
+              domain: tenantData.domain,
+              error: dnsError instanceof Error ? dnsError.message : String(dnsError)
+            });
           }
-        } catch (dnsError) {
-          console.error('❌ Step 5: DNS setup failed:', dnsError);
-          dnsSetup = { 
-            success: false, 
-            error: dnsError instanceof Error ? dnsError.message : String(dnsError) 
-          };
-          // Don't fail tenant creation if DNS setup fails
-          log.warning('DNS setup failed for tenant', {
-            tenantId: (tenant._id as any).toString(),
-            domain: tenantData.domain,
-            error: dnsError instanceof Error ? dnsError.message : String(dnsError)
-          });
+        } else {
+          console.log('⚠️ Step 5: Skipping DNS setup in development mode');
+          dnsSetup = { success: false, error: 'Skipped in development' };
         }
 
         return {

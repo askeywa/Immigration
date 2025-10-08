@@ -37,21 +37,21 @@ export const UserRoutes = {
 
 // Preload functions for each route group
 export const preloadSuperAdminRoutes = async () => {
-  const components = Object.values(SuperAdminRoutes);
-  await Promise.all(components.map(component => component({})));
-  console.log('✅ Super Admin routes preloaded');
+  // Preloading lazy components is not directly supported by React.lazy
+  // The components will be loaded on first render
+  console.log('✅ Super Admin routes registered for lazy loading');
 };
 
 export const preloadTenantAdminRoutes = async () => {
-  const components = Object.values(TenantAdminRoutes);
-  await Promise.all(components.map(component => component({})));
-  console.log('✅ Tenant Admin routes preloaded');
+  // Preloading lazy components is not directly supported by React.lazy
+  // The components will be loaded on first render
+  console.log('✅ Tenant Admin routes registered for lazy loading');
 };
 
 export const preloadUserRoutes = async () => {
-  const components = Object.values(UserRoutes);
-  await Promise.all(components.map(component => component({})));
-  console.log('✅ User routes preloaded');
+  // Preloading lazy components is not directly supported by React.lazy
+  // The components will be loaded on first render
+  console.log('✅ User routes registered for lazy loading');
 };
 
 // Smart preloader that preloads based on user role
