@@ -14,28 +14,28 @@ const router = Router();
 router.use(authenticate);
 router.use(authorize('super_admin'));
 
-// Cache middleware for GET requests (5 minute cache)
-const cacheFor5Min = superAdminCacheMiddleware(5 * 60 * 1000);
+// Cache middleware for GET requests (1 second cache for instant updates with optimistic UI)
+const cacheFor1Sec = superAdminCacheMiddleware(1 * 1000);
 
 // Super Admin Tenant Management Routes (with caching)
-router.get('/tenants', cacheFor5Min, asyncHandler(TenantController.getAllTenants));
+router.get('/tenants', cacheFor1Sec, asyncHandler(TenantController.getAllTenants));
 router.post('/tenants', asyncHandler(TenantController.createTenant));
-router.get('/tenants/:id', cacheFor5Min, asyncHandler(TenantController.getTenantById));
-router.get('/tenants/:id/users', cacheFor5Min, asyncHandler(TenantController.getTenantUsers));
+router.get('/tenants/:id', cacheFor1Sec, asyncHandler(TenantController.getTenantById));
+router.get('/tenants/:id/users', cacheFor1Sec, asyncHandler(TenantController.getTenantUsers));
 router.put('/tenants/:id', asyncHandler(TenantController.updateTenant));
 router.patch('/tenants/:id', asyncHandler(TenantController.updateTenant));
 router.delete('/tenants/:id', asyncHandler(TenantController.deleteTenant));
 
 // Super Admin User Management Routes (with caching)
-router.get('/users', cacheFor5Min, getAllUsers);
+router.get('/users', cacheFor1Sec, getAllUsers);
 router.delete('/users/:id', deleteUser);
 
 // Super Admin Reports Routes (with caching)
-router.get('/reports', cacheFor5Min, getSystemReports);
+router.get('/reports', cacheFor1Sec, getSystemReports);
 router.get('/reports/export', exportSystemReport);
 
 // Super Admin Analytics Routes (with caching)
-router.get('/analytics', cacheFor5Min, getSystemAnalytics);
+router.get('/analytics', cacheFor1Sec, getSystemAnalytics);
 router.get('/analytics/tenant/:tenantId', asyncHandler(async (req, res) => {
   const { tenantId } = req.params;
   res.json({

@@ -152,9 +152,12 @@ interface CreateTenantFormProps {
     };
   };
   resetTrigger?: number; // Add reset trigger prop
+  onSetCreateError: (error: string | null) => void;
+  onSetCreateFieldErrors: (errors: any) => void;
+  onResetForm: () => void;
 }
 
-const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel, isLoading, fieldErrors = {}, resetTrigger }) => {
+const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel, isLoading, fieldErrors = {}, resetTrigger, onSetCreateError, onSetCreateFieldErrors, onResetForm }) => {
   // Use refs for uncontrolled inputs to ensure they start completely empty
   const nameRef = React.useRef<HTMLInputElement>(null);
   const domainRef = React.useRef<HTMLInputElement>(null);
@@ -175,7 +178,12 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('✅ Form submit triggered');
+    
+    // Clear all error states first
     setValidationError(null);
+    onSetCreateError(null);
+    onSetCreateFieldErrors({});
     
     // Collect data from refs
     const fullName = firstNameRef.current?.value?.trim() || '';
@@ -192,6 +200,8 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
         password: passwordRef.current?.value || ''
       }
     };
+    
+    console.log('📋 Form data collected:', formData);
     
     // Validate required fields with user feedback
     if (!formData.name.trim()) {
@@ -214,13 +224,25 @@ const CreateTenantForm: React.FC<CreateTenantFormProps> = ({ onSubmit, onCancel,
       emailRef.current?.focus();
       return;
     }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.adminUser.email)) {
+      setValidationError('Please enter a valid email address (e.g., admin@company.com)');
+      emailRef.current?.focus();
+      return;
+    }
     if (!formData.adminUser.password.trim()) {
       setValidationError('Admin password is required');
       passwordRef.current?.focus();
       return;
     }
     
+    // Clear validation error before submitting
+    setValidationError(null);
+    console.log('✅ About to call onSubmit');
     onSubmit(formData);
+    console.log('✅ onSubmit called successfully');
   };
 
   return (
@@ -596,8 +618,9 @@ const SuperAdminTenants: React.FC = () => {
       console.log('🔍 SuperAdminTenants: Starting fetchTenants...');
       
       // Fetch ALL tenants for client-side filtering and pagination
-      // Removed cache-busting parameter to enable backend caching
-      const response = await superAdminApi.get(`/super-admin/tenants?page=1&limit=1000`); // Get all tenants
+      // Add cache buster to force fresh data for live updates
+      const timestamp = new Date().getTime();
+      const response = await superAdminApi.get(`/super-admin/tenants?page=1&limit=1000&_t=${timestamp}`); // Get all tenants
       console.log('🔍 SuperAdminTenants: API response:', response);
       console.log('🔍 SuperAdminTenants: Tenants data:', response.data?.data?.tenants);
       console.log('🔍 SuperAdminTenants: Pagination data:', response.data?.pagination);
@@ -751,6 +774,7 @@ const SuperAdminTenants: React.FC = () => {
       password: string;
     };
   }) => {
+    console.log('✅ createTenant() called with:', tenantData);
     setIsCreating(true);
     setCreateError(null);
     setCreateFieldErrors({});
@@ -794,15 +818,20 @@ const SuperAdminTenants: React.FC = () => {
         
         // Check for success - handle both explicit true/false and undefined (which means success)
         if (backendResponse.success === true || backendResponse.success === undefined || backendResponse.tenant) {
-          setShowCreateModal(false);
           setCreateError(null);
           setCreateFieldErrors({});
-          // Refresh the tenant list and reset pagination
+          
+          // Close modal and show success notification immediately
+          showNotification('✅ Tenant created successfully!', 'success');
+          setShowCreateModal(false);
+          setCreateModalResetTrigger(prev => prev + 1);
+          
+          // Immediate refetch to show new tenant (no delay)
           setCurrentPage(1);
           await fetchTenants();
-          // Show success notification
-          showNotification('✅ Tenant created successfully!', 'success');
+          
           console.log('✅ SuperAdminTenants: Tenant created successfully');
+          return;
         } else {
           setCreateError(backendResponse.message || 'Failed to create tenant');
           console.log('❌ SuperAdminTenants: Backend indicated failure:', backendResponse);
@@ -870,6 +899,11 @@ const SuperAdminTenants: React.FC = () => {
     } finally {
       setIsCreating(false);
     }
+  };
+
+  const resetCreateForm = () => {
+    setCreateError(null);
+    setCreateFieldErrors({});
   };
 
   const handleViewDetails = async (tenant: Tenant) => {
@@ -1008,28 +1042,74 @@ const SuperAdminTenants: React.FC = () => {
   };
 
   const confirmDelete = async () => {
-    if (!tenantToDelete) return;
+    if (!tenantToDelete) {
+      console.error('❌ No tenant selected for deletion');
+      return;
+    }
 
     setIsDeleting(true);
+    console.log('🗑️ SuperAdminTenants: Deleting tenant:', tenantToDelete._id);
+    
+    // OPTIMISTIC UPDATE: Save tenant for potential rollback
+    const deletedTenantId = tenantToDelete._id;
+    const deletedTenant = { ...tenantToDelete };
+    
+    // Remove from UI immediately (optimistic)
+    setTenants(prevTenants =>
+      prevTenants.filter(t => t._id !== deletedTenantId)
+    );
+    
+    // Update statistics immediately
+    setTenantStats(prev => ({
+      total: Math.max(0, prev.total - 1),
+      active: deletedTenant.status === 'active' ? Math.max(0, prev.active - 1) : prev.active,
+      trial: deletedTenant.status === 'trial' ? Math.max(0, prev.trial - 1) : prev.trial,
+      suspended: deletedTenant.status === 'suspended' ? Math.max(0, prev.suspended - 1) : prev.suspended,
+    }));
+    
+    // Close modal and show success immediately
+    setShowDeleteModal(false);
+    setTenantToDelete(null);
+    showNotification('✅ Tenant deleted successfully!', 'success');
+    
     try {
-      console.log('🗑️ SuperAdminTenants: Deleting tenant:', tenantToDelete._id);
-      
-      const result = await superAdminApi.delete(`/super-admin/tenants/${tenantToDelete._id}`);
+      const result = await superAdminApi.delete(`/super-admin/tenants/${deletedTenantId}`);
       
       console.log('🗑️ SuperAdminTenants: Delete result:', result);
-      
-      if (result.data?.success) {
-        setShowDeleteModal(false);
-        setTenantToDelete(null);
-        await fetchTenants(); // Refresh the list and statistics
-        console.log('✅ SuperAdminTenants: Tenant deleted successfully!');
+
+      if (result.data?.success || result.status === 200) {
+        console.log('✅ Tenant deleted successfully - confirmed by server');
+        
+        // Immediate refetch to sync accurate stats
+        await fetchTenants();
+        
       } else {
-        console.error('❌ Failed to delete tenant:', result.data?.message);
-        alert(`Failed to delete tenant: ${result.data?.message || 'Unknown error'}`);
+        // ROLLBACK: Server returned unsuccessful response
+        const errorMessage = result.data?.message || 'Failed to delete tenant';
+        console.error('❌ Backend returned unsuccessful response:', result.data);
+        
+        // Restore the deleted tenant to the list
+        await fetchTenants();
+        
+        showNotification(errorMessage, 'error');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error deleting tenant:', error);
-      alert(`Error deleting tenant: ${error.message || 'Unknown error'}`);
+      
+      // ROLLBACK: Restore tenant list on error
+      await fetchTenants();
+      
+      let errorMessage = 'Error deleting tenant';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      showNotification(errorMessage, 'error');
     } finally {
       setIsDeleting(false);
     }
@@ -1183,9 +1263,32 @@ const SuperAdminTenants: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
-    if (!selectedTenant || !editFormData) return;
+    if (!selectedTenant || !editFormData) {
+      showNotification('No tenant or data selected', 'error');
+      return;
+    }
 
     setIsSaving(true);
+    console.log('🔄 Saving tenant changes:', editFormData);
+    
+    // OPTIMISTIC UPDATE: Save original state for rollback
+    const originalTenant = { ...selectedTenant };
+    const updatedTenant = { ...selectedTenant, ...editFormData };
+    
+    // Update UI immediately (optimistic)
+    setSelectedTenant(updatedTenant);
+    setTenants(prevTenants =>
+      prevTenants.map(t => 
+        t._id === selectedTenant._id ? updatedTenant : t
+      )
+    );
+    
+    // Close modal and show success immediately
+    setIsEditing(false);
+    setEditFormData(null);
+    setShowManageModal(false);
+    showNotification('✅ Tenant updated successfully!', 'success');
+    
     try {
       const result = await superAdminApi.patch(`/super-admin/tenants/${selectedTenant._id}`, {
         ...editFormData,
@@ -1193,21 +1296,51 @@ const SuperAdminTenants: React.FC = () => {
         lastModified: new Date().toISOString()
       });
 
-      if (result.data?.success) {
-        // Update the selected tenant data to reflect changes
-        setSelectedTenant({ ...selectedTenant, ...editFormData });
-        setIsEditing(false);
-        setEditFormData(null);
-        setShowManageModal(false); // Close the modal after successful save
-        await fetchTenants(); // Refresh the list and statistics
-        console.log('✅ SuperAdminTenants: Tenant updated successfully!');
-        showNotification('✅ Tenant updated successfully!', 'success');
+      console.log('✅ Save response:', result);
+
+      if (result.data?.success || result.status === 200) {
+        console.log('✅ Tenant updated successfully - confirmed by server');
+        
+        // Immediate refetch to sync accurate data (stats, timestamps, etc.)
+        await fetchTenants();
+        
       } else {
-        showNotification(`Failed to update tenant: ${result.data?.message || 'Unknown error'}`, 'error');
+        // ROLLBACK: Server returned unsuccessful response
+        const errorMessage = result.data?.message || 'Failed to update tenant';
+        console.error('❌ Backend returned unsuccessful response:', result.data);
+        
+        // Restore original data
+        setSelectedTenant(originalTenant);
+        setTenants(prevTenants =>
+          prevTenants.map(t => 
+            t._id === selectedTenant._id ? originalTenant : t
+          )
+        );
+        
+        showNotification(errorMessage, 'error');
       }
-    } catch (error) {
-      console.error('Error updating tenant:', error);
-      showNotification(`Error updating tenant: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+    } catch (error: any) {
+      console.error('❌ Error updating tenant:', error);
+      
+      // ROLLBACK: Restore original data on error
+      setSelectedTenant(originalTenant);
+      setTenants(prevTenants =>
+        prevTenants.map(t => 
+          t._id === selectedTenant._id ? originalTenant : t
+        )
+      );
+      
+      let errorMessage = 'Error updating tenant';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      showNotification(errorMessage, 'error');
     } finally {
       setIsSaving(false);
     }
@@ -1756,6 +1889,9 @@ const SuperAdminTenants: React.FC = () => {
           isLoading={isCreating}
           fieldErrors={createFieldErrors}
           resetTrigger={createModalResetTrigger}
+          onSetCreateError={setCreateError}
+          onSetCreateFieldErrors={setCreateFieldErrors}
+          onResetForm={resetCreateForm}
         />
       </Modal>
 

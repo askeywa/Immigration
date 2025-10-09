@@ -373,8 +373,12 @@ export class TenantController {
 
       const tenant = await TenantService.createTenant(tenantData);
 
+      // Invalidate tenant cache after creation
+      const tenantId = (tenant as any).tenant?._id || (tenant as any)._id;
+      await CacheInvalidation.invalidateTenantCache(tenantId);
+
       log.info('Tenant created', { 
-        tenantId: (tenant as any).tenant?._id || (tenant as any)._id,
+        tenantId,
         tenantName: (tenant as any).tenant?.name || (tenant as any).name,
         createdBy: req.user?._id 
       });
